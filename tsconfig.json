@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "es6",
+    "lib": [
+      "esnext",
+      "dom"
+    ],
+    "allowJs": true,
+    "outDir": "./dist",
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "alwaysStrict": true,
+    "moduleResolution": "node",
+    "typeRoots": [
+      "node_modules/@types",
+    ]
+  },
+  "include": [
+    "src"
+  ]
+}
