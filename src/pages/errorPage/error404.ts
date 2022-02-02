@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Render } from '../../common/utils';
 
-class Main extends Render {}
+class Error404 extends Render {}
 
-export default Main;
+export default Error404;
