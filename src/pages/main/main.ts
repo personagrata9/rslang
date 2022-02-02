@@ -1,6 +1,9 @@
-/* eslint-disable prettier/prettier */
-import { Render } from '../../common/utils';
-
-class Main extends Render {}
-
+class Main {
+  render() {
+    console.log('Main');
+    const main = document.createElement('div');
+    main.innerHTML = 'main';
+    return main;
+  }
+}
 export default Main;

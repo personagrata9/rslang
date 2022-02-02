@@ -1,6 +1,9 @@
-/* eslint-disable prettier/prettier */
-import { Render } from '../../common/utils';
-
-class Aside extends Render {}
-
+class Aside {
+  render() {
+    console.log('aside');
+    const aside = document.createElement('aside');
+    aside.innerHTML = 'aside';
+    return aside;
+  }
+}
 export default Aside;

@@ -1,6 +1,9 @@
-/* eslint-disable prettier/prettier */
-import { Render } from '../../common/utils';
-
-class Minigames extends Render {}
-
+class Minigames {
+  render() {
+    console.log('Minigames');
+    const minigames = document.createElement('div');
+    minigames.innerHTML = 'minigames';
+    return minigames;
+  }
+}
 export default Minigames;

@@ -1,6 +1,9 @@
-/* eslint-disable prettier/prettier */
-import { Render } from '../../common/utils';
-
-class Footer extends Render {}
-
+class Footer {
+  render() {
+    console.log('footer');
+    const footer = document.createElement('footer');
+    footer.innerHTML = 'footer';
+    return footer;
+  }
+}
 export default Footer;

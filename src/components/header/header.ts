@@ -1,6 +1,9 @@
-/* eslint-disable prettier/prettier */
-import { Render } from '../../common/utils';
-
-class Header extends Render {}
-
+class Header {
+  render() {
+    console.log('header');
+    const header = document.createElement('header');
+    header.innerHTML = 'header';
+    return header;
+  }
+}
 export default Header;

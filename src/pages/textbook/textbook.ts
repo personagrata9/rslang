@@ -1,6 +1,9 @@
-/* eslint-disable prettier/prettier */
-import { Render } from '../../common/utils';
-
-class Textbook extends Render {}
-
+class Textbook {
+  render() {
+    console.log('Textbook');
+    const textbook = document.createElement('div');
+    textbook.innerHTML = 'Textbook';
+    return textbook;
+  }
+}
 export default Textbook;
