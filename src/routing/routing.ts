@@ -3,7 +3,7 @@ import Textbook from '../pages/textbook/textbook';
 import Minigames from '../pages/minigames/minigames';
 import Statistics from '../pages/statistics/statistics';
 
-type ClassesType = {
+type RoutesType = {
   [key: string]: Main | Minigames | Statistics | Textbook;
 };
 
@@ -12,7 +12,7 @@ const textbook = new Textbook();
 const minigames = new Minigames();
 const statistics = new Statistics();
 
-const routes: ClassesType = {
+const routes: RoutesType = {
   '': main,
   '#minigames': minigames,
   '#textbook': textbook,

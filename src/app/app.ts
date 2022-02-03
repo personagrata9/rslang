@@ -42,14 +42,12 @@ class App {
   };
 
   route = (): void => {
-    const mainContainer = document.querySelector('.content-container') as HTMLElement;
+    const contentContainer = document.querySelector('.content-container') as HTMLElement;
     const parsedURL = checkHash();
     console.log(parsedURL);
     const page = routes[parsedURL] || new Error404();
-    mainContainer.innerHTML = '';
-    mainContainer.append(page.render());
-    // clear mainContainerContent
-    // render mainContainerContent -> page.render
+    contentContainer.innerHTML = '';
+    contentContainer.append(page.render());
     // page.addListeners
   };
 }
