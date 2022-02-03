@@ -1,0 +1,69 @@
+export interface ISignUser {
+  email: string;
+  password: string;
+}
+
+export interface INewUser extends ISignUser {
+  name: string;
+}
+
+export interface IUser extends ISignUser {
+  id: string;
+}
+
+export interface ISignUserData {
+  message: 'string';
+  token: 'string';
+  refreshToken: 'string';
+  userId: 'string';
+  name: 'string';
+}
+
+export interface IWord {
+  id: 'string';
+  group: number;
+  page: number;
+  word: 'string';
+  image: 'string';
+  audio: 'string';
+  audioMeaning: 'string';
+  audioExample: 'string';
+  textMeaning: 'string';
+  textExample: 'string';
+  transcription: 'string';
+  wordTranslate: 'string';
+  textMeaningTranslate: 'string';
+  textExampleTranslate: 'string';
+}
+
+export interface IUserWord {
+  userId: string;
+  wordId: string;
+}
+
+export type DifficultyType = 'hard' | 'easy';
+
+export interface INewUserWordData {
+  difficulty: DifficultyType;
+  optional?: IOptional;
+}
+
+export interface INewUserWord extends IUserWord {
+  wordData?: INewUserWordData;
+}
+
+export interface IOptional {
+  [key: string]: string;
+}
+
+export interface IStatistics {
+  id?: string;
+  learnedWords: string;
+  optional?: IOptional;
+}
+
+export enum Methods {
+  post = 'POST',
+  put = 'PUT',
+  delete = 'DELETE',
+}
