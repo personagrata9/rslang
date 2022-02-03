@@ -1,0 +1,59 @@
+@import "../../styles/common";
+
+$orange: #e17719;
+
+.textbook-navigation-container {
+  background-color: $gray-light;
+  overflow: hidden;
+  border-radius: 5px;
+
+  .navbar-nav {
+    flex-direction: row;
+  }
+
+  li {
+    flex-grow: 1;
+    text-align: center;
+    margin: 5px;
+    border-radius: 5px;
+    color: #ffffff;
+    opacity: 0.7;
+      .learned {
+        margin: 0;
+        border-radius: 0;
+      }
+      .active {
+        opacity: 1;
+        transform: translateY(20%);
+      }
+  }
+
+  li:nth-child(1) {
+    background-color: $turquoise;
+  }
+
+  li:nth-child(2) {
+    background-color: $turquoise-dark;
+  }
+
+  li:nth-child(3) {
+    background-color: $gray;
+  }
+
+  li:nth-child(4) {
+    background-color: $gray-dark;
+  }
+
+  li:nth-child(5) {
+    background-color: $yellow;
+  }
+
+  li:nth-child(6) {
+    background-color: $yellow-dark;
+  }
+
+  li:nth-child(7) {
+    background-color: $orange;
+  }
+
+}
