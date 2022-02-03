@@ -1,7 +1,3 @@
 @import "../../node_modules/bootstrap/scss/bootstrap.scss";
-
-$primary-color: red;
-
-body {
-  background-color: $primary-color;
-}
+@import "./common";
+@import "../pages/textbook/textbook.scss";
