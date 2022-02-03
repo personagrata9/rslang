@@ -1,9 +1,8 @@
-/* eslint-disable prettier/prettier */
 import Header from '../components/header/header';
 import Aside from '../components/aside-bar/aside-bar';
 import Footer from '../components/footer/footer';
 import { createDivElement, checkHash } from '../common/utils';
-import { BODY } from '../common/constants';
+import BODY from '../common/constants';
 import routes from '../routing/routing';
 import Error404 from '../pages/errorPage/error404';
 
