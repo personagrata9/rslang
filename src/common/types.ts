@@ -67,3 +67,16 @@ export enum Methods {
   put = 'PUT',
   delete = 'DELETE',
 }
+
+export enum Colors {
+  TurquoiseDark = '#005365',
+  Turquoise = '#44929f',
+  TurquoiseLight = '#c8e8ed',
+  GrayDark = '#949597',
+  Gray = '#c1bdb4',
+  GrayLight = '#e2e2e2',
+  YellowDark = '#c29400',
+  Yellow = '#ebd567',
+  YellowLight = '#fbf0a7',
+  Orange = '#e17719',
+}
