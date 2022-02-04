@@ -2,7 +2,7 @@ import Header from '../components/header/header';
 import Aside from '../components/aside-bar/aside-bar';
 import Footer from '../components/footer/footer';
 import { createDivElement, checkHash } from '../common/utils';
-import BODY from '../common/constants';
+import { BODY } from '../common/constants';
 import routes from '../routing/routing';
 import Error404 from '../pages/errorPage/error404';
 
@@ -40,13 +40,13 @@ class App {
     this.addComponentsListeners();
   };
 
-  route = (): void => {
+  route = async (): Promise<void> => {
     const contentContainer = document.querySelector('.content-container') as HTMLElement;
     const parsedURL = checkHash();
     console.log(parsedURL);
     const page = routes[parsedURL] || new Error404();
     contentContainer.innerHTML = '';
-    contentContainer.append(page.render());
+    await page.render().then((content: HTMLDivElement) => contentContainer.append(content));
     // page.addListeners
   };
 }

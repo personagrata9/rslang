@@ -3,8 +3,12 @@ import 'bootstrap';
 import App from './app/app';
 
 const app = new App();
-window.addEventListener('load', () => {
+
+window.onload = async (): Promise<void> => {
   app.start();
-  app.route();
-});
-window.addEventListener('hashchange', () => app.route());
+  await app.route();
+};
+
+window.onhashchange = async (): Promise<void> => {
+  await app.route();
+};
