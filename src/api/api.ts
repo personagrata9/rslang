@@ -1,3 +1,4 @@
+import { BASE_URL } from '../common/constants';
 import {
   INewUser,
   INewUserWord,
@@ -16,7 +17,7 @@ class Api {
   public token: string;
 
   constructor() {
-    this.url = 'http://localhost:3000';
+    this.url = BASE_URL;
     this.token = localStorage.getItem('UserToken') || '';
   }
 
