@@ -20,3 +20,23 @@ export const createLiElement = (className: string): HTMLLIElement => {
 
   return element;
 };
+
+export const createHeadingElement = (
+  tagName: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6',
+  className: string,
+  textContent: string
+): HTMLHeadingElement => {
+  const element = document.createElement(tagName);
+  element.className = className;
+  element.textContent = textContent;
+
+  return element;
+};
+
+export const createParagraphElement = (className: string, innerHTML: string): HTMLParagraphElement => {
+  const element = document.createElement('p');
+  element.className = className;
+  element.innerHTML = innerHTML;
+
+  return element;
+};
