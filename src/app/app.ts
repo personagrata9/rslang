@@ -23,7 +23,7 @@ class App {
     const wrapperElement = createDivElement('wrapper');
     const aside = this.aside.render();
 
-    wrapperElement.append(aside, createDivElement('content-container container-fluid'));
+    wrapperElement.append(aside, createDivElement('content-container'));
 
     return wrapperElement;
   };
@@ -43,7 +43,6 @@ class App {
   route = (): void => {
     const contentContainer = document.querySelector('.content-container') as HTMLElement;
     const parsedURL = checkHash();
-    console.log(parsedURL);
     const page = routes[parsedURL] || new Error404();
     contentContainer.innerHTML = '';
     contentContainer.append(page.render());

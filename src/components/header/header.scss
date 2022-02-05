@@ -1,0 +1,60 @@
+@import "../../styles/common";
+.header {
+    height: 70px;
+    background: $gray-dark;
+    width: 100%;
+    z-index: 3;
+    padding: 10px 0;
+    .header-nav {
+        margin: auto 30px;
+        display: flex;
+        justify-content: space-between;
+        .left-part-header {
+            display: flex;
+            .hamburger {
+                width: 30px;
+                margin: auto 0;
+                cursor: pointer;
+    
+                &-line {
+                  width: 100%;
+                  height: 4px;
+                  background-color: white;
+                  display: block;
+                 
+                  -webkit-transition: all 0.3s ease-in-out;
+                  -o-transition: all 0.3s ease-in-out;
+                  transition: all 0.3s ease-in-out;
+                  
+                  &:nth-child(2){
+                     margin: 6px auto;
+                  }
+                }
+            }
+            .hamburger:hover > .hamburger-line{
+                background: orange;
+            }
+            .app-logo {
+                margin: auto 0px auto 30px;
+                font-size: 30px;
+                .rs {
+                    margin: auto 0;
+                    background: $turquoise;
+                    border-radius: 50%;
+                }
+                .lang {
+                    margin: auto 0;
+                    color: $white;
+                }
+            }
+        }
+        .page-name {
+            margin: auto 0;
+            font-size: 30px;
+            color: $white;
+        }
+        .btn {
+            margin: auto 0;
+        }
+    }
+}
