@@ -1,6 +1,12 @@
 import Api from '../../api/api';
 import { Colors, IWord } from '../../common/types';
-import { createDivElement, createLiElement, createUlElement } from '../../common/utils';
+import {
+  createButtonElement,
+  createDivElement,
+  createLiElement,
+  createNavElement,
+  createUlElement,
+} from '../../common/utils';
 import WordCard from '../../components/word-card/word-card';
 
 class Textbook {
@@ -17,7 +23,7 @@ class Textbook {
   private colors: string[];
 
   constructor() {
-    this.container = createDivElement('container textbook-container');
+    this.container = createDivElement('container', 'textbook-container');
     this.group = localStorage.getItem('group') || '0';
     this.page = localStorage.getItem('page') || '0';
     this.api = new Api();
@@ -33,12 +39,15 @@ class Textbook {
     ];
   }
 
-  private createNavigationBar = (): HTMLDivElement => {
-    const navigationContainerElement: HTMLDivElement = createDivElement(
-      'textbook-navigation-container shadow rounded-3 overflow-hidden'
+  private createNavigationBar = (): HTMLElement => {
+    const navElement: HTMLElement = createNavElement(
+      'textbook-group-navigation',
+      'shadow',
+      'rounded-3',
+      'overflow-hidden'
     );
-    const navElement: HTMLDivElement = createDivElement('nav-bar');
-    const listElement: HTMLUListElement = createUlElement('navbar-nav flex-row justify-content-around');
+
+    const listElement: HTMLUListElement = createUlElement('navbar-nav', 'flex-row', 'justify-content-around');
 
     navElement.append(listElement);
 
@@ -47,7 +56,7 @@ class Textbook {
       .map((_, i) => i);
 
     unitsIds.forEach((_, i) => {
-      const unitElement: HTMLLIElement = createLiElement('nav-item navbar-text rounded-3');
+      const unitElement: HTMLLIElement = createLiElement('nav-item', 'navbar-text', 'rounded-3');
       unitElement.id = `textbook-unit-${i}`;
       unitElement.textContent = `Unit ${i + 1}`;
       unitElement.style.backgroundColor = this.colors[i];
@@ -58,9 +67,7 @@ class Textbook {
       listElement.append(unitElement);
     });
 
-    navigationContainerElement.append(navElement);
-
-    return navigationContainerElement;
+    return navElement;
   };
 
   private getWordsItems = async (): Promise<void> => {
@@ -71,7 +78,12 @@ class Textbook {
 
   private createWordsCardsList = (): HTMLDivElement => {
     const listContainerElement: HTMLDivElement = createDivElement(
-      'container words-cards-list-container shadow rounded-3 d-flex flex-wrap'
+      'container',
+      'words-cards-list-container',
+      'd-flex',
+      'flex-wrap',
+      'shadow',
+      'rounded-3'
     );
 
     this.words.forEach((word: IWord) => {
@@ -85,7 +97,11 @@ class Textbook {
 
   render = async (): Promise<HTMLDivElement> => {
     await this.getWordsItems();
-    this.container.append(this.createNavigationBar(), this.createWordsCardsList());
+    this.container.append(
+      this.createNavigationBar(),
+      this.createWordsCardsList(),
+      createButtonElement('submit', '11', 'btn')
+    );
 
     return this.container;
   };
