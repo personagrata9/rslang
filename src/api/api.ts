@@ -41,7 +41,7 @@ class Api {
 
   loginUser = async (user: ISignUser): Promise<ISignUserData> => {
     const res = await fetch(`${this.url}/signin`, {
-      method: Methods.post,
+      method: Methods.Post,
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -57,7 +57,7 @@ class Api {
 
   createUser = async (user: INewUser): Promise<IUser> => {
     const res = await fetch(`${this.url}/users`, {
-      method: Methods.post,
+      method: Methods.Post,
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
@@ -78,7 +78,7 @@ class Api {
 
   deleteUser = async (id: string): Promise<void> => {
     await fetch(`${this.url}/users/${id}`, {
-      method: Methods.delete,
+      method: Methods.Delete,
       headers: {
         Authorization: `Bearer ${this.token}`,
       },
@@ -107,7 +107,7 @@ class Api {
 
   createUserWord = async ({ userId, wordId, wordData }: INewUserWord): Promise<void> => {
     await fetch(`${this.url}/users/${userId}/words/${wordId}`, {
-      method: Methods.post,
+      method: Methods.Post,
       headers: {
         Authorization: `Bearer ${this.token}`,
         Accept: 'application/json',
@@ -129,7 +129,7 @@ class Api {
 
   updateUserWord = async ({ userId, wordId, wordData }: INewUserWord): Promise<void> => {
     await fetch(`${this.url}/users/${userId}/words/${wordId}`, {
-      method: Methods.put,
+      method: Methods.Put,
       headers: {
         Authorization: `Bearer ${this.token}`,
         Accept: 'application/json',
@@ -141,7 +141,7 @@ class Api {
 
   delUserWordById = async ({ userId, wordId }: IUserWord): Promise<void> => {
     await fetch(`${this.url}/users/${userId}/words/${wordId}`, {
-      method: Methods.delete,
+      method: Methods.Delete,
       headers: {
         Authorization: `Bearer ${this.token}`,
         Accept: 'application/json',
@@ -161,7 +161,7 @@ class Api {
 
   updateStatistics = async (userId: string, options: IStatistics): Promise<void> => {
     await fetch(`${this.url}/users/${userId}/statistics`, {
-      method: Methods.put,
+      method: Methods.Put,
       headers: {
         Authorization: `Bearer ${this.token}`,
         Accept: 'application/json',

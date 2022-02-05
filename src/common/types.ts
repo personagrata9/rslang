@@ -63,9 +63,9 @@ export interface IStatistics {
 }
 
 export enum Methods {
-  post = 'POST',
-  put = 'PUT',
-  delete = 'DELETE',
+  Post = 'POST',
+  Put = 'PUT',
+  Delete = 'DELETE',
 }
 
 export enum Colors {
