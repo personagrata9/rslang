@@ -23,13 +23,13 @@ class App {
     const wrapperElement = createDivElement('wrapper');
     const aside = this.aside.render();
 
-    wrapperElement.append(aside, createDivElement('content-container'));
+    wrapperElement.append(aside, createDivElement('content-container container-fluid'));
 
     return wrapperElement;
   };
 
   private addComponentsListeners = (): void => {
-    // this.header.addListeners();
+    this.header.addListeners();
     // this.sidebar.addListeners();
     // this.footer.addListeners();
   };
