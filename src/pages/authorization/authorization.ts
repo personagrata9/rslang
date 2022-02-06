@@ -1,4 +1,10 @@
-import { createButtonElement, createDivElement, createFormElement, createInputElement } from '../../common/utils';
+import {
+  createButtonElement,
+  createDivElement,
+  createFormElement,
+  createHeadingElement,
+  createInputElement,
+} from '../../common/utils';
 import Api from '../../api/api';
 
 class LoginPopup {
@@ -14,20 +20,29 @@ class LoginPopup {
 
   private passwordInput: HTMLInputElement;
 
+  private repeatPasswordInput: HTMLInputElement;
+
+  private showPasswordBtn: HTMLInputElement;
+
+  private showPasswordTitle: HTMLSpanElement;
+
   constructor() {
     this.container = createDivElement('container', 'modal-container');
-    this.modalTitle = document.createElement('h5');
+    this.modalTitle = createHeadingElement('h5', 'Login');
     this.modalBody = createDivElement('modal-body');
     this.nameInput = createInputElement('text', 'name-input', 'Enter Name', 'form-control');
     this.emailInput = createInputElement('email', 'email-input', 'Enter email', 'form-control');
     this.passwordInput = createInputElement('password', 'password-input', 'Password', 'form-control');
+    this.repeatPasswordInput = createInputElement('password', 'repeat-password-input', 'Password', 'form-control');
+    this.showPasswordBtn = createInputElement('checkbox', 'passCheckbox', '', 'form-check-input', 'mt-1', 'me-1');
+    this.showPasswordTitle = document.createElement('span');
   }
 
   private createModal = (): HTMLDivElement => {
     this.container.innerHTML = '';
     this.modalBody.innerHTML = '';
     const modal = createDivElement('modal', 'fade', 'show');
-    modal.addEventListener('click', this.closeModal);
+    modal.onclick = this.closeModal;
     modal.style.display = 'block';
     const modalDialog = createDivElement('modal-dialog');
     modalDialog.onclick = function stopProp(e) {
@@ -35,29 +50,34 @@ class LoginPopup {
     };
     const modalContent = createDivElement('modal-content');
     const modalHeader = createDivElement('modal-header');
-    const closeBtn = createButtonElement('button', '✖', 'close-modal-btn');
+    const closeBtn = createButtonElement('button', '', 'btn-close');
     closeBtn.addEventListener('click', this.closeModal);
     const modalFooter = createDivElement('modal-footer');
     const signBtn = createButtonElement('submit', 'Sign in', 'btn', 'btn-primary', 'btn-sign');
-    const toRegBtn = createButtonElement('button', 'Sign up', 'btn', 'btn-link');
-    const toSignBtn = createButtonElement('button', 'Sign in', 'btn', 'btn-link');
+    const toRegBtn = createButtonElement('button', "Don't have an account? Sign Up", 'btn', 'btn-link');
+    const toSignBtn = createButtonElement('button', 'Do you have an account? Sign In', 'btn', 'btn-link');
     const repeatPasswordLabel = document.createElement('label');
-    // const showPasswordBtn = createInputElement('radio', 'passCheckbox');
+    this.showPasswordTitle.textContent = 'Show password';
     repeatPasswordLabel.textContent = 'Repeat your password';
-    const repeatPasswordInput = createInputElement('password', 'password-input', 'Password', 'form-control');
     toRegBtn.addEventListener('click', () => {
       this.modalBody.prepend(this.registrationModal());
-      this.modalBody.append(repeatPasswordLabel);
-      this.modalBody.append(repeatPasswordInput);
-      this.modalBody.append(toSignBtn);
+      this.modalBody.append(
+        repeatPasswordLabel,
+        this.repeatPasswordInput,
+        this.showPasswordBtn,
+        this.showPasswordTitle,
+        toSignBtn
+      );
+      signBtn.textContent = 'Sign up';
+      this.modalTitle.textContent = 'Register';
       toRegBtn.remove();
     });
     toSignBtn.addEventListener('click', () => {
       this.nameInput.value = '';
-      repeatPasswordLabel.remove();
-      repeatPasswordInput.remove();
+      signBtn.textContent = 'Sign in';
       this.createModal();
     });
+    this.showPasswordBtn.onclick = this.showPassword;
     signBtn.setAttribute('form', 'login');
     this.modalBody.append(this.loginModal(), toRegBtn);
     signBtn.onclick = this.registerOrLogin;
@@ -84,7 +104,7 @@ class LoginPopup {
     this.emailInput.addEventListener('input', this.mailChecker);
     formGroupEmail.append(emailLabel, this.emailInput);
     formGroupPassword.append(passwordLabel, this.passwordInput);
-    loginForm.append(formGroupEmail, formGroupPassword);
+    loginForm.append(formGroupEmail, formGroupPassword, this.showPasswordBtn, this.showPasswordTitle);
     return loginForm;
   };
 
@@ -111,10 +131,12 @@ class LoginPopup {
     const target = <HTMLInputElement>e.target;
     const regexEmail = /([0-9a-z_-]{3,15})+(@)+([a-z]{4,20}\.[a-z]{2,4}$)/i;
     if (target.value.match(regexEmail) == null) {
-      target.classList.add('redBorder');
+      target.classList.add('is-invalid');
+      target.classList.remove('is-valid');
       target.setCustomValidity('Invalid email(example username@example.com)');
     } else {
-      target.classList.remove('redBorder');
+      target.classList.remove('is-invalid');
+      target.classList.add('is-valid');
     }
   };
 
@@ -122,10 +144,12 @@ class LoginPopup {
     const target = <HTMLInputElement>e.target;
     const regexName = /^[a-zA-Zа-яА-я\s]{3,15}$/;
     if (target.value.match(regexName) == null) {
-      target.classList.add('redBorder');
+      target.classList.add('is-invalid');
+      target.classList.remove('is-valid');
       target.setCustomValidity('Invalid name(letters only)');
     } else {
-      target.classList.remove('redBorder');
+      target.classList.remove('is-invalid');
+      target.classList.add('is-valid');
     }
   };
 
@@ -150,6 +174,16 @@ class LoginPopup {
       };
       const api = new Api();
       await api.loginUser(user);
+    }
+  };
+
+  showPassword = () => {
+    if (this.repeatPasswordInput.type === 'password' && this.passwordInput.type === 'password') {
+      this.repeatPasswordInput.type = 'text';
+      this.passwordInput.type = 'text';
+    } else {
+      this.repeatPasswordInput.type = 'password';
+      this.passwordInput.type = 'password';
     }
   };
 }
