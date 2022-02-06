@@ -57,8 +57,8 @@ class LoginPopup {
     closeBtn.addEventListener('click', this.closeModal);
     const modalFooter = createDivElement('modal-footer');
     const signBtn = createButtonElement('submit', 'Sign in', 'btn', 'btn-primary', 'btn-sign');
-    const toRegBtn = createButtonElement('button', "Don't have an account? Sign Up", 'btn', 'btn-link');
-    const toSignBtn = createButtonElement('button', 'Do you have an account? Sign In', 'btn', 'btn-link');
+    const toRegBtn = createButtonElement('button', "Don't have an account? Sign Up!", 'btn', 'btn-link');
+    const toSignBtn = createButtonElement('button', 'Do you have an account? Sign In!', 'btn', 'btn-link');
     const repeatPasswordLabel = document.createElement('label');
     this.showPassWrapper.append(this.showPasswordBtn, this.showPasswordTitle);
     this.showPasswordTitle.textContent = 'Show password';

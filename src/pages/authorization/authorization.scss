@@ -13,6 +13,9 @@ body {
   .form-control:focus {
     border-color: $turquoise-dark;
   }
+  label {
+    font-size: 15px;
+  }
 }
 
 .modal-header {
@@ -24,6 +27,10 @@ body {
 
 .modal-footer {
   background-color: $yellow-light;
+}
+
+.modal-body {
+  color: $turquoise-dark;
 }
 
 .fade {
