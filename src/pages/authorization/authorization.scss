@@ -1,3 +1,5 @@
+@import "src/styles/common";
+
 body {
   height: 100vh;
 }
@@ -8,10 +10,34 @@ body {
   display: flex;
   position: absolute;
   width: auto;
+}
 
+.close-modal-btn {
+  font-size: 20px;
+  padding: 0.75rem;
+  transform: rotate(45deg);
+  background: none;
+  border: none;
 }
 
 .fade {
   background: black;
   opacity: 0.7;
+  z-index: 10;
 }
+
+.modal-dialog {
+  z-index: 20;
+}
+
+.btn-sign{
+  background-color: $turquoise-dark;
+  border-color: $turquoise-dark;
+}
+
+.btn-sign:hover{
+  background-color: $turquoise;
+  border-color: $turquoise;
+}
+
+
