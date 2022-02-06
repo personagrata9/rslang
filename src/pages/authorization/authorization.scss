@@ -10,6 +10,9 @@ body {
   display: flex;
   position: absolute;
   width: auto;
+  .form-control:focus {
+    border-color: $turquoise-dark;
+  }
 }
 
 .close-modal-btn {
@@ -38,6 +41,13 @@ body {
 .btn-sign:hover{
   background-color: $turquoise;
   border-color: $turquoise;
+}
+
+.redBorder {
+  color: red;
+  :focus {
+    color: red;
+  }
 }
 
 
