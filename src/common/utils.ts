@@ -99,7 +99,7 @@ export const createFormElement = (name: string, ...classNames: string[]): HTMLFo
 };
 
 export const createInputElement = (
-  type: 'text' | 'email' | 'password',
+  type: 'text' | 'email' | 'password' | 'checkbox',
   id: string,
   placeholder: string,
   ...classNames: string[]
