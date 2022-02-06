@@ -26,6 +26,8 @@ class LoginPopup {
 
   private showPasswordTitle: HTMLSpanElement;
 
+  private showPassWrapper: HTMLDivElement;
+
   constructor() {
     this.container = createDivElement('container', 'modal-container');
     this.modalTitle = createHeadingElement('h5', 'Login');
@@ -36,6 +38,7 @@ class LoginPopup {
     this.repeatPasswordInput = createInputElement('password', 'repeat-password-input', 'Password', 'form-control');
     this.showPasswordBtn = createInputElement('checkbox', 'passCheckbox', '', 'form-check-input', 'mt-1', 'me-1');
     this.showPasswordTitle = document.createElement('span');
+    this.showPassWrapper = createDivElement('container');
   }
 
   private createModal = (): HTMLDivElement => {
@@ -57,17 +60,12 @@ class LoginPopup {
     const toRegBtn = createButtonElement('button', "Don't have an account? Sign Up", 'btn', 'btn-link');
     const toSignBtn = createButtonElement('button', 'Do you have an account? Sign In', 'btn', 'btn-link');
     const repeatPasswordLabel = document.createElement('label');
+    this.showPassWrapper.append(this.showPasswordBtn, this.showPasswordTitle);
     this.showPasswordTitle.textContent = 'Show password';
     repeatPasswordLabel.textContent = 'Repeat your password';
     toRegBtn.addEventListener('click', () => {
       this.modalBody.prepend(this.registrationModal());
-      this.modalBody.append(
-        repeatPasswordLabel,
-        this.repeatPasswordInput,
-        this.showPasswordBtn,
-        this.showPasswordTitle,
-        toSignBtn
-      );
+      this.modalBody.append(repeatPasswordLabel, this.repeatPasswordInput, this.showPassWrapper, toSignBtn);
       signBtn.textContent = 'Sign up';
       this.modalTitle.textContent = 'Register';
       toRegBtn.remove();
@@ -104,7 +102,7 @@ class LoginPopup {
     this.emailInput.addEventListener('input', this.mailChecker);
     formGroupEmail.append(emailLabel, this.emailInput);
     formGroupPassword.append(passwordLabel, this.passwordInput);
-    loginForm.append(formGroupEmail, formGroupPassword, this.showPasswordBtn, this.showPasswordTitle);
+    loginForm.append(formGroupEmail, formGroupPassword, this.showPassWrapper);
     return loginForm;
   };
 
