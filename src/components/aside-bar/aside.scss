@@ -1,49 +1,48 @@
 @import "../../styles/common";
 
 .navbar-aside {
-    position: relative;
-    height: 100vh;
-    background: $turquoise-dark;
+  position: relative;
+  height: 100vh;
+  background: $turquoise-dark;
 }
 .wrapper {
-    display: flex;
-    width: 100%;
-    height: 100%;
+  display: flex;
+  width: 100%;
+  height: 100%;
 }
 .components {
-    padding: 150px 0px;
-    width: 250px;
-    height: 100%;
-    
-    li {
-        color: $white;
-        font-size: 25px;
-        margin: 0 auto;
-        padding: 10px 0px 10px 30px;
+  padding: 150px 0px;
+  width: 250px;
+  height: 100%;
+  li {
+    color: $white;
+    font-size: 25px;
+    margin: 0 auto;
+    padding: 10px 0px 10px 30px;
+  }
+  a {
+    text-decoration: none;
+    color: $white;
+  }
+  li:hover {
+    background: $turquoise;
+  }
+  .minigames-aside {
+    position: relative;
+    .minigames-links {
+      display: none;
+      position: absolute;
+      background: $turquoise-dark;
+      list-style: none;
+      padding: 0;
     }
-    a {
-        text-decoration: none;
-        color: $white;
+  }
+  .minigames-aside:hover {
+    .minigames-links {
+      width: 100%;
+      display: block;
     }
-    li:hover {
-        background: $turquoise;
-    }
-    .minigames-aside {
-        position: relative;
-        .minigames-links {
-            display: none;
-            position: absolute;
-            background: $turquoise-dark;
-            list-style: none;
-            padding: 0;
-        }
-    }
-    .minigames-aside:hover {
-        .minigames-links {
-            width: 100%;
-            display: block;
-        }
-    }
+  }
 }
 @media (max-width: 800px) {
   .navbar-aside {
