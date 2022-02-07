@@ -63,6 +63,7 @@ class LoginPopup {
     this.showPassWrapper.append(this.showPasswordBtn, this.showPasswordTitle);
     this.showPasswordTitle.textContent = 'Show password';
     repeatPasswordLabel.textContent = 'Repeat your password';
+    this.repeatPasswordInput.addEventListener('input', this.comparisonChecker);
     toRegBtn.addEventListener('click', () => {
       this.modalBody.prepend(this.registrationModal());
       this.modalBody.append(repeatPasswordLabel, this.repeatPasswordInput, this.showPassWrapper, toSignBtn);
@@ -101,6 +102,7 @@ class LoginPopup {
     passwordLabel.textContent = 'Password';
     this.emailInput.addEventListener('input', this.mailChecker);
     formGroupEmail.append(emailLabel, this.emailInput);
+    this.passwordInput.addEventListener('input', this.passwordChecker);
     formGroupPassword.append(passwordLabel, this.passwordInput);
     loginForm.append(formGroupEmail, formGroupPassword, this.showPassWrapper);
     return loginForm;
@@ -145,6 +147,28 @@ class LoginPopup {
       target.classList.add('is-invalid');
       target.classList.remove('is-valid');
       target.setCustomValidity('Invalid name(letters only)');
+    } else {
+      target.classList.remove('is-invalid');
+      target.classList.add('is-valid');
+    }
+  };
+
+  passwordChecker = (e: Event) => {
+    const target = <HTMLInputElement>e.target;
+    if (target.value.toString().length < 8) {
+      target.classList.add('is-invalid');
+      target.classList.remove('is-valid');
+    } else {
+      target.classList.remove('is-invalid');
+      target.classList.add('is-valid');
+    }
+  };
+
+  comparisonChecker = (e: Event) => {
+    const target = <HTMLInputElement>e.target;
+    if (target.value !== this.passwordInput.value) {
+      target.classList.add('is-invalid');
+      target.classList.remove('is-valid');
     } else {
       target.classList.remove('is-invalid');
       target.classList.add('is-valid');
