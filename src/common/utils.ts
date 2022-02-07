@@ -1,14 +1,11 @@
 import { Methods } from './types';
 
-export const checkHash = (): string => window.location.hash;
-
 export const createDivElement = (...classNames: string[]): HTMLDivElement => {
   const element = document.createElement('div');
   element.classList.add(...classNames);
 
   return element;
 };
-
 
 const upgradePageInfo = (address: string): void => {
   const asideButtons = document.querySelectorAll('.aside-link');
@@ -33,6 +30,7 @@ export const checkHash = (): string => {
   const address = window.location.hash;
   upgradePageInfo(address);
   return address;
+};
 
 export const createNavElement = (...classNames: string[]): HTMLElement => {
   const element = document.createElement('nav');

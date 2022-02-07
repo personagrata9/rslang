@@ -5,6 +5,7 @@ import { createDivElement, checkHash } from '../common/utils';
 import { BODY } from '../common/constants';
 import routes from '../routing/routing';
 import Error404 from '../pages/errorPage/error404';
+import LoginPopup from '../pages/authorization/authorization';
 
 class App {
   private header: Header;
@@ -29,6 +30,9 @@ class App {
   };
 
   private addComponentsListeners = (): void => {
+    const loginPopup = new LoginPopup();
+    const openPopup = <HTMLButtonElement>document.querySelector('.open-popup');
+    openPopup.addEventListener('click', loginPopup.render);
     // this.header.addListeners();
     // this.aside.addListeners();
     // this.footer.addListeners();
