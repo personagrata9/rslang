@@ -30,7 +30,7 @@ class App {
 
   private addComponentsListeners = (): void => {
     // this.header.addListeners();
-    // this.sidebar.addListeners();
+    // this.aside.addListeners();
     // this.footer.addListeners();
   };
 
@@ -43,7 +43,6 @@ class App {
   route = async (): Promise<void> => {
     const contentContainer = document.querySelector('.content-container') as HTMLElement;
     const parsedURL = checkHash();
-    console.log(parsedURL);
     const page = routes[parsedURL] || new Error404();
     contentContainer.innerHTML = '';
     await page.render().then((content: HTMLDivElement) => contentContainer.append(content));
