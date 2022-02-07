@@ -30,7 +30,7 @@ class App {
 
   private addComponentsListeners = (): void => {
     // this.header.addListeners();
-    this.aside.addListeners();
+    // this.aside.addListeners();
     // this.footer.addListeners();
   };
 
