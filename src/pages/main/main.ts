@@ -1,9 +1,11 @@
 class Main {
-  async render(): Promise<HTMLDivElement> {
+  render(): void {
     console.log('Main');
     const main = document.createElement('div');
     main.innerHTML = 'main';
-    return main;
+
+    const contentContainer = <HTMLDivElement>document.querySelector('.content-container');
+    contentContainer.append(main);
   }
 }
 export default Main;

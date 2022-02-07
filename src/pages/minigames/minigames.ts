@@ -1,9 +1,11 @@
 class Minigames {
-  async render(): Promise<HTMLDivElement> {
+  render(): void {
     console.log('Minigames');
     const minigames = document.createElement('div');
     minigames.innerHTML = 'minigames';
-    return minigames;
+
+    const contentContainer = <HTMLDivElement>document.querySelector('.content-container');
+    contentContainer.append(minigames);
   }
 }
 export default Minigames;

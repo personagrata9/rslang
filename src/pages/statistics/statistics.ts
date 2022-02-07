@@ -1,9 +1,11 @@
 class Statistics {
-  async render(): Promise<HTMLDivElement> {
+  render(): void {
     console.log('Statistics');
     const statistics = document.createElement('div');
     statistics.innerHTML = 'statistics';
-    return statistics;
+
+    const contentContainer = <HTMLDivElement>document.querySelector('.content-container');
+    contentContainer.append(statistics);
   }
 }
 export default Statistics;
