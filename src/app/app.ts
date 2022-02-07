@@ -23,7 +23,7 @@ class App {
     const wrapperElement = createDivElement('wrapper');
     const aside = this.aside.render();
 
-    wrapperElement.append(aside, createDivElement('content-container', 'container-fluid'));
+    wrapperElement.append(aside, createDivElement('content-container', 'container-fluid', 'pt-3'));
 
     return wrapperElement;
   };
