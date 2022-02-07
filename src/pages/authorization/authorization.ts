@@ -28,6 +28,12 @@ class LoginPopup {
 
   private readonly showPassWrapper: HTMLDivElement;
 
+  private loginForm: HTMLFormElement;
+
+  private formGroupName: HTMLDivElement;
+
+  private formGroupEmail: HTMLDivElement;
+
   constructor() {
     this.container = createDivElement('container', 'modal-container');
     this.modalTitle = createHeadingElement('h5', 'Login');
@@ -39,6 +45,9 @@ class LoginPopup {
     this.showPasswordBtn = createInputElement('checkbox', 'passCheckbox', '', 'form-check-input', 'mt-1', 'me-1');
     this.showPasswordTitle = document.createElement('span');
     this.showPassWrapper = createDivElement('container');
+    this.loginForm = createFormElement('login', 'login-form');
+    this.formGroupName = createDivElement('form-group');
+    this.formGroupEmail = createDivElement('form-group');
   }
 
   private createModal = (): HTMLDivElement => {
@@ -65,15 +74,21 @@ class LoginPopup {
     repeatPasswordLabel.textContent = 'Repeat your password';
     this.repeatPasswordInput.addEventListener('input', this.comparisonChecker);
     toRegBtn.addEventListener('click', () => {
-      this.modalBody.prepend(this.registrationModal());
-      this.modalBody.append(repeatPasswordLabel, this.repeatPasswordInput, this.showPassWrapper, toSignBtn);
+      this.loginForm.prepend(this.registrationModal());
+      this.showPassWrapper.remove();
+      this.loginForm.append(repeatPasswordLabel, this.repeatPasswordInput, this.showPassWrapper, toSignBtn);
       signBtn.textContent = 'Sign up';
       this.modalTitle.textContent = 'Register';
       toRegBtn.remove();
     });
     toSignBtn.addEventListener('click', () => {
       this.nameInput.value = '';
+      this.formGroupEmail.innerHTML = '';
       signBtn.textContent = 'Sign in';
+      this.nameInput.classList.remove('is-valid');
+      this.formGroupName.innerHTML = '';
+      this.loginForm.innerHTML = '';
+      toSignBtn.remove();
       this.createModal();
     });
     this.showPasswordBtn.onclick = this.showPassword;
@@ -91,8 +106,6 @@ class LoginPopup {
   };
 
   loginModal = () => {
-    const loginForm = createFormElement('login', 'login-form');
-    const formGroupEmail = createDivElement('form-group');
     const emailLabel = document.createElement('label');
     emailLabel.setAttribute('for', 'email-input');
     emailLabel.textContent = 'Email Address';
@@ -101,21 +114,20 @@ class LoginPopup {
     passwordLabel.setAttribute('for', 'password-input');
     passwordLabel.textContent = 'Password';
     this.emailInput.addEventListener('input', this.mailChecker);
-    formGroupEmail.append(emailLabel, this.emailInput);
+    this.formGroupEmail.append(emailLabel, this.emailInput);
     this.passwordInput.addEventListener('input', this.passwordChecker);
     formGroupPassword.append(passwordLabel, this.passwordInput);
-    loginForm.append(formGroupEmail, formGroupPassword, this.showPassWrapper);
-    return loginForm;
+    this.loginForm.append(this.formGroupEmail, formGroupPassword, this.showPassWrapper);
+    return this.loginForm;
   };
 
   registrationModal = () => {
-    const formGroupName = createDivElement('form-group');
     const nameLabel = document.createElement('label');
     nameLabel.setAttribute('for', 'name-input');
     nameLabel.textContent = 'Name';
     this.nameInput.oninput = this.nameChecker;
-    formGroupName.append(nameLabel, this.nameInput);
-    return formGroupName;
+    this.formGroupName.append(nameLabel, this.nameInput);
+    return this.formGroupName;
   };
 
   render = () => {
@@ -124,7 +136,7 @@ class LoginPopup {
   };
 
   closeModal = () => {
-    this.container.innerHTML = '';
+    this.container.remove();
   };
 
   mailChecker = (e: Event) => {
@@ -189,6 +201,8 @@ class LoginPopup {
       await api.createUser(user).catch(() => {
         this.emailInput.style.border = 'red 2px solid';
       });
+      await api.loginUser({ email: this.emailInput.value, password: this.passwordInput.value });
+      this.closeModal();
     } else {
       user = {
         email: this.emailInput.value,

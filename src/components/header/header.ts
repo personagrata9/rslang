@@ -10,9 +10,11 @@ class Header {
   }
 
   addListeners = () => {
-    const loginPopup = new LoginPopup();
     const openPopup = <HTMLButtonElement>document.querySelector('.open-popup');
-    openPopup.addEventListener('click', loginPopup.render);
+    openPopup.addEventListener('click', () => {
+      const loginPopup = new LoginPopup();
+      loginPopup.render();
+    });
   };
 }
 export default Header;
