@@ -84,10 +84,10 @@ class LoginPopup {
     toSignBtn.addEventListener('click', () => {
       this.nameInput.value = '';
       this.formGroupEmail.innerHTML = '';
-      signBtn.textContent = 'Sign in';
-      this.nameInput.classList.remove('is-valid');
       this.formGroupName.innerHTML = '';
       this.loginForm.innerHTML = '';
+      signBtn.textContent = 'Sign in';
+      this.nameInput.classList.remove('is-valid');
       toSignBtn.remove();
       this.createModal();
     });
