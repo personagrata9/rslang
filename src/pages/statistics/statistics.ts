@@ -1,5 +1,5 @@
 class Statistics {
-  render() {
+  async render(): Promise<HTMLDivElement> {
     console.log('Statistics');
     const statistics = document.createElement('div');
     statistics.innerHTML = 'statistics';

@@ -1,5 +1,5 @@
 class Error404 {
-  render() {
+  async render(): Promise<HTMLDivElement> {
     console.log('Error404');
     const error404 = document.createElement('div');
     error404.innerHTML = 'error404';

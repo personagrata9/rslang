@@ -1,0 +1,63 @@
+@import '../../styles/common';
+
+.word-card-container {
+  position: relative;
+  background-color: #ffffff;
+  min-height: 330px;
+  overflow: hidden;
+  opacity: 0.7;
+  transition: all 0.3s linear;
+
+  .word-card-image {
+    position: relative;
+    left: -0.75rem;
+    width: 30%;
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    transition: all 0.3s linear;
+  }
+
+  .word-card-marker {
+    position: relative;
+    left: -0.75rem;
+    width: 3rem;
+    height: auto;
+  }
+
+  .word-card-description {
+    width: 70%;
+
+    .word-card-translate,
+    .word-card-text-meaning-translate,
+    .word-card-text-example-translate {
+      opacity: 0.7;
+    }
+  }
+
+  .word-card-audio-icon {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 55px;
+    height: 55px;
+    background-color: $gray-light;
+    border-radius: 50%;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+
+    &:hover {
+      transform: scale(1.1);
+      opacity: 1;
+    }
+  }
+
+  &:hover {
+    opacity: 1;
+
+    .word-card-image {
+      transform: scale(1.07);
+    }
+  }
+}

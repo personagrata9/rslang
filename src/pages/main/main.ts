@@ -1,5 +1,5 @@
 class Main {
-  render() {
+  async render(): Promise<HTMLDivElement> {
     console.log('Main');
     const main = document.createElement('div');
     main.innerHTML = 'main';

@@ -1,5 +1,5 @@
 class Minigames {
-  render() {
+  async render(): Promise<HTMLDivElement> {
     console.log('Minigames');
     const minigames = document.createElement('div');
     minigames.innerHTML = 'minigames';

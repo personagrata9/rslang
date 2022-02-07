@@ -1,59 +1,44 @@
-@import "../../styles/common";
+@import '../../styles/common';
+@import '../../components/word-card/word-card.scss';
 
-$orange: #e17719;
-
-.textbook-navigation-container {
+.textbook-group-navigation {
   background-color: $gray-light;
-  overflow: hidden;
-  border-radius: 5px;
 
   .navbar-nav {
-    flex-direction: row;
+    height: 56px;
   }
 
-  li {
+  .nav-item {
     flex-grow: 1;
     text-align: center;
-    margin: 5px;
-    border-radius: 5px;
+    margin: 0.5rem 0.25rem;
     color: #ffffff;
     opacity: 0.7;
-      .learned {
-        margin: 0;
-        border-radius: 0;
-      }
-      .active {
-        opacity: 1;
-        transform: translateY(20%);
-      }
+
+    &.learned {
+      margin-top: -0.5rem;
+      margin-bottom: -0.5rem;
+      padding-top: 1.25rem;
+    }
+    &.active {
+      opacity: 1;
+      transform: translateY(25%);
+    }
   }
 
-  li:nth-child(1) {
-    background-color: $turquoise;
+  .nav-item:first-child {
+    margin-left: 0.5rem;
   }
 
-  li:nth-child(2) {
-    background-color: $turquoise-dark;
+  .nav-item:last-child {
+    margin-right: 0.5rem;
   }
+}
 
-  li:nth-child(3) {
-    background-color: $gray;
-  }
-
-  li:nth-child(4) {
-    background-color: $gray-dark;
-  }
-
-  li:nth-child(5) {
-    background-color: $yellow;
-  }
-
-  li:nth-child(6) {
-    background-color: $yellow-dark;
-  }
-
-  li:nth-child(7) {
-    background-color: $orange;
-  }
-
+.words-cards-list-container {
+  gap: 2rem;
+  margin-top: 3rem;
+  margin-bottom: 3rem;
+  padding: 3rem;
+  background-color: $gray-light;
 }
