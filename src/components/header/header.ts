@@ -7,13 +7,5 @@ class Header {
     header.innerHTML = headerHtml;
     return header;
   }
-
-  addListeners() {
-    const hamburger = document.querySelector('.hamburger');
-    const asideMenu = document.querySelector('.navbar-aside');
-    hamburger?.addEventListener('click', () => {
-      asideMenu?.classList.toggle('active');
-    });
-  }
 }
 export default Header;

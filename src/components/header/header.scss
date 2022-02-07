@@ -4,45 +4,24 @@
   width: 100%;
   z-index: 3;
   padding: 10px 0;
+  position: sticky;
+  top: 0;
   .header-nav {
     margin: auto 30px;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    .left-part-header {
-      display: flex;
-      .hamburger {
-        width: 30px;
+    .app-logo {
+      margin: auto 0px auto 0px;
+      font-size: 30px;
+      .rs {
         margin: auto 0;
-        cursor: pointer;
-        &-line {
-          width: 100%;
-          height: 4px;
-          background-color: white;
-          display: block;
-          -webkit-transition: all 0.3s ease-in-out;
-          -o-transition: all 0.3s ease-in-out;
-          transition: all 0.3s ease-in-out;
-          &:nth-child(2){
-            margin: 6px auto;
-          }
-        }
+        background: $turquoise;
+        border-radius: 50%;
       }
-      .hamburger:hover > .hamburger-line{
-        background: orange;
-      }
-      .app-logo {
-        margin: auto 0px auto 30px;
-        font-size: 30px;
-        .rs {
-          margin: auto 0;
-          background: $turquoise;
-          border-radius: 50%;
-        }
-        .lang {
-          margin: auto 0;
-          color: $white;
-        }
+      .lang {
+        margin: auto 0;
+        color: $white;
       }
     }
     .page-name {
@@ -55,19 +34,10 @@
     }
   }
 }
-@media (max-width: 800px) {
+@media (max-width: 700px) {
   .header {
     .header-nav {
-      margin: auto 20px;
-      .hamburger {
-        width: 15px;
-      }
-    }
-    .app-logo {
-      font-size: 16px !important;
-    }
-    .page-name {
-      font-size: 16px !important;
+      margin: auto 10px;
     }
   }
 }
