@@ -1,9 +1,8 @@
+import logo from './logo';
+
 const headerHtml = `
 <div class="header-nav">
-    <p class="app-logo">
-      <span class="rs">RS</span>
-      <span class="lang">lang</span>
-    </p>  
+  <div class="app-logo">${logo}</div> 
   <p class="page-name">Page name</p>
   <button class="btn btn-outline-light btn-sg px-3" type="submit">Sign in</button>
 </div>`;
