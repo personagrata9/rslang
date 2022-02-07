@@ -1,3 +1,8 @@
-@import "../../node_modules/bootstrap/scss/bootstrap.scss";
-@import "./common";
-@import "../pages/textbook/textbook.scss";
+@import '../../node_modules/bootstrap/scss/bootstrap.scss';
+@import './common';
+@import '../pages/textbook/textbook.scss';
+
+.content-container {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
