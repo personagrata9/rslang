@@ -19,6 +19,7 @@ body {
 }
 
 .modal-header {
+  opacity: 1;
   background-color: $yellow-light;
   h5 {
     color: $turquoise-dark;
@@ -26,10 +27,12 @@ body {
 }
 
 .modal-footer {
+  opacity: 1;
   background-color: $yellow-light;
 }
 
 .modal-body {
+  opacity: 1;
   color: $turquoise-dark;
 }
 
