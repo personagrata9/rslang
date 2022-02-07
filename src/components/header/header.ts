@@ -1,8 +1,10 @@
+import headerHtml from './header-html';
+
 class Header {
   render() {
-    console.log('header');
     const header = document.createElement('header');
-    header.innerHTML = 'header';
+    header.className = 'header';
+    header.innerHTML = headerHtml;
     return header;
   }
 }

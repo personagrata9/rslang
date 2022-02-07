@@ -1,8 +1,10 @@
+import asideHtml from './aside-html';
+
 class Aside {
   render() {
-    console.log('aside');
-    const aside = document.createElement('aside');
-    aside.innerHTML = 'aside';
+    const aside = document.createElement('nav');
+    aside.className = 'navbar-aside';
+    aside.innerHTML = asideHtml;
     return aside;
   }
 }

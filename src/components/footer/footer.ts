@@ -1,8 +1,10 @@
+import footerHtml from './footer-html';
+
 class Footer {
   render() {
-    console.log('footer');
     const footer = document.createElement('footer');
-    footer.innerHTML = 'footer';
+    footer.className = 'footer';
+    footer.innerHTML = footerHtml;
     return footer;
   }
 }

@@ -1,0 +1,43 @@
+@import "../../styles/common";
+.header {
+  background: $gray-dark;
+  width: 100%;
+  z-index: 3;
+  padding: 10px 0;
+  position: sticky;
+  top: 0;
+  .header-nav {
+    margin: auto 30px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    .app-logo {
+      margin: auto 0;
+      font-size: 30px;
+      .rs {
+        width: 40px;
+        height: 40px;
+        background: $turquoise;
+      }
+      .lang {
+        margin: auto 0;
+        color: $white;
+      }
+    }
+    .page-name {
+      margin: auto 0;
+      font-size: 30px;
+      color: $white;
+    }
+    .btn {
+      margin: auto 0;
+    }
+  }
+}
+@media (max-width: 700px) {
+  .header {
+    .header-nav {
+      margin: auto 10px;
+    }
+  }
+}

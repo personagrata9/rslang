@@ -32,8 +32,16 @@ class App {
     return wrapperElement;
   };
 
+  private addComponentsListeners = (): void => {
+    // this.header.addListeners();
+    // this.aside.addListeners();
+    // this.footer.addListeners();
+  };
+
   start = (): void => {
     BODY.append(this.header.render(), this.renderWrapper(), this.footer.render());
+
+    this.addComponentsListeners();
   };
 
   route = async (): Promise<void> => {
