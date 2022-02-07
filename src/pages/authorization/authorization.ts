@@ -8,25 +8,25 @@ import {
 import Api from '../../api/api';
 
 class LoginPopup {
-  private container: HTMLDivElement;
+  private readonly container: HTMLDivElement;
 
-  private modalTitle: HTMLHeadingElement;
+  private readonly modalTitle: HTMLHeadingElement;
 
-  private modalBody: HTMLDivElement;
+  private readonly modalBody: HTMLDivElement;
 
-  private nameInput: HTMLInputElement;
+  private readonly nameInput: HTMLInputElement;
 
-  private emailInput: HTMLInputElement;
+  private readonly emailInput: HTMLInputElement;
 
-  private passwordInput: HTMLInputElement;
+  private readonly passwordInput: HTMLInputElement;
 
-  private repeatPasswordInput: HTMLInputElement;
+  private readonly repeatPasswordInput: HTMLInputElement;
 
-  private showPasswordBtn: HTMLInputElement;
+  private readonly showPasswordBtn: HTMLInputElement;
 
-  private showPasswordTitle: HTMLSpanElement;
+  private readonly showPasswordTitle: HTMLSpanElement;
 
-  private showPassWrapper: HTMLDivElement;
+  private readonly showPassWrapper: HTMLDivElement;
 
   constructor() {
     this.container = createDivElement('container', 'modal-container');
@@ -196,6 +196,7 @@ class LoginPopup {
       };
       const api = new Api();
       await api.loginUser(user);
+      this.closeModal();
     }
   };
 
