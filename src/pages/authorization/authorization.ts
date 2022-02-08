@@ -187,7 +187,7 @@ class LoginPopup {
     }
   };
 
-  private registerOrLogin = async (): void => {
+  private registerOrLogin = async (): Promise<void> => {
     let user;
     const api = new Api();
     if (this.nameInput.value !== '') {
