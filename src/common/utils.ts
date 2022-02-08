@@ -1,7 +1,5 @@
 import { Methods } from './types';
 
-export const checkHash = (): string => window.location.hash;
-
 export const createDivElement = (...classNames: string[]): HTMLDivElement => {
   const element = document.createElement('div');
   element.classList.add(...classNames);
@@ -9,6 +7,14 @@ export const createDivElement = (...classNames: string[]): HTMLDivElement => {
   return element;
 };
 
+export const createElement = (teg: string, classNames: string[], innerText?: string): HTMLElement => {
+  const element = document.createElement(teg);
+  element.classList.add(...classNames);
+  if (innerText) {
+    element.textContent = innerText;
+  }
+  return element;
+};
 
 const upgradePageInfo = (address: string): void => {
   const asideButtons = document.querySelectorAll('.aside-link');
@@ -33,6 +39,7 @@ export const checkHash = (): string => {
   const address = window.location.hash;
   upgradePageInfo(address);
   return address;
+};
 
 export const createNavElement = (...classNames: string[]): HTMLElement => {
   const element = document.createElement('nav');
@@ -112,4 +119,10 @@ export const createInputElement = (
   element.required = true;
 
   return element;
+};
+
+export const playAudio = async (link: string) => {
+  const audio = new Audio();
+  audio.src = link;
+  return audio;
 };

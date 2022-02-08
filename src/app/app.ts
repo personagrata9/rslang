@@ -45,7 +45,7 @@ class App {
     const parsedURL = checkHash();
     const page = routes[parsedURL] || new Error404();
     contentContainer.innerHTML = '';
-    await page.render().then((content: HTMLDivElement) => contentContainer.append(content));
+    await page.render().then((content: HTMLElement) => contentContainer.append(content));
     // page.addListeners
   };
 }
