@@ -1,6 +1,7 @@
 import {
   createButtonElement,
   createDivElement,
+  createElement,
   createFormElement,
   createHeadingElement,
   createInputElement,
@@ -8,11 +9,11 @@ import {
 import Api from '../../api/api';
 
 class LoginPopup {
-  private readonly container: HTMLDivElement;
+  private readonly container: HTMLElement;
 
   private readonly modalTitle: HTMLHeadingElement;
 
-  private readonly modalBody: HTMLDivElement;
+  private readonly modalBody: HTMLElement;
 
   private readonly nameInput: HTMLInputElement;
 
@@ -30,24 +31,29 @@ class LoginPopup {
 
   private loginForm: HTMLFormElement;
 
-  private formGroupName: HTMLDivElement;
+  private formGroupName: HTMLElement;
 
-  private formGroupEmail: HTMLDivElement;
+  private formGroupEmail: HTMLElement;
 
   constructor() {
-    this.container = createDivElement('container', 'modal-container');
+    this.container = createElement('div', ['container', 'modal-container']);
     this.modalTitle = createHeadingElement('h5', 'Login');
-    this.modalBody = createDivElement('modal-body');
+    this.modalBody = createElement('div', ['modal-body']);
     this.nameInput = createInputElement('text', 'name-input', 'Enter Name', 'form-control');
     this.emailInput = createInputElement('email', 'email-input', 'Enter email', 'form-control');
     this.passwordInput = createInputElement('password', 'password-input', 'Password', 'form-control');
-    this.repeatPasswordInput = createInputElement('password', 'repeat-password-input', 'Password', 'form-control');
+    this.repeatPasswordInput = createInputElement(
+      'password',
+      'repeat-password-input',
+      'Repeat password',
+      'form-control'
+    );
     this.showPasswordBtn = createInputElement('checkbox', 'passCheckbox', '', 'form-check-input', 'mt-1', 'me-1');
-    this.showPasswordTitle = document.createElement('span');
+    this.showPasswordTitle = createElement('span', [], 'Show password');
     this.showPassWrapper = createDivElement('container');
     this.loginForm = createFormElement('login', 'login-form');
-    this.formGroupName = createDivElement('form-group');
-    this.formGroupEmail = createDivElement('form-group');
+    this.formGroupName = createElement('div', ['form-group']);
+    this.formGroupEmail = createElement('div', ['form-group']);
   }
 
   private createModal = (): HTMLDivElement => {
@@ -58,18 +64,16 @@ class LoginPopup {
     modalDialog.onclick = function stopProp(e) {
       e.stopPropagation();
     };
-    const modalContent = createDivElement('modal-content');
-    const modalHeader = createDivElement('modal-header');
+    const modalContent = createElement('div', ['modal-content']);
+    const modalHeader = createElement('div', ['modal-header']);
     const closeBtn = createButtonElement('button', '', 'btn-close');
     closeBtn.addEventListener('click', this.closeModal);
-    const modalFooter = createDivElement('modal-footer');
+    const modalFooter = createElement('div', ['modal-footer']);
     const signBtn = createButtonElement('submit', 'Sign in', 'btn', 'btn-primary', 'btn-sign');
     const toRegBtn = createButtonElement('button', "Don't have an account? Sign Up!", 'btn', 'btn-link');
     const toSignBtn = createButtonElement('button', 'Do you have an account? Sign In!', 'btn', 'btn-link');
-    const repeatPasswordLabel = document.createElement('label');
+    const repeatPasswordLabel = createElement('label', [], 'Repeat your password');
     this.showPassWrapper.append(this.showPasswordBtn, this.showPasswordTitle);
-    this.showPasswordTitle.textContent = 'Show password';
-    repeatPasswordLabel.textContent = 'Repeat your password';
     this.repeatPasswordInput.addEventListener('input', this.comparisonChecker);
     toRegBtn.addEventListener('click', () => {
       this.loginForm.prepend(this.registrationModal());
@@ -101,17 +105,15 @@ class LoginPopup {
     modalDialog.append(modalContent);
     modal.append(modalDialog);
     this.container.append(modal);
-    return this.container;
+    return <HTMLDivElement>this.container;
   };
 
   loginModal = () => {
-    const emailLabel = document.createElement('label');
+    const emailLabel = createElement('label', [], 'Email Address');
     emailLabel.setAttribute('for', 'email-input');
-    emailLabel.textContent = 'Email Address';
-    const formGroupPassword = createDivElement('form-group');
-    const passwordLabel = document.createElement('label');
+    const formGroupPassword = createElement('div', ['form-group']);
+    const passwordLabel = createElement('label', [], 'Password');
     passwordLabel.setAttribute('for', 'password-input');
-    passwordLabel.textContent = 'Password';
     this.emailInput.addEventListener('input', this.mailChecker);
     this.formGroupEmail.append(emailLabel, this.emailInput);
     this.passwordInput.addEventListener('input', this.passwordChecker);
@@ -121,9 +123,8 @@ class LoginPopup {
   };
 
   registrationModal = () => {
-    const nameLabel = document.createElement('label');
+    const nameLabel = createElement('label', [], 'Name');
     nameLabel.setAttribute('for', 'name-input');
-    nameLabel.textContent = 'Name';
     this.nameInput.oninput = this.nameChecker;
     this.formGroupName.append(nameLabel, this.nameInput);
     return this.formGroupName;
