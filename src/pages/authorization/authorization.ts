@@ -107,7 +107,7 @@ class LoginPopup {
     return this.container;
   };
 
-  private loginModal = () => {
+  private loginModal = (): HTMLElement => {
     const emailLabel = createElement('label', [], 'Email Address');
     emailLabel.setAttribute('for', 'email-input');
     const formGroupPassword = createElement('div', ['form-group']);
@@ -121,7 +121,7 @@ class LoginPopup {
     return this.loginForm;
   };
 
-  private registrationModal = () => {
+  private registrationModal = (): HTMLElement => {
     const nameLabel = createElement('label', [], 'Name');
     nameLabel.setAttribute('for', 'name-input');
     this.nameInput.oninput = this.nameChecker;
@@ -129,16 +129,16 @@ class LoginPopup {
     return this.formGroupName;
   };
 
-  render = () => {
+  render = (): void => {
     this.createModal();
     document.body.append(this.container);
   };
 
-  private closeModal = () => {
+  private closeModal = (): void => {
     this.container.remove();
   };
 
-  private mailChecker = (e: Event) => {
+  private mailChecker = (e: Event): void => {
     const target = <HTMLInputElement>e.target;
     const regexEmail = /([0-9a-z_-]{3,15})+(@)+([a-z]{4,20}\.[a-z]{2,4}$)/i;
     if (target.value.match(regexEmail) == null) {
@@ -151,7 +151,7 @@ class LoginPopup {
     }
   };
 
-  private nameChecker = (e: Event) => {
+  private nameChecker = (e: Event): void => {
     const target = <HTMLInputElement>e.target;
     const regexName = /^[a-zA-Zа-яА-я\s]{3,15}$/;
     if (target.value.match(regexName) == null) {
@@ -164,7 +164,7 @@ class LoginPopup {
     }
   };
 
-  private passwordChecker = (e: Event) => {
+  private passwordChecker = (e: Event): void => {
     const target = <HTMLInputElement>e.target;
     const passwordLength = 8;
     if (target.value.toString().length < passwordLength) {
@@ -176,7 +176,7 @@ class LoginPopup {
     }
   };
 
-  private comparisonChecker = (e: Event) => {
+  private comparisonChecker = (e: Event): void => {
     const target = <HTMLInputElement>e.target;
     if (target.value !== this.passwordInput.value) {
       target.classList.add('is-invalid');
@@ -187,7 +187,7 @@ class LoginPopup {
     }
   };
 
-  private registerOrLogin = async () => {
+  private registerOrLogin = async (): void => {
     let user;
     const api = new Api();
     if (this.nameInput.value !== '') {
@@ -212,7 +212,7 @@ class LoginPopup {
     }
   };
 
-  private showPassword = () => {
+  private showPassword = (): void => {
     if (this.repeatPasswordInput.type === 'password' && this.passwordInput.type === 'password') {
       this.repeatPasswordInput.type = 'text';
       this.passwordInput.type = 'text';
@@ -222,7 +222,7 @@ class LoginPopup {
     }
   };
 
-  private clearInputs = () => {
+  private clearInputs = (): void => {
     [this.emailInput, this.passwordInput, this.repeatPasswordInput].forEach((e) => {
       e.value = '';
       e.classList.remove('is-valid');
