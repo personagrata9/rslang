@@ -51,8 +51,6 @@ class LoginPopup {
   }
 
   private createModal = (): HTMLDivElement => {
-    this.container.innerHTML = '';
-    this.modalBody.innerHTML = '';
     const modal = createDivElement('modal', 'fade', 'show');
     modal.onclick = this.closeModal;
     modal.style.display = 'block';
@@ -82,6 +80,7 @@ class LoginPopup {
       toRegBtn.remove();
     });
     toSignBtn.addEventListener('click', () => {
+      modal.remove();
       this.nameInput.value = '';
       this.formGroupEmail.innerHTML = '';
       this.formGroupName.innerHTML = '';
