@@ -1,6 +1,6 @@
 import { GROUP_COLORS, ICON_SIZE, NUMBER_OF_GROUPS, NUMBER_OF_PAGES } from '../../common/constants';
 import { Colors, IWord } from '../../common/types';
-import { createDivElement, createLiElement, createNavElement, createUlElement } from '../../common/utils';
+import { createElement } from '../../common/utils';
 import WordCard from '../../components/word-card/word-card';
 import ApiPage from '../api-page';
 
@@ -15,14 +15,14 @@ class Textbook extends ApiPage {
   }
 
   private createNavigationBar = (): HTMLElement => {
-    const navElement: HTMLElement = createNavElement(
+    const navElement: HTMLElement = createElement('nav', [
       `${this.name}-group-navigation`,
       'shadow',
       'rounded-3',
-      'overflow-hidden'
-    );
+      'overflow-hidden',
+    ]);
 
-    const listElement: HTMLUListElement = createUlElement('navbar-nav', 'flex-row', 'justify-content-around');
+    const listElement: HTMLElement = createElement('ul', ['navbar-nav', 'flex-row', 'justify-content-around']);
 
     navElement.append(listElement);
 
@@ -31,7 +31,7 @@ class Textbook extends ApiPage {
       .map((_, i) => i);
 
     unitsIds.forEach((_, i) => {
-      const unitElement: HTMLLIElement = createLiElement('nav-item', 'navbar-text', 'rounded-3');
+      const unitElement: HTMLElement = createElement('li', ['nav-item', 'navbar-text', 'rounded-3']);
       unitElement.id = `${this.name}-unit-${i}`;
       unitElement.textContent = `Unit ${i + 1}`;
       unitElement.style.backgroundColor = GROUP_COLORS[i];
@@ -45,8 +45,8 @@ class Textbook extends ApiPage {
     return navElement;
   };
 
-  private createPaginationBarList = (): HTMLUListElement => {
-    const listElement: HTMLUListElement = createUlElement('pagination');
+  private createPaginationBarList = (): HTMLElement => {
+    const listElement: HTMLElement = createElement('ul', ['pagination']);
     const middleNum = Math.floor(this.numberOfPagesInPaginationBar / 2);
 
     const pagesNums: number[] = Array(this.numberOfPagesInPaginationBar)
@@ -63,7 +63,7 @@ class Textbook extends ApiPage {
       });
 
     pagesNums.forEach((pageNum) => {
-      const pageItemElement: HTMLLIElement = createLiElement('page-item');
+      const pageItemElement: HTMLElement = createElement('li', ['page-item']);
       pageItemElement.dataset.pageNum = `${pageNum}`;
       pageItemElement.textContent = `${pageNum + 1}`;
 
@@ -78,11 +78,11 @@ class Textbook extends ApiPage {
     return listElement;
   };
 
-  private createPaginationBar = (): HTMLDivElement => {
-    const navElement: HTMLDivElement = createDivElement(`${this.name}-page-navigation`, 'd-flex');
-    const listElement: HTMLUListElement = this.createPaginationBarList();
-    const prevPageControl: HTMLDivElement = createDivElement('control', 'prev-page');
-    const nextPageControl: HTMLDivElement = createDivElement('control', 'next-page');
+  private createPaginationBar = (): HTMLElement => {
+    const navElement: HTMLElement = createElement('div', [`${this.name}-page-navigation`, 'd-flex']);
+    const listElement: HTMLElement = this.createPaginationBarList();
+    const prevPageControl: HTMLElement = createElement('div', ['control', 'prev-page']);
+    const nextPageControl: HTMLElement = createElement('div', ['control', 'next-page']);
 
     navElement.append(prevPageControl, listElement, nextPageControl);
 
@@ -165,17 +165,17 @@ class Textbook extends ApiPage {
     };
   };
 
-  private createWordsCardsList = async (): Promise<HTMLDivElement> => {
+  private createWordsCardsList = async (): Promise<HTMLElement> => {
     const words = await this.getTextbookWordsItems();
 
-    const listContainerElement: HTMLDivElement = createDivElement(
+    const listContainerElement: HTMLElement = createElement('div', [
       'container',
       'words-cards-list-container',
       'd-flex',
       'flex-wrap',
       'shadow',
-      'rounded-3'
-    );
+      'rounded-3',
+    ]);
 
     words.forEach((word: IWord) => {
       const wordCard: WordCard = new WordCard(word, this.color);
@@ -186,7 +186,12 @@ class Textbook extends ApiPage {
   };
 
   render = async (): Promise<void> => {
-    const container: HTMLDivElement = createDivElement('container', `${this.name}-container`, 'd-flex', 'flex-column');
+    const container: HTMLElement = createElement('div', [
+      'container',
+      `${this.name}-container`,
+      'd-flex',
+      'flex-column',
+    ]);
     container.append(this.createNavigationBar(), this.createPaginationBar(), await this.createWordsCardsList());
 
     this.contentContainer.append(container);

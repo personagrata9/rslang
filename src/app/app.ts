@@ -1,7 +1,7 @@
 import Header from '../components/header/header';
 import Aside from '../components/aside-bar/aside-bar';
 import Footer from '../components/footer/footer';
-import { createDivElement, checkHash } from '../common/utils';
+import { checkHash, createElement } from '../common/utils';
 import { BODY } from '../common/constants';
 import Error404 from '../pages/errorPage/error404';
 import Textbook from '../pages/textbook/textbook';
@@ -23,11 +23,11 @@ class App {
     this.footer = new Footer();
   }
 
-  private renderWrapper = (): HTMLDivElement => {
-    const wrapperElement = createDivElement('wrapper');
+  private renderWrapper = (): HTMLElement => {
+    const wrapperElement = createElement('div', ['wrapper']);
     const aside = this.aside.render();
 
-    wrapperElement.append(aside, createDivElement('content-container', 'container-fluid', 'pt-3'));
+    wrapperElement.append(aside, createElement('div', ['content-container', 'container-fluid', 'pt-3']));
 
     return wrapperElement;
   };

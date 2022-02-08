@@ -1,16 +1,10 @@
-import {
-  createButtonElement,
-  createElement,
-  createFormElement,
-  createHeadingElement,
-  createInputElement,
-} from '../../common/utils';
+import { createButtonElement, createElement, createFormElement, createInputElement } from '../../common/utils';
 import Api from '../../api/api';
 
 class LoginPopup {
   private readonly container: HTMLElement;
 
-  private readonly modalTitle: HTMLHeadingElement;
+  private readonly modalTitle: HTMLElement;
 
   private readonly modalBody: HTMLElement;
 
@@ -38,7 +32,7 @@ class LoginPopup {
 
   constructor() {
     this.container = createElement('div', ['container', 'modal-container']);
-    this.modalTitle = createHeadingElement('h5', 'Login');
+    this.modalTitle = createElement('h5', [], 'Login');
     this.modalBody = createElement('div', ['modal-body']);
     this.nameInput = createInputElement('text', 'name-input', 'Enter Name', 'form-control');
     this.emailInput = createInputElement('email', 'email-input', 'Enter email', 'form-control');
