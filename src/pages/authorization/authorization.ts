@@ -55,14 +55,12 @@ class LoginPopup {
     this.formGroupEmail = createElement('div', ['form-group']);
   }
 
-  private createModal = (): HTMLDivElement => {
+  private createModal = (): HTMLElement => {
     const modal = createElement('div', ['modal', 'fade', 'show']);
     modal.onclick = this.closeModal;
     modal.style.display = 'block';
     const modalDialog = createElement('div', ['modal-dialog']);
-    modalDialog.onclick = function stopProp(e) {
-      e.stopPropagation();
-    };
+    modalDialog.onclick = (e) => e.stopPropagation();
     const modalContent = createElement('div', ['modal-content']);
     const modalHeader = createElement('div', ['modal-header']);
     const closeBtn = createButtonElement('button', '', 'btn-close');
@@ -75,6 +73,7 @@ class LoginPopup {
     this.showPassWrapper.append(this.showPasswordBtn, this.showPasswordTitle);
     this.repeatPasswordInput.addEventListener('input', this.comparisonChecker);
     toRegBtn.addEventListener('click', () => {
+      this.clearInputs();
       this.loginForm.prepend(this.registrationModal());
       this.showPassWrapper.remove();
       this.loginForm.append(repeatPasswordLabel, this.repeatPasswordInput, this.showPassWrapper, toSignBtn);
@@ -83,6 +82,7 @@ class LoginPopup {
       toRegBtn.remove();
     });
     toSignBtn.addEventListener('click', () => {
+      this.clearInputs();
       modal.remove();
       this.nameInput.value = '';
       this.formGroupEmail.innerHTML = '';
@@ -104,7 +104,7 @@ class LoginPopup {
     modalDialog.append(modalContent);
     modal.append(modalDialog);
     this.container.append(modal);
-    return <HTMLDivElement>this.container;
+    return this.container;
   };
 
   private loginModal = () => {
@@ -166,7 +166,8 @@ class LoginPopup {
 
   private passwordChecker = (e: Event) => {
     const target = <HTMLInputElement>e.target;
-    if (target.value.toString().length < 8) {
+    const passwordLength = 8;
+    if (target.value.toString().length < passwordLength) {
       target.classList.add('is-invalid');
       target.classList.remove('is-valid');
     } else {
@@ -188,14 +189,13 @@ class LoginPopup {
 
   private registerOrLogin = async () => {
     let user;
+    const api = new Api();
     if (this.nameInput.value !== '') {
       user = {
         name: this.nameInput.value,
         email: this.emailInput.value,
         password: this.passwordInput.value,
       };
-
-      const api = new Api();
       this.emailInput.style.border = '';
       await api.createUser(user).catch(() => {
         this.emailInput.style.border = 'red 2px solid';
@@ -207,7 +207,6 @@ class LoginPopup {
         email: this.emailInput.value,
         password: this.passwordInput.value,
       };
-      const api = new Api();
       await api.loginUser(user);
       this.closeModal();
     }
@@ -221,6 +220,14 @@ class LoginPopup {
       this.repeatPasswordInput.type = 'password';
       this.passwordInput.type = 'password';
     }
+  };
+
+  private clearInputs = () => {
+    [this.emailInput, this.passwordInput, this.repeatPasswordInput].forEach((e) => {
+      e.value = '';
+      e.classList.remove('is-valid');
+      e.classList.remove('is-invalid');
+    });
   };
 }
 
