@@ -1,0 +1,60 @@
+@import "src/styles/common";
+
+.modal-container {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  position: absolute;
+  width: auto;
+  .form-control:focus {
+    border-color: $turquoise-dark;
+  }
+  label {
+    font-size: 15px;
+  }
+}
+
+.modal-header {
+  background-color: $yellow-light;
+  h5 {
+    color: $turquoise-dark;
+  }
+}
+
+.modal-footer {
+  background-color: $yellow-light;
+}
+
+.modal-body {
+  color: $turquoise-dark;
+}
+
+.fade {
+  backdrop-filter: blur(2px);
+  z-index: 10;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.modal-dialog {
+  z-index: 20;
+}
+
+.btn-sign{
+  background-color: $turquoise-dark;
+  border-color: $turquoise-dark;
+}
+
+.btn-sign[disabled]{
+  background-color: gray;
+  border-color: $turquoise-dark;
+}
+
+.btn-sign:hover{
+  background-color: $turquoise;
+  border-color: $turquoise;
+}
+
+.form-check-input:checked {
+  background-color: $turquoise-dark;
+  border-color: $turquoise-dark;
+}

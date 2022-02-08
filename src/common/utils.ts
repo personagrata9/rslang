@@ -7,6 +7,15 @@ export const createDivElement = (...classNames: string[]): HTMLDivElement => {
   return element;
 };
 
+export const createElement = (tag: string, classNames: string[], innerText?: string): HTMLElement => {
+  const element = document.createElement(tag);
+  if (innerText) {
+    element.textContent = innerText;
+  }
+  element.classList.add(...classNames);
+  return element;
+};
+
 const upgradePageInfo = (address: string): void => {
   const asideButtons = document.querySelectorAll('.aside-link');
   const namePage = document.querySelector('.page-name');
@@ -97,7 +106,7 @@ export const createFormElement = (name: string, ...classNames: string[]): HTMLFo
 };
 
 export const createInputElement = (
-  type: 'text' | 'email' | 'password',
+  type: 'text' | 'email' | 'password' | 'checkbox',
   id: string,
   placeholder: string,
   ...classNames: string[]
