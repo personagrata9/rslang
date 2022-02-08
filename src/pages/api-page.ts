@@ -11,7 +11,7 @@ abstract class ApiPage {
   protected api: Api;
 
   constructor(protected readonly name: PageNameType) {
-    this.name = 'textbook';
+    this.name = name;
     this.textbookGroup = localStorage.getItem('group') || '0';
     this.textbookPage = localStorage.getItem('page') || '0';
     this.api = new Api();

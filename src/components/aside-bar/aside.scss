@@ -5,9 +5,10 @@
   width: 100%;
   height: 100%;
   .navbar-aside {
-    height: 100vh;
+    height: calc(100vh - 67px);
     width: 250px;
     position: sticky;
+    top: 67px;
     background: $turquoise-dark;
     left: 0;
   }

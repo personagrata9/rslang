@@ -1,14 +1,15 @@
 import Header from '../components/header/header';
 import Aside from '../components/aside-bar/aside-bar';
 import Footer from '../components/footer/footer';
-import { checkHash, createElement } from '../common/utils';
+import { createElement, checkHash } from '../common/utils';
 import { BODY } from '../common/constants';
 import Error404 from '../pages/errorPage/error404';
 import Textbook from '../pages/textbook/textbook';
 import Main from '../pages/main/main';
-import Minigames from '../pages/minigames/minigames';
 import Statistics from '../pages/statistics/statistics';
 import ApiPage from '../pages/api-page';
+import Sprint from '../pages/sprint/sprint';
+import AudioChallenge from '../pages/audio-challenge/audio-challenge';
 
 class App {
   private header: Header;
@@ -27,13 +28,13 @@ class App {
     const wrapperElement = createElement('div', ['wrapper']);
     const aside = this.aside.render();
 
-    wrapperElement.append(aside, createElement('div', ['content-container', 'container-fluid', 'pt-3']));
+    wrapperElement.append(aside, createElement('div', ['content-container', 'container-fluid']));
 
     return wrapperElement;
   };
 
   private addComponentsListeners = (): void => {
-    this.header.addListeners();
+    // this.header.addListeners();
     // this.aside.addListeners();
     // this.footer.addListeners();
   };
@@ -47,16 +48,18 @@ class App {
   route = async (): Promise<void> => {
     const main = new Main();
     const textbook = new Textbook();
-    const minigames = new Minigames();
+    const sprint = new Sprint();
+    const audioChallenge = new AudioChallenge();
     const statistics = new Statistics();
 
     type RoutesType = {
-      [key: string]: Main | Minigames | Statistics | Textbook;
+      [key: string]: Main | Statistics | Textbook | Sprint | AudioChallenge;
     };
 
     const routes: RoutesType = {
       '': main,
-      '#minigames': minigames,
+      '#audio-challenge': audioChallenge,
+      '#sprint': sprint,
       '#textbook': textbook,
       '#statistics': statistics,
     };
@@ -65,10 +68,13 @@ class App {
     const parsedURL = checkHash();
     const page = routes[parsedURL] || new Error404();
     contentContainer.innerHTML = '';
+    console.log(parsedURL);
     if (page instanceof ApiPage) {
       await page.render();
-      page.addListeners();
+      console.log('x');
+      // page.addListeners();
     } else {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       page.render();
     }
   };
