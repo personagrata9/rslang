@@ -121,8 +121,20 @@ export const createInputElement = (
   return element;
 };
 
+// for audio-challenge page
 export const playAudio = async (link: string) => {
   const audio = new Audio();
   audio.src = link;
   return audio;
+};
+
+export const createSelect = (valuesSelect: string[]): HTMLSelectElement => {
+  const select = createElement('select', ['select-audio-rules-page']);
+  select.innerHTML = '<option class="option-audio-rules-page" value="" selected disabled hidden>Level</option>';
+  for (let i = 0; i < valuesSelect.length; i += 1) {
+    const optionSelect = createElement('option', ['option-audio-rules-page'], valuesSelect[i]);
+    optionSelect.setAttribute('value', valuesSelect[i]);
+    select.append(optionSelect);
+  }
+  return select as HTMLSelectElement;
 };

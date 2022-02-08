@@ -80,3 +80,5 @@ export enum Colors {
   YellowLight = '#fbf0a7',
   Orange = '#e17719',
 }
+
+export type PageNameType = 'main' | 'textbook' | 'audio-challenge' | 'sprint' | 'statistics' | 'error404';

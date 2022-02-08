@@ -3,8 +3,13 @@ import Aside from '../components/aside-bar/aside-bar';
 import Footer from '../components/footer/footer';
 import { createDivElement, checkHash } from '../common/utils';
 import { BODY } from '../common/constants';
-import routes from '../routing/routing';
 import Error404 from '../pages/errorPage/error404';
+import Textbook from '../pages/textbook/textbook';
+import Main from '../pages/main/main';
+import Statistics from '../pages/statistics/statistics';
+import ApiPage from '../pages/api-page';
+import Sprint from '../pages/sprint/sprint';
+import AudioChallenge from '../pages/audio-challenge/audio-challenge';
 
 class App {
   private header: Header;
@@ -41,12 +46,35 @@ class App {
   };
 
   route = async (): Promise<void> => {
+    const main = new Main();
+    const textbook = new Textbook();
+    const sprint = new Sprint();
+    const audioChallenge = new AudioChallenge();
+    const statistics = new Statistics();
+
+    type RoutesType = {
+      [key: string]: Main | Statistics | Textbook | Sprint | AudioChallenge;
+    };
+
+    const routes: RoutesType = {
+      '': main,
+      '#audio-challenge': audioChallenge,
+      '#sprint': sprint,
+      '#textbook': textbook,
+      '#statistics': statistics,
+    };
+
     const contentContainer = document.querySelector('.content-container') as HTMLElement;
     const parsedURL = checkHash();
     const page = routes[parsedURL] || new Error404();
     contentContainer.innerHTML = '';
-    await page.render().then((content: HTMLElement) => contentContainer.append(content));
-    // page.addListeners
+    if (page instanceof ApiPage) {
+      await page.render();
+      // page.addListeners();
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      page.render();
+    }
   };
 }
 
