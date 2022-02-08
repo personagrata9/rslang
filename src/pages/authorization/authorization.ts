@@ -1,6 +1,5 @@
 import {
   createButtonElement,
-  createDivElement,
   createElement,
   createFormElement,
   createHeadingElement,
@@ -27,7 +26,7 @@ class LoginPopup {
 
   private readonly showPasswordTitle: HTMLSpanElement;
 
-  private readonly showPassWrapper: HTMLDivElement;
+  private readonly showPassWrapper: HTMLElement;
 
   private loginForm: HTMLFormElement;
 
@@ -50,17 +49,17 @@ class LoginPopup {
     );
     this.showPasswordBtn = createInputElement('checkbox', 'passCheckbox', '', 'form-check-input', 'mt-1', 'me-1');
     this.showPasswordTitle = createElement('span', [], 'Show password');
-    this.showPassWrapper = createDivElement('container');
+    this.showPassWrapper = createElement('div', ['container']);
     this.loginForm = createFormElement('login', 'login-form');
     this.formGroupName = createElement('div', ['form-group']);
     this.formGroupEmail = createElement('div', ['form-group']);
   }
 
   private createModal = (): HTMLDivElement => {
-    const modal = createDivElement('modal', 'fade', 'show');
+    const modal = createElement('div', ['modal', 'fade', 'show']);
     modal.onclick = this.closeModal;
     modal.style.display = 'block';
-    const modalDialog = createDivElement('modal-dialog');
+    const modalDialog = createElement('div', ['modal-dialog']);
     modalDialog.onclick = function stopProp(e) {
       e.stopPropagation();
     };
