@@ -34,6 +34,8 @@ class LoginPopup {
 
   private readonly formGroupEmail: HTMLElement;
 
+  private signBtn: HTMLButtonElement;
+
   constructor() {
     this.container = createElement('div', ['container', 'modal-container']);
     this.modalTitle = createHeadingElement('h5', 'Login');
@@ -53,6 +55,7 @@ class LoginPopup {
     this.loginForm = createFormElement('login', 'login-form');
     this.formGroupName = createElement('div', ['form-group']);
     this.formGroupEmail = createElement('div', ['form-group']);
+    this.signBtn = createButtonElement('submit', 'Sign in', 'btn', 'btn-primary', 'btn-sign');
   }
 
   private createModal = (): HTMLElement => {
@@ -66,40 +69,41 @@ class LoginPopup {
     const closeBtn = createButtonElement('button', '', 'btn-close');
     closeBtn.addEventListener('click', this.closeModal);
     const modalFooter = createElement('div', ['modal-footer']);
-    const signBtn = createButtonElement('submit', 'Sign in', 'btn', 'btn-primary', 'btn-sign');
+    this.signBtn.setAttribute('disabled', '');
     const toRegBtn = createButtonElement('button', "Don't have an account? Sign Up!", 'btn', 'btn-link');
     const toSignBtn = createButtonElement('button', 'Do you have an account? Sign In!', 'btn', 'btn-link');
     const repeatPasswordLabel = createElement('label', [], 'Repeat your password');
     this.showPassWrapper.append(this.showPasswordBtn, this.showPasswordTitle);
-    this.repeatPasswordInput.addEventListener('input', this.comparisonChecker);
+    this.repeatPasswordInput.oninput = (e) => {
+      this.comparisonChecker(e);
+      this.unlockSignBtn();
+    };
     toRegBtn.addEventListener('click', () => {
       this.clearInputs();
       this.loginForm.prepend(this.registrationModal());
       this.showPassWrapper.remove();
       this.loginForm.append(repeatPasswordLabel, this.repeatPasswordInput, this.showPassWrapper, toSignBtn);
-      signBtn.textContent = 'Sign up';
+      this.signBtn.textContent = 'Sign up';
       this.modalTitle.textContent = 'Register';
       toRegBtn.remove();
     });
     toSignBtn.addEventListener('click', () => {
       this.clearInputs();
       modal.remove();
-      this.nameInput.value = '';
       this.formGroupEmail.innerHTML = '';
       this.formGroupName.innerHTML = '';
       this.loginForm.innerHTML = '';
-      signBtn.textContent = 'Sign in';
-      this.nameInput.classList.remove('is-valid');
+      this.signBtn.textContent = 'Sign in';
       toSignBtn.remove();
       this.createModal();
     });
     this.showPasswordBtn.onclick = this.showPassword;
-    signBtn.setAttribute('form', 'login');
+    this.signBtn.setAttribute('form', 'login');
     this.modalBody.append(this.loginModal(), toRegBtn);
-    signBtn.onclick = this.registerOrLogin;
+    this.signBtn.onclick = this.registerOrLogin;
     this.modalTitle.textContent = 'Login';
     modalHeader.append(this.modalTitle, closeBtn);
-    modalFooter.append(signBtn);
+    modalFooter.append(this.signBtn);
     modalContent.append(modalHeader, this.modalBody, modalFooter);
     modalDialog.append(modalContent);
     modal.append(modalDialog);
@@ -113,9 +117,15 @@ class LoginPopup {
     const formGroupPassword = createElement('div', ['form-group']);
     const passwordLabel = createElement('label', [], 'Password');
     passwordLabel.setAttribute('for', 'password-input');
-    this.emailInput.addEventListener('input', this.mailChecker);
+    this.emailInput.oninput = (e) => {
+      this.mailChecker(e);
+      this.unlockSignBtn();
+    };
     this.formGroupEmail.append(emailLabel, this.emailInput);
-    this.passwordInput.addEventListener('input', this.passwordChecker);
+    this.passwordInput.oninput = (e) => {
+      this.passwordChecker(e);
+      this.unlockSignBtn();
+    };
     formGroupPassword.append(passwordLabel, this.passwordInput);
     this.loginForm.append(this.formGroupEmail, formGroupPassword, this.showPassWrapper);
     return this.loginForm;
@@ -124,7 +134,10 @@ class LoginPopup {
   private registrationModal = (): HTMLElement => {
     const nameLabel = createElement('label', [], 'Name');
     nameLabel.setAttribute('for', 'name-input');
-    this.nameInput.oninput = this.nameChecker;
+    this.nameInput.oninput = (e) => {
+      this.nameChecker(e);
+      this.unlockSignBtn();
+    };
     this.formGroupName.append(nameLabel, this.nameInput);
     return this.formGroupName;
   };
@@ -187,6 +200,25 @@ class LoginPopup {
     }
   };
 
+  unlockSignBtn = () => {
+    if (document.body.contains(this.repeatPasswordInput)) {
+      if (
+        this.repeatPasswordInput.classList.contains('is-valid') &&
+        this.passwordInput.classList.contains('is-valid') &&
+        this.nameInput.classList.contains('is-valid') &&
+        this.emailInput.classList.contains('is-valid')
+      ) {
+        this.signBtn.removeAttribute('disabled');
+      } else {
+        this.signBtn.setAttribute('disabled', '');
+      }
+    } else if (this.passwordInput.classList.contains('is-valid') && this.emailInput.classList.contains('is-valid')) {
+      this.signBtn.removeAttribute('disabled');
+    } else {
+      this.signBtn.setAttribute('disabled', '');
+    }
+  };
+
   private registerOrLogin = async (): Promise<void> => {
     let user;
     const api = new Api();
@@ -223,11 +255,12 @@ class LoginPopup {
   };
 
   private clearInputs = (): void => {
-    [this.emailInput, this.passwordInput, this.repeatPasswordInput].forEach((e) => {
+    [this.emailInput, this.passwordInput, this.repeatPasswordInput, this.nameInput].forEach((e) => {
       e.value = '';
       e.classList.remove('is-valid');
       e.classList.remove('is-invalid');
     });
+    this.signBtn.setAttribute('disabled', '');
   };
 }
 
