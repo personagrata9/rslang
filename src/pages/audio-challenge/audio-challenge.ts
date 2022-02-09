@@ -65,7 +65,11 @@ class AudioChallenge extends ApiPage {
     repeatButton.addEventListener('click', async () => playAudio(this.audioLink));
     gamePage.append(repeatButton);
     gamePage.append(await this.createAnswersBox(this.currentWord));
-    const buttonNextWord = createElement('button', ['next-button-word'], `Don't know`);
+    const buttonNextWord = createElement(
+      'button',
+      ['next-button-word', 'btn', 'btn-outline-light', 'btn-sg', 'px-3'],
+      `Don't know`
+    );
     gamePage.append(buttonNextWord);
     localStorage.setItem('isTextbook', '');
     return gamePage;
@@ -131,13 +135,12 @@ class AudioChallenge extends ApiPage {
       });
       if (indexCurrentPlace === i) {
         answerBox.setAttribute('current-word', currentWord);
-        answerBox.innerHTML = `<p class="word-text">${currentWord}</p>`;
+        answerBox.innerHTML = `<div class="back-answer-box"></div><p class="word-text">${currentWord}</p>`;
       } else {
-        answerBox.innerHTML = `<p class="word-text">Word</p>`;
         const randomWord = this.createRandomWord();
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         randomWord.then((res): void => {
-          answerBox.innerHTML = `<p class="word-text">${res}</p>`;
+          answerBox.innerHTML = `<div class="back-answer-box"></div><p class="word-text">${res}</p>`;
         });
       }
       answersBox.append(answerBox);
