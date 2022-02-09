@@ -8,7 +8,6 @@ import Textbook from '../pages/textbook/textbook';
 import Main from '../pages/main/main';
 import Minigames from '../pages/minigames/minigames';
 import Statistics from '../pages/statistics/statistics';
-import ApiPage from '../pages/api-page';
 
 class App {
   private header: Header;
@@ -65,9 +64,14 @@ class App {
     const parsedURL = checkHash();
     const page = routes[parsedURL] || new Error404();
     contentContainer.innerHTML = '';
-    if (page instanceof ApiPage) {
+    // if (page instanceof ApiPage) {
+    //   await page.render();
+    //   page.addListeners();
+    // } else {
+    //   page.render();
+    // }
+    if (page instanceof Textbook) {
       await page.render();
-      page.addListeners();
     } else {
       page.render();
     }
