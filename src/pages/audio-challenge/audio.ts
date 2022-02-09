@@ -1,4 +1,5 @@
 const svgAudio = `
+<<<<<<< HEAD
 <span class="svg-audio-container">
   <svg width="0" height="0" class="hidden">
     <symbol fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" id="headphone-music-alt-svgrepo-com">
