@@ -73,10 +73,16 @@ export const createInputElement = (
   return element;
 };
 
-export const playAudio = async (link: string) => {
+export const playAudio = async (link: string): Promise<void> => {
   const audio = new Audio();
   audio.src = link;
-  return audio;
+  await audio.play();
+};
+
+export const random = (maxNum: number) => {
+  const randomNumber = Math.floor(Math.random() * maxNum);
+  // console.log(randomNumber, 'x');
+  return randomNumber;
 };
 
 export const createSelect = (valuesSelect: string[]): HTMLSelectElement => {

@@ -17,13 +17,16 @@ abstract class ApiPage {
     this.api = new Api();
   }
 
-  protected getTextbookWordsItems = async (): Promise<IWord[]> => {
+  protected getTextbookWordsItems = async (group?: string, page?: string): Promise<IWord[]> => {
     const words: IWord[] = [];
 
-    await this.api
-      .getWords(this.textbookGroup, this.textbookPage)
-      .then((results) => results.forEach((result: IWord) => words.push(result)));
-
+    if (!group || !page) {
+      await this.api
+        .getWords(this.textbookGroup, this.textbookPage)
+        .then((results) => results.forEach((result: IWord) => words.push(result)));
+    } else {
+      await this.api.getWords(group, page).then((results) => results.forEach((result: IWord) => words.push(result)));
+    }
     return words;
   };
 }

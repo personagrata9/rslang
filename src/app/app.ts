@@ -68,10 +68,8 @@ class App {
     const parsedURL = checkHash();
     const page = routes[parsedURL] || new Error404();
     contentContainer.innerHTML = '';
-    console.log(parsedURL);
     if (page instanceof ApiPage) {
       await page.render();
-      console.log('x');
       // page.addListeners();
     } else {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
