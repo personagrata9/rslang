@@ -92,46 +92,46 @@
       opacity: 1;
       transition: ease-in .3s;
     }
-    .answers-box {
-      display: flex;
-      width: 100%;
-      flex-wrap: wrap;
-      padding: 20px 0;
-      justify-content: center;
-      .answer-box {
-        width: 170px;
-        height: 60px;
-        position: relative;
-        margin: 20px 20px;
-        font-size: 20px;
-        cursor: pointer;
-        .back-answer-box {
-          width: 100%;
-          height: 100%;
-          position: absolute;
-          z-index: 1;
-          opacity: .6;
-          background: $turquoise-dark;
-        }
-        .word-text {
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%);
-          z-index: 3;
-          color: $white;
-        }
-      }
-      .answer-box:hover > .back-answer-box {
-        opacity: 1;
-        transition: ease-in 1s;
-        box-shadow: 10px 10px 10px black;
-      }
-    }
   }
 }
 .audio-challenge-structure {
   margin: auto;
+  .answers-box {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    padding: 20px 0;
+    justify-content: center;
+    .answer-box {
+      width: 170px;
+      height: 60px;
+      position: relative;
+      margin: 20px 20px;
+      font-size: 20px;
+      cursor: pointer;
+      .back-answer-box {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        z-index: 1;
+        opacity: .6;
+        background: $turquoise-dark;
+      }
+      .word-text {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 3;
+        color: $white;
+      }
+    }
+    .answer-box:hover > .back-answer-box {
+      opacity: 1;
+      transition: ease-in 1s;
+      box-shadow: 10px 10px 10px black;
+    }
+  }
   .example-image-box {
     padding: 20px;
   }
@@ -142,7 +142,7 @@
     border: 3px solid white;
   }
   .container-info-correct-word {
-    width: 100%;
+    max-width: 250px;
     display: flex;
     margin: 0 auto;
     justify-content: space-between;

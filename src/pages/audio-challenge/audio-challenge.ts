@@ -24,6 +24,8 @@ class AudioChallenge extends ApiPage {
 
   private wordImage: string;
 
+  private roundWords: Array<object>;
+
   constructor() {
     super('audio-challenge');
     this.currentIndexWord = 0;
@@ -35,6 +37,7 @@ class AudioChallenge extends ApiPage {
     this.correctAnswers = [];
     this.level = '';
     this.wordImage = '';
+    this.roundWords = [];
   }
 
   async render(): Promise<void> {
@@ -45,7 +48,9 @@ class AudioChallenge extends ApiPage {
     const structurePage = createElement('div', ['audio-challenge-structure']);
     if (state) {
       if (state === 'textbook') {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         structurePage.append(await this.createGamePage());
+        await playAudio(this.audioLink);
       } else {
         this.level = state;
         structurePage.append(await this.createGamePage(state));
@@ -167,7 +172,9 @@ class AudioChallenge extends ApiPage {
 
   createCorrectAnswerPage() {
     const audioChallengePage = document.querySelector('.audio-challenge-structure') as HTMLElement;
-    audioChallengePage.innerHTML = '';
+    document?.querySelector('.box-audio-button')?.remove();
+    document?.querySelector('.next-button-word')?.remove();
+    const answersBox = document.querySelector('.answers-box') as HTMLElement;
     const exampleBoxImage = createElement('div', ['example-image-box']);
     const exampleImage = createElement('img', ['example-image']);
     exampleImage.setAttribute('src', `http://localhost:3000/${this.wordImage}`);
@@ -181,13 +188,17 @@ class AudioChallenge extends ApiPage {
     const wordContainer = createElement('p', ['correct-word-container'], `${this.currentWordEn}`);
     containerInfo.append(wordContainer);
     audioChallengePage?.append(containerInfo);
+    containerInfo.after(answersBox);
     const buttonNextWord = createElement(
       'button',
       ['button-nex-word', 'btn-sg', 'px-3', 'btn', 'btn-outline-light'],
       '→'
     );
     buttonNextWord.addEventListener('click', async () => {
-      await this.render();
+      if (this.currentIndexWord < 19) {
+        audioChallengePage.innerHTML = '';
+        await this.render();
+      }
     });
     audioChallengePage?.append(buttonNextWord);
   }
