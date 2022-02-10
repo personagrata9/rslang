@@ -132,4 +132,44 @@
 }
 .audio-challenge-structure {
   margin: auto;
+  .example-image-box {
+    padding: 20px;
+  }
+  .example-image {
+    border-radius: 75%;
+    width: 200px;
+    height: 200px;
+    border: 3px solid white;
+  }
+  .container-info-correct-word {
+    width: 100%;
+    display: flex;
+    margin: 0 auto;
+    justify-content: space-between;
+    .box-audio-button-small {
+      width: 60px;
+      height: 60px;
+      background: white;
+      padding: 10px;
+      opacity: .8;
+      border-radius: 50%;
+      transition: ease-in .1s;
+    }
+    .box-audio-button-small:hover {
+      opacity: 1;
+      padding: 5px;
+      cursor: pointer;
+      transition: ease-in .1s;
+    }
+    .correct-word-container {
+      font-size: 30px;
+      margin: auto 0;
+    }
+  }
+  .button-nex-word {
+    margin-top: 30px;
+    width: 100px;
+    height: 50px;
+    font-size: 20px !important;
+  }
 }
