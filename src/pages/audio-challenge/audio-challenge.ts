@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import { createElement, createSelect, playAudio, random } from '../../common/utils';
 import { NUMBER_OF_PAGES, WORDS_PER_PAGE, NUMBER_OF_GROUPS } from '../../common/constants';
 import { IWord } from '../../common/types';
@@ -7,6 +8,8 @@ import ApiPage from '../api-page';
 class AudioChallenge extends ApiPage {
   private currentIndexWord: number;
 
+  private level: string;
+
   private currentWord: string;
 
   private page: number | boolean;
@@ -15,6 +18,10 @@ class AudioChallenge extends ApiPage {
 
   private audioLink: string;
 
+  private correctAnswers: Array<string>;
+
+  private wordImage: string;
+
   constructor() {
     super('audio-challenge');
     this.currentIndexWord = 0;
@@ -22,6 +29,9 @@ class AudioChallenge extends ApiPage {
     this.page = false;
     this.gameWords = false;
     this.audioLink = '';
+    this.correctAnswers = [];
+    this.level = '';
+    this.wordImage = '';
   }
 
   async render(): Promise<void> {
@@ -34,6 +44,7 @@ class AudioChallenge extends ApiPage {
       if (state === 'textbook') {
         structurePage.append(await this.createGamePage());
       } else {
+        this.level = state;
         structurePage.append(await this.createGamePage(state));
       }
     } else {
@@ -53,15 +64,14 @@ class AudioChallenge extends ApiPage {
     }
     console.log(this.gameWords);
     const gamePage = createElement('div', ['audio-game-container']);
-    const repeatButton = createElement('div', ['box-audio-button']);
-    repeatButton.innerHTML = `<img class="repeat-audio-button" src="https://www.svgrepo.com/show/210514/music-player-audio.svg">`;
     if (typeof this.gameWords !== 'boolean') {
       this.audioLink = `http://localhost:3000/${this.gameWords[this.currentIndexWord].audio}`;
       this.currentWord = this.gameWords[this.currentIndexWord].wordTranslate;
+      this.wordImage = this.gameWords[this.currentIndexWord].image;
       // console.log(this.currentWord);
-      // this.currentIndexWord += 1;
     }
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    const repeatButton = createElement('div', ['box-audio-button']);
+    repeatButton.innerHTML = `<img class="repeat-audio-button" src="https://www.svgrepo.com/show/210514/music-player-audio.svg">`;
     repeatButton.addEventListener('click', async () => playAudio(this.audioLink));
     gamePage.append(repeatButton);
     gamePage.append(await this.createAnswersBox(this.currentWord));
@@ -71,7 +81,6 @@ class AudioChallenge extends ApiPage {
       `Don't know`
     );
     gamePage.append(buttonNextWord);
-    localStorage.setItem('isTextbook', '');
     return gamePage;
   }
 
@@ -99,11 +108,10 @@ class AudioChallenge extends ApiPage {
       ['choise-audio-level-button', 'btn', 'btn-outline-light'],
       'Start'
     );
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     buttonChoiseLevel.addEventListener('click', async (): Promise<void> => {
       const select = document.querySelector('.select-audio-rules-page') as HTMLSelectElement;
-      const level = select.value;
-      localStorage.setItem('isTextbook', `${level}`);
+      this.level = select.value;
+      localStorage.setItem('isTextbook', `${this.level}`);
       await this.render();
     });
     controlBoxAudio.append(buttonChoiseLevel);
@@ -116,7 +124,7 @@ class AudioChallenge extends ApiPage {
     const randomPage = `${random(NUMBER_OF_PAGES)}`;
     const randomGroup = `${random(NUMBER_OF_GROUPS - 1)}`;
     const randomIndexWord = random(WORDS_PER_PAGE);
-    console.log(randomPage, randomGroup, NUMBER_OF_GROUPS - 1);
+    // console.log(randomPage, randomGroup, NUMBER_OF_GROUPS - 1);
     const randomWord = await this.getTextbookWordsItems(randomGroup, randomPage);
     return randomWord[randomIndexWord].wordTranslate;
   };
@@ -126,13 +134,6 @@ class AudioChallenge extends ApiPage {
     const indexCurrentPlace = random(5);
     for (let i = 0; i < 5; i += 1) {
       const answerBox = createElement('div', ['answer-box']);
-      answerBox.addEventListener('click', () => {
-        if (answerBox.getAttribute('current-word') === currentWord) {
-          console.log(currentWord);
-        } else {
-          console.log('x');
-        }
-      });
       if (indexCurrentPlace === i) {
         answerBox.setAttribute('current-word', currentWord);
         answerBox.innerHTML = `<div class="back-answer-box"></div><p class="word-text">${currentWord}</p>`;
@@ -143,9 +144,36 @@ class AudioChallenge extends ApiPage {
           answerBox.innerHTML = `<div class="back-answer-box"></div><p class="word-text">${res}</p>`;
         });
       }
+      answerBox.addEventListener('click', async () => {
+        if (answerBox.getAttribute('current-word') === currentWord) {
+          await playAudio(`http://localhost:3000/files/audio/correct-answer.mp3`);
+          this.correctAnswers.push(String(this.currentIndexWord));
+        } else {
+          await playAudio(`http://localhost:3000/files/audio/bad_answer.mp3`);
+        }
+        this.createCorrectAnswerPage();
+        localStorage.setItem('isTextbook', `${this.level}`);
+        this.currentIndexWord += 1;
+        // await this.render();
+      });
       answersBox.append(answerBox);
     }
     return answersBox;
+  }
+
+  createCorrectAnswerPage() {
+    const audioChallengePage = document.querySelector('.audio-challenge-structure') as HTMLElement;
+    audioChallengePage.innerHTML = '';
+    const exampleBoxImage = createElement('div', ['example-image-box']);
+    const exampleImage = createElement('img', ['example-image-box']);
+    exampleImage.setAttribute('src', `http://localhost:3000/${this.wordImage}`);
+    exampleBoxImage.append(exampleImage);
+    audioChallengePage?.append(exampleBoxImage);
+    const containerInfo = createElement('div', ['container-info-correct-word']);
+    const repeatButton = createElement('div', ['box-audio-button-small']);
+    repeatButton.innerHTML = `<img class="repeat-audio-button-small" src="https://www.svgrepo.com/show/210514/music-player-audio.svg">`;
+    repeatButton.addEventListener('click', async () => playAudio(this.audioLink));
+    containerInfo.append(repeatButton);
   }
 }
 export default AudioChallenge;

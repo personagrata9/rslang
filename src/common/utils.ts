@@ -81,7 +81,6 @@ export const playAudio = async (link: string): Promise<void> => {
 
 export const random = (maxNum: number) => {
   const randomNumber = Math.floor(Math.random() * maxNum);
-  // console.log(randomNumber, 'x');
   return randomNumber;
 };
 
