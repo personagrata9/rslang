@@ -63,7 +63,7 @@ class AudioChallenge extends ApiPage {
     const audioChallengePage = createElement('div', ['audio-challenge-container']);
     const structurePage = createElement('div', ['audio-challenge-structure']);
     if (state) {
-      if (state === 'Textbook') {
+      if (state === 'true') {
         structurePage.append(await this.createGamePage());
       } else {
         this.level = state;
@@ -104,8 +104,8 @@ class AudioChallenge extends ApiPage {
       `Don't know`
     );
     buttonUnknowWord.addEventListener('click', () => {
-      this.answered(this.currentWordRus);
       this.inCorrectAnswers.push(this.currentIndexWord);
+      this.answered(this.currentWordRus);
       this.createCorrectAnswerPage();
     });
     gamePage.append(buttonUnknowWord);
@@ -279,6 +279,12 @@ class AudioChallenge extends ApiPage {
         const currentWordRu = this.gameWords[el].wordTranslate;
         popupResults.append(addBoxResults(currentWordEn, currentWordRu, currentAudio));
       });
+      const closeButton = createElement('button', ['close-popup-button'], 'Сlose game');
+      closeButton.addEventListener('click', async () => {
+        localStorage.removeItem('isTextbook');
+        await this.render();
+      });
+      popupResults.append(closeButton);
       audioChallengeContainer.append(popupResults);
     }
     this.currentIndexWord = 0;

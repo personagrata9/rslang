@@ -8,15 +8,12 @@ abstract class ApiPage {
 
   protected textbookPage: string;
 
-  protected lastPage: string;
-
   protected api: Api;
 
   constructor(protected readonly name: PageNameType) {
     this.name = name;
     this.textbookGroup = localStorage.getItem('group') || '0';
     this.textbookPage = localStorage.getItem('page') || '0';
-    this.lastPage = localStorage.getItem('lastPage') || '';
     this.api = new Api();
   }
 

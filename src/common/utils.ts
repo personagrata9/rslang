@@ -73,7 +73,7 @@ export const createInputElement = (
   return element;
 };
 
-export const playAudio = async (link: string): Promise<void> => {
+export const playAudio = async (link: string) => {
   const audio = new Audio();
   audio.src = link;
   await audio.play();
