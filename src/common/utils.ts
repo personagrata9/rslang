@@ -1,11 +1,11 @@
 import { Methods } from './types';
 
-export const createElement = (tag: string, classNames: string[], innerText?: string): HTMLElement => {
-  const element = document.createElement(tag);
+export const createElement = (teg: string, classNames: string[], innerText?: string): HTMLElement => {
+  const element = document.createElement(teg);
+  element.classList.add(...classNames);
   if (innerText) {
     element.textContent = innerText;
   }
-  element.classList.add(...classNames);
   return element;
 };
 
@@ -72,3 +72,44 @@ export const createInputElement = (
 
   return element;
 };
+
+export const playAudio = async (link: string) => {
+  const audio = new Audio();
+  audio.src = link;
+  await audio.play();
+};
+
+export const random = (maxNum: number) => {
+  const randomNumber = Math.floor(Math.random() * maxNum);
+  return randomNumber;
+};
+
+export const createSelect = (valuesSelect: string[]): HTMLSelectElement => {
+  const select = createElement('select', ['select-audio-rules-page']);
+  select.innerHTML = '<option class="option-audio-rules-page" value="" selected disabled hidden>Level</option>';
+  for (let i = 0; i < valuesSelect.length; i += 1) {
+    const optionSelect = createElement('option', ['option-audio-rules-page'], valuesSelect[i]);
+    optionSelect.setAttribute('value', valuesSelect[i]);
+    select.append(optionSelect);
+  }
+  return select as HTMLSelectElement;
+};
+
+function addKeyboard() {
+  const event = new Event('click');
+  window.addEventListener('keydown', (e) => {
+    const repearButton = document.querySelector('.box-audio-button');
+    const repeatButtonSmall = document.querySelector('.box-audio-button-small');
+    const buttonUnknow = document.querySelector('.next-button-word');
+    const buttonNextWord = document.querySelector('.button-nex-word');
+    if (e.code === 'Space') {
+      repearButton?.dispatchEvent(event);
+      repeatButtonSmall?.dispatchEvent(event);
+    }
+    if (e.code === 'Enter') {
+      buttonUnknow?.dispatchEvent(event);
+      buttonNextWord?.dispatchEvent(event);
+    }
+  });
+}
+addKeyboard();

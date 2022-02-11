@@ -7,5 +7,14 @@ class Aside {
     aside.innerHTML = asideHtml;
     return aside;
   }
+
+  addListeners() {
+    const sidebarLinks = document.querySelectorAll('.aside-link');
+    sidebarLinks.forEach((link) => {
+      link.addEventListener('click', () => {
+        localStorage.removeItem('isTextbook');
+      });
+    });
+  }
 }
 export default Aside;

@@ -1,0 +1,242 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@200;300;400;500&display=swap');
+@import '../../styles/common';
+
+.audio-challenge-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  background-image: url('https://lh4.googleusercontent.com/c5qIjP-47u462c6IYJdy8C6mlXdfcglSYbRNdiYJDJdM2Y-i5bXZfXlpO0wBBuC1V2UR-B03udfVmC16KNqJEgoZR1fTK-CCt7JC4WpuyU_4YMUJ6T4uYuhlV2Vs_v7Ofh_FgBR1');
+  background-size: cover;
+  text-align: center;
+  color: white;
+  .audio-rules-container {
+    display: block;
+    position: relative;
+    .audio-rules-container-back {
+      position: absolute;
+      z-index: 0;
+      width: 100%;
+      height: 100%;
+      background: $turquoise-dark;
+      opacity: .6;
+      border: $white solid 3px;
+      border-radius: 30px;
+    }
+    .audio-rules-container-front {
+      position: relative;
+      z-index: 1;
+      padding: 30px;
+      .audio-rules-title {
+        font-size: 50px;
+        font-family: 'Source Code Pro';
+      }
+      .audio-rules-text {
+        font-size: 25px;
+      }
+      .list-rules {
+        text-align: left;
+        margin: 20px 40px;
+      }
+      .list-rules-item {
+        font-size: 25px;
+      }
+      .control-box-audio-page {
+        display: flex;
+        justify-content: space-between;
+        margin: 0 auto;
+        width: 200px;
+        .choise-audio-level-button {
+          width: 80px;
+          height: 50px;
+          font-size: 20px;
+        }
+        .select-audio-rules-page {
+          width: 80px;
+          height: 50px;
+          font-size: 20px;
+          border: white 2px solid;
+          background: none;
+          color: white;
+          cursor: pointer;
+          .option-audio-rules-page {
+            color: black;
+          }
+        }
+        .select-audio-rules-page:hover {
+          background: white;
+          color: black;
+        }
+      }
+    }
+  }
+  .audio-rules-container.active {
+    display: none;
+  }
+  .audio-game-container {
+    .box-audio-button {
+      margin: 0 auto;
+      background: $gray-light;
+      border-radius: 50%;
+      padding: 10px;
+      width: 100px;
+      height: 100px;
+      cursor: pointer;
+      opacity: .8;
+      transition: ease-in .3s;
+      .repeat-aydio-button {
+        width: 100%;
+        height: 100%;
+      }
+    }
+    .box-audio-button:hover {
+      opacity: 1;
+      transition: ease-in .3s;
+    }
+  }
+  .popup-results {
+    width: 90%;
+    height: 600px;
+    overflow-y: scroll;
+    padding: 30px;
+    margin: auto;
+    background: white;
+    color: black;
+    .incorrect {
+      width: 80%;
+      text-align: left;
+      margin: 0 auto;
+    }
+    .box-word-info {
+      display: flex;
+      margin: 10px 0;
+      width: 80%;
+      margin: 10px auto;
+      .popup-english-word {
+        margin: auto 0;
+        font-size: 30px;
+      }
+      .popup-russian-word {
+        margin: auto 0;
+        font-size: 20px;
+        color: gray;
+      }
+    }
+    .popup-button-repeat {
+      border: none;
+      background: none;
+      border-radius: 75%;
+      background: $gray-light;
+      padding: 5px;
+      margin: auto 0;
+      .popup-icon-audio {
+        width: 40px;
+        height: 40px;
+      }
+    }
+    .popup-incorrect {
+      font-size: 18px;
+      .incorrect-counter {
+        background: red;
+        color: white;
+        padding: 2px 10px;
+        border-radius:  10px;
+      }
+    }
+    .popup-correct {
+      font-size: 18px;
+      .correct-counter {
+        background: green;
+        color: white;
+        padding: 2px 10px;
+        border-radius:  10px;
+      }
+    }
+  }
+  .close-popup-button {
+    background: $turquoise;
+    width: 100px;
+    height: 60px;
+    color: white;
+    margin: 0 auto;
+    border: none;
+  }
+}
+.audio-challenge-structure {
+  margin: auto;
+  .answers-box {
+    display: flex;
+    width: 100%;
+    flex-wrap: wrap;
+    padding: 20px 0;
+    justify-content: center;
+    .answer-button {
+      padding: 10px 20px;
+      border: none;
+      background: $turquoise-dark;
+      margin: 20px 20px;
+      font-size: 20px;
+      cursor: pointer;
+      .word-text {
+        margin: auto 0;
+        font-size: 20px;
+        font-weight: bold;
+        color: $white;
+      }
+    }
+    .answer-button.answered > .word-text {
+      opacity: .6;
+    }
+    .answer-button.correct-answer > .word-text {
+      opacity: 1;
+    }
+    .answer-button.incorect-answer > .word-text {
+      opacity: .6;
+      text-decoration: line-through  4px ;
+    }
+    .answer-button:hover {
+      transition: ease-in 1s;
+      background: $turquoise;
+      box-shadow: 10px 10px 10px black;
+    }
+  }
+  .example-image-box {
+    padding: 20px;
+  }
+  .example-image {
+    border-radius: 75%;
+    width: 200px;
+    height: 200px;
+    border: 3px solid white;
+  }
+  .container-info-correct-word {
+    max-width: 250px;
+    display: flex;
+    margin: 0 auto;
+    justify-content: space-between;
+    .box-audio-button-small {
+      width: 60px;
+      height: 60px;
+      background: white;
+      padding: 10px;
+      opacity: .8;
+      border-radius: 50%;
+      transition: ease-in .1s;
+    }
+    .box-audio-button-small:hover {
+      opacity: 1;
+      padding: 5px;
+      cursor: pointer;
+      transition: ease-in .1s;
+    }
+    .correct-word-container {
+      font-size: 30px;
+      margin: auto 0;
+    }
+  }
+  .button-nex-word {
+    margin-top: 30px;
+    width: 100px;
+    height: 50px;
+    font-size: 20px !important;
+  }
+}

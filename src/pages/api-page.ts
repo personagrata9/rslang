@@ -11,7 +11,7 @@ abstract class ApiPage {
   protected api: Api;
 
   constructor(protected readonly name: PageNameType) {
-    this.name = 'textbook';
+    this.name = name;
     this.textbookGroup = localStorage.getItem('group') || '0';
     this.textbookPage = localStorage.getItem('page') || '0';
     this.api = new Api();
@@ -24,6 +24,19 @@ abstract class ApiPage {
       .getWords(this.textbookGroup, this.textbookPage)
       .then((results) => results.forEach((result: IWord) => words.push(result)));
 
+    return words;
+  };
+
+  protected getWordsItems = async (group?: string, page?: string): Promise<IWord[]> => {
+    const words: IWord[] = [];
+
+    if (!group || !page) {
+      await this.api
+        .getWords(this.textbookGroup, this.textbookPage)
+        .then((results) => results.forEach((result: IWord) => words.push(result)));
+    } else {
+      await this.api.getWords(group, page).then((results) => results.forEach((result: IWord) => words.push(result)));
+    }
     return words;
   };
 }
