@@ -1,4 +1,4 @@
-import { createButtonElement, createElement, createInputElement, randomizer } from '../../common/utils';
+import { createButtonElement, createElement, createInputElement, playAudio, random } from '../../common/utils';
 import ApiPage from '../api-page';
 import { IWord } from '../../common/types';
 import { NUMBER_OF_PAGES, WORDS_PER_PAGE } from '../../common/constants';
@@ -26,6 +26,14 @@ class Sprint extends ApiPage {
 
   private pointsCount: number;
 
+  private winstreak: number;
+
+  private maxWinstreak: number;
+
+  private pointsMultiplier: number;
+
+  private borderMultiplier: number;
+
   constructor() {
     super('sprint');
     this.sprintGamePage = createElement('div', ['sprint-container']);
@@ -36,19 +44,26 @@ class Sprint extends ApiPage {
     this.currentWordEn = '';
     this.pointsCount = 0;
     this.page = false;
+    this.pointsMultiplier = 10;
+    this.borderMultiplier = 3;
+    this.winstreak = 0;
+    this.maxWinstreak = 0;
     this.gameWords = [];
     this.correctAnswers = [];
     this.inCorrectAnswers = [];
   }
 
   async render(): Promise<void> {
+    this.winstreak = 0;
+    this.pointsCount = 0;
+    this.sprintGamePage.innerHTML = '';
     this.sprintGamePage.append(this.createGameRules());
     this.contentContainer.append(this.sprintGamePage);
   }
 
   createGame = async (state?: string): Promise<void> => {
     if (this.gameWords.length === 0 && !this.page && state) {
-      this.page = randomizer(NUMBER_OF_PAGES);
+      this.page = random(NUMBER_OF_PAGES);
       this.gameWords = await this.getWordsItems(state, String(this.page));
     } else if (this.gameWords.length === 0 && !this.page && !state) {
       this.page = Number(this.textbookPage);
@@ -62,7 +77,7 @@ class Sprint extends ApiPage {
 
   createWordblock = async () => {
     this.wordContainer.innerHTML = '';
-    const currentResult = createElement('h2', []);
+    const currentResult = createElement('h2', ['word-container__title']);
     currentResult.textContent = `Current result is ${this.pointsCount}`;
     const pointsPerWord = createElement('p', []);
     const checkboxBlock = createElement('div', []);
@@ -70,32 +85,58 @@ class Sprint extends ApiPage {
     const secondCheckbox = createInputElement('checkbox', '', '', 'form-check-input');
     const thirdCheckbox = createInputElement('checkbox', '', '', 'form-check-input');
     checkboxBlock.append(firstCheckbox, secondCheckbox, thirdCheckbox);
-    pointsPerWord.textContent = '+10';
+    pointsPerWord.textContent = `${this.pointsMultiplier}`;
     const generatedAnswer = this.compareWords();
-    const wordBlock = createElement('div', []);
-    const englishWord = createElement('p', []);
-    const translatedWord = createElement('p', []);
+    const wordBlock = createElement('div', ['word-block']);
+    const englishWord = createElement('p', ['current-word']);
+    const translatedWord = createElement('p', ['answer-word']);
     englishWord.innerHTML = `${generatedAnswer.currentWordEng}`;
     translatedWord.innerHTML = `${generatedAnswer.answer}`;
-    const answerBtns = createElement('div', []);
-    const rightBtn = createButtonElement('button', 'Right', 'btn');
-    const wrongBtn = createButtonElement('button', 'Wrong', 'btn');
+    const answerBtns = createElement('div', ['answer-btns']);
+    const rightBtn = createButtonElement('button', 'right', 'btn', 'btn-right');
+    const wrongBtn = createButtonElement('button', 'wrong', 'btn', 'btn-wrong');
     rightBtn.onclick = async () => {
       if (generatedAnswer.currentWordTranslate === generatedAnswer.answer) {
-        this.pointsCount += 10;
+        this.pointsCount += this.pointsMultiplier;
+        this.winstreak += 1;
+        if (this.winstreak > this.maxWinstreak) {
+          this.maxWinstreak = this.winstreak;
+        }
+        if (this.winstreak === this.borderMultiplier) {
+          this.pointsMultiplier += 10;
+          this.borderMultiplier += 3;
+        }
         this.correctAnswers.push(1);
+        await playAudio(`../../static/audio/correct-answer.mp3`);
         await this.createWordblock();
       } else {
+        await playAudio(`../../static/audio/bad_answer.mp3`);
+        this.winstreak = 0;
+        this.pointsMultiplier = 10;
+        this.borderMultiplier = 3;
         this.inCorrectAnswers.push(1);
         await this.createWordblock();
       }
     };
     wrongBtn.onclick = async () => {
       if (generatedAnswer.currentWordTranslate !== generatedAnswer.answer) {
-        this.pointsCount += 10;
+        this.pointsCount += this.pointsMultiplier;
+        this.winstreak += 1;
+        if (this.winstreak > this.maxWinstreak) {
+          this.maxWinstreak = this.winstreak;
+        }
+        if (this.winstreak === this.borderMultiplier) {
+          this.pointsMultiplier += 10;
+          this.borderMultiplier += 3;
+        }
         this.correctAnswers.push(1);
+        await playAudio(`../../static/audio/correct-answer.mp3`);
         await this.createWordblock();
       } else {
+        await playAudio(`../../static/audio/bad_answer.mp3`);
+        this.winstreak = 0;
+        this.pointsMultiplier = 10;
+        this.borderMultiplier = 3;
         this.inCorrectAnswers.push(1);
         await this.createWordblock();
       }
@@ -107,12 +148,12 @@ class Sprint extends ApiPage {
   };
 
   compareWords = () => {
-    const currentWord = this.gameWords[randomizer(WORDS_PER_PAGE)];
+    const currentWord = this.gameWords[random(WORDS_PER_PAGE)];
     const currentWordEng = currentWord.word;
     const currentWordTranslate = currentWord.wordTranslate;
     const filteredWords = this.gameWords.filter((el) => el.word !== currentWord.word);
-    const wrongAnswer = filteredWords[randomizer(WORDS_PER_PAGE - 1)].wordTranslate;
-    const answer = [currentWordTranslate, wrongAnswer][randomizer(2)];
+    const wrongAnswer = filteredWords[random(WORDS_PER_PAGE - 1)].wordTranslate;
+    const answer = [currentWordTranslate, wrongAnswer][random(2)];
     return {
       currentWord,
       currentWordEng,
@@ -138,17 +179,16 @@ class Sprint extends ApiPage {
 
   createGameRules(): HTMLElement {
     const rulesContainer = createElement('div', ['container', 'sprint-rules-container']);
-    const sprintTitle = createElement('h2', [], 'Sprint');
-    const sprintParagraph = createElement(
-      'p',
-      [],
-      '"Sprint" is a practice for repeating memorized words from your vocabulary.'
+    const functionsUl = createElement(
+      'ul',
+      ['sprint__ul-title'],
+      `"Sprint" is a practice for repeating memorized words from your vocabulary.`
     );
-    const functionsUl = createElement('ul', []);
     const mouseLi = createElement('li', [], 'use the mouse to select.');
     const keysLi = createElement('li', [], 'use the left or right keys.');
     functionsUl.append(mouseLi, keysLi);
-    const selectGroup = createElement('div', ['btn-group']);
+    const btnWrapper = createElement('div', ['rules__btn-wrapper']);
+    const unitBtnGroup = createElement('div', ['btn-group']);
     const firstBtn = createButtonElement('button', '1', 'firstUnit', 'btn');
     const secondBtn = createButtonElement('button', '2', 'secondUnit', 'btn');
     const thirdBtn = createButtonElement('button', '3', 'thirdUnit', 'btn');
@@ -165,8 +205,9 @@ class Sprint extends ApiPage {
     startBtn.onclick = async () => {
       await this.createGame(this.selectedUnit);
     };
-    selectGroup.append(firstBtn, secondBtn, thirdBtn, fourthBtn, fifthBtn, sixthBtn);
-    rulesContainer.append(sprintTitle, sprintParagraph, functionsUl, selectGroup, startBtn);
+    unitBtnGroup.append(firstBtn, secondBtn, thirdBtn, fourthBtn, fifthBtn, sixthBtn);
+    btnWrapper.append(unitBtnGroup, startBtn);
+    rulesContainer.append(functionsUl, btnWrapper);
     return rulesContainer;
   }
 
@@ -192,9 +233,28 @@ class Sprint extends ApiPage {
     const wordsBtn = createButtonElement('button', 'Results', 'btn', 'result-btn');
     resultHeader.append(resultBtn, wordsBtn);
     const resultTitle = createElement('h2', ['result-title'], 'Results');
-    resultWrapper.append(resultTitle);
+    const resultBlock = createElement('div', ['result-block']);
+    const bestStreak = createElement('span', []);
+    bestStreak.innerHTML = `Best winstreak: ${this.maxWinstreak}`;
+    const rulesBtn = createButtonElement('button', 'to start', 'btn');
+    rulesBtn.onclick = () => this.render();
+    resultBlock.append(bestStreak);
+    resultWrapper.append(resultTitle, resultHeader, resultBlock, rulesBtn);
     this.sprintGamePage.append(resultWrapper);
   };
 }
 
 export default Sprint;
+
+// interface IGameStatistics {
+//   newWords: Set<string>;
+//   correct: Map<string, number>;
+//   wrong: Map<string, number>;
+//   bestSeries: number;
+// }
+// const audioChallengeStatistics: IGameStatistics = {
+//   newWords: new Set([]),
+//   correct: new Map([]),
+//   wrong: new Map([]),
+//   bestSeries: 0,
+// };
