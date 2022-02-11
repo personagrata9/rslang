@@ -61,7 +61,7 @@ class AudioChallenge extends ApiPage {
     const audioChallengePage = createElement('div', ['audio-challenge-container']);
     const structurePage = createElement('div', ['audio-challenge-structure']);
     if (state) {
-      if (state === 'true') {
+      if (state === 'Textbook') {
         structurePage.append(await this.createGamePage());
       } else {
         this.level = state;
@@ -138,7 +138,7 @@ class AudioChallenge extends ApiPage {
     );
     buttonChoiseLevel.onclick = async (): Promise<void> => {
       const select = document.querySelector('.select-audio-rules-page') as HTMLSelectElement;
-      this.level = select.value;
+      this.level = String(Number(select.value) - 1);
       localStorage.setItem('isTextbook', `${this.level}`);
       await this.render();
     };
