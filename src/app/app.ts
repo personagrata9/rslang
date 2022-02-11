@@ -72,8 +72,7 @@ class App {
       await page.render();
       // page.addListeners();
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      page.render();
+      await page.render();
     }
   };
 }
