@@ -186,10 +186,10 @@ class AudioChallenge extends ApiPage {
       }
       answerButton.addEventListener('click', async () => {
         if (answerButton.getAttribute('current-word') === currentWord) {
-          await playAudio(`http://localhost:3000/files/audio/correct-answer.mp3`);
+          await playAudio(`../../static/audio/correct-answer.mp3`);
           this.correctAnswers.push(this.currentIndexWord);
         } else {
-          await playAudio(`http://localhost:3000/files/audio/bad_answer.mp3`);
+          await playAudio(`../../static/audio/bad_answer.mp3`);
           this.inCorrectAnswers.push(this.currentIndexWord);
           answerButton.classList.add('incorect-answer');
         }
