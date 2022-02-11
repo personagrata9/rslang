@@ -102,33 +102,34 @@
     flex-wrap: wrap;
     padding: 20px 0;
     justify-content: center;
-    .answer-box {
-      width: 170px;
-      height: 60px;
-      position: relative;
+    .answer-button {
+      width: 200px;
+      height: 50px;
+      border: none;
+      background: $turquoise-dark;
       margin: 20px 20px;
       font-size: 20px;
       cursor: pointer;
-      .back-answer-box {
-        width: 100%;
-        height: 100%;
-        position: absolute;
-        z-index: 1;
-        opacity: .6;
-        background: $turquoise-dark;
-      }
       .word-text {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 3;
+        margin: auto 0;
+        font-size: 20px;
+        font-weight: bold;
         color: $white;
       }
     }
-    .answer-box:hover > .back-answer-box {
+    .answer-button.answered > .word-text {
+      opacity: .6;
+    }
+    .answer-button.correct-answer > .word-text {
       opacity: 1;
+    }
+    .answer-button.incorect-answer > .word-text {
+      opacity: .6;
+      text-decoration: line-through  4px ;
+    }
+    .answer-button:hover {
       transition: ease-in 1s;
+      background: $turquoise;
       box-shadow: 10px 10px 10px black;
     }
   }

@@ -20,7 +20,17 @@ abstract class ApiPage {
     this.api = new Api();
   }
 
-  protected getTextbookWordsItems = async (group?: string, page?: string): Promise<IWord[]> => {
+  protected getTextbookWordsItems = async (): Promise<IWord[]> => {
+    const words: IWord[] = [];
+
+    await this.api
+      .getWords(this.textbookGroup, this.textbookPage)
+      .then((results) => results.forEach((result: IWord) => words.push(result)));
+
+    return words;
+  };
+
+  protected getWordsItems = async (group?: string, page?: string): Promise<IWord[]> => {
     const words: IWord[] = [];
 
     if (!group || !page) {
