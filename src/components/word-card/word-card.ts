@@ -62,11 +62,8 @@ class WordCard {
   private createTextMeaningElement = (): HTMLElement => {
     const textMeaningElement: HTMLElement = createElement('div', [`${this.className}-text-meaning-item`, 'mb-4']);
 
-    const textMeaning: HTMLElement = createElement(
-      'p',
-      [`${this.className}-text-meaning`, 'm-0'],
-      this.word.textMeaning
-    );
+    const textMeaning: HTMLElement = createElement('p', [`${this.className}-text-meaning`, 'm-0']);
+    textMeaning.innerHTML = this.word.textMeaning;
     const textMeaningTranslate: HTMLElement = createElement(
       'p',
       [`${this.className}-text-meaning-translate`, 'm-0'],
@@ -81,11 +78,8 @@ class WordCard {
   private textExampleElement = (): HTMLElement => {
     const textExampleElement: HTMLElement = createElement('div', [`${this.className}-text-example-item`]);
 
-    const textExample: HTMLElement = createElement(
-      'p',
-      [`${this.className}-text-example`, 'm-0'],
-      this.word.textExample
-    );
+    const textExample: HTMLElement = createElement('p', [`${this.className}-text-example`, 'm-0']);
+    textExample.innerHTML = this.word.textExample;
     const textExampleTranslate: HTMLElement = createElement(
       'p',
       [`${this.className}-text-example-translate`, 'm-0'],
@@ -127,6 +121,9 @@ class WordCard {
       this.createWordDescriptionElement(),
       this.createAudioIcon()
     );
+    if (localStorage.getItem('UserId')) {
+      console.log(localStorage.getItem('UserId'));
+    }
 
     return this.container;
   };
