@@ -149,10 +149,13 @@ class Textbook extends ApiPage {
   };
 
   private onChangeGroupNum = async (groupNum: string) => {
-    this.textbookGroup = groupNum;
-    localStorage.setItem('group', groupNum);
-    this.styleGroupsItems();
-    await this.updateContent();
+    if (this.textbookGroup !== groupNum) {
+      this.textbookGroup = groupNum;
+      this.textbookPage = '0';
+      localStorage.setItem('group', groupNum);
+      this.styleGroupsItems();
+      await this.updateContent();
+    }
   };
 
   private onChangePageNum = async (pageNum: string) => {
