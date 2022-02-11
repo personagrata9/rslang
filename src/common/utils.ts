@@ -94,3 +94,22 @@ export const createSelect = (valuesSelect: string[]): HTMLSelectElement => {
   }
   return select as HTMLSelectElement;
 };
+
+function addKeyboard() {
+  const event = new Event('click');
+  window.addEventListener('keydown', (e) => {
+    const repearButton = document.querySelector('.box-audio-button');
+    const repeatButtonSmall = document.querySelector('.box-audio-button-small');
+    const buttonUnknow = document.querySelector('.next-button-word');
+    const buttonNextWord = document.querySelector('.button-nex-word');
+    if (e.code === 'Space') {
+      repearButton?.dispatchEvent(event);
+      repeatButtonSmall?.dispatchEvent(event);
+    }
+    if (e.code === 'Enter') {
+      buttonUnknow?.dispatchEvent(event);
+      buttonNextWord?.dispatchEvent(event);
+    }
+  });
+}
+addKeyboard();
