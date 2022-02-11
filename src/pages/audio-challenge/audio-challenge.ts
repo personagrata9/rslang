@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import { createElement, createSelect, playAudio, random } from '../../common/utils';
 import { NUMBER_OF_PAGES, WORDS_PER_PAGE, NUMBER_OF_GROUPS } from '../../common/constants';
 import { IWord } from '../../common/types';
@@ -10,7 +9,7 @@ function addBoxResults(word: string, translate: string, audioLink: string) {
   const repeatButton = createElement('button', ['popup-button-repeat']);
   repeatButton.innerHTML = svgAudio;
   const fullAudioLink = `http://localhost:3000/${audioLink}`;
-  repeatButton.addEventListener('click', () => playAudio(fullAudioLink));
+  repeatButton.onclick = () => playAudio(fullAudioLink);
   boxWordInfo.append(repeatButton);
   const wordEn = createElement('span', ['popup-english-word']);
   wordEn.innerHTML = `&#160 ${word} &#160`;
@@ -49,7 +48,6 @@ class AudioChallenge extends ApiPage {
     this.page = false;
     this.gameWords = [];
     this.audioLink = '';
-    this.correctAnswers = [];
     this.level = '';
     this.wordImage = '';
     this.correctAnswers = [];
@@ -95,7 +93,9 @@ class AudioChallenge extends ApiPage {
     }
     const repeatButton = createElement('button', ['box-audio-button']);
     repeatButton.innerHTML = `<img class="repeat-audio-button" src="https://www.svgrepo.com/show/210514/music-player-audio.svg">`;
-    repeatButton.addEventListener('click', async () => playAudio(this.audioLink));
+    repeatButton.onclick = async () => {
+      await playAudio(this.audioLink);
+    };
     gamePage.append(repeatButton);
     gamePage.append(await this.createAnswersBox(this.currentWordRus));
     const buttonUnknowWord = createElement(
@@ -103,11 +103,12 @@ class AudioChallenge extends ApiPage {
       ['next-button-word', 'btn', 'btn-outline-light', 'btn-sg', 'px-3'],
       `Don't know`
     );
-    buttonUnknowWord.addEventListener('click', () => {
+    buttonUnknowWord.onclick = async () => {
       this.inCorrectAnswers.push(this.currentIndexWord);
+      await playAudio(`../../static/audio/bad_answer.mp3`);
       this.answered(this.currentWordRus);
       this.createCorrectAnswerPage();
-    });
+    };
     gamePage.append(buttonUnknowWord);
     return gamePage;
   }
@@ -135,12 +136,12 @@ class AudioChallenge extends ApiPage {
       ['choise-audio-level-button', 'btn', 'btn-outline-light'],
       'Start'
     );
-    buttonChoiseLevel.addEventListener('click', async (): Promise<void> => {
+    buttonChoiseLevel.onclick = async (): Promise<void> => {
       const select = document.querySelector('.select-audio-rules-page') as HTMLSelectElement;
       this.level = select.value;
       localStorage.setItem('isTextbook', `${this.level}`);
       await this.render();
-    });
+    };
     controlBoxAudio.append(buttonChoiseLevel);
     frontContainer.append(controlBoxAudio);
     rulesPage.append(frontContainer);
@@ -183,7 +184,7 @@ class AudioChallenge extends ApiPage {
           answerButton.innerHTML = `<p class="word-text">${res}</p>`;
         });
       }
-      answerButton.addEventListener('click', async () => {
+      answerButton.onclick = async () => {
         if (answerButton.getAttribute('current-word') === currentWord) {
           await playAudio(`../../static/audio/correct-answer.mp3`);
           this.correctAnswers.push(this.currentIndexWord);
@@ -195,7 +196,7 @@ class AudioChallenge extends ApiPage {
         this.createCorrectAnswerPage();
         localStorage.setItem('isTextbook', `${this.level}`);
         this.answered(currentWord);
-      });
+      };
       answerButton.setAttribute('key', `Digit${i + 1}`);
       answersBox.append(answerButton);
     }
@@ -215,7 +216,7 @@ class AudioChallenge extends ApiPage {
     const containerInfo = createElement('div', ['container-info-correct-word']);
     const repeatButton = createElement('div', ['box-audio-button-small']);
     repeatButton.innerHTML = `<img class="repeat-audio-button-small" src="https://www.svgrepo.com/show/210514/music-player-audio.svg">`;
-    repeatButton.addEventListener('click', async () => playAudio(this.audioLink));
+    repeatButton.onclick = async () => playAudio(this.audioLink);
     containerInfo.append(repeatButton);
     const wordContainer = createElement('p', ['correct-word-container'], `${this.currentWordEn}`);
     containerInfo.append(wordContainer);
@@ -226,14 +227,14 @@ class AudioChallenge extends ApiPage {
       ['button-nex-word', 'btn-sg', 'px-3', 'btn', 'btn-outline-light'],
       '→'
     );
-    buttonNextWord.addEventListener('click', async () => {
+    buttonNextWord.onclick = async () => {
       if (this.currentIndexWord < this.gameWords.length) {
         audioChallengePage.innerHTML = '';
         await this.render();
       } else {
         this.openResultPage();
       }
-    });
+    };
     audioChallengePage?.append(buttonNextWord);
   }
 
@@ -280,10 +281,10 @@ class AudioChallenge extends ApiPage {
         popupResults.append(addBoxResults(currentWordEn, currentWordRu, currentAudio));
       });
       const closeButton = createElement('button', ['close-popup-button'], 'Сlose game');
-      closeButton.addEventListener('click', async () => {
+      closeButton.onclick = async () => {
         localStorage.removeItem('isTextbook');
         await this.render();
-      });
+      };
       popupResults.append(closeButton);
       audioChallengeContainer.append(popupResults);
     }
