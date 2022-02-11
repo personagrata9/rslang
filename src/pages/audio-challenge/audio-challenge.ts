@@ -103,7 +103,7 @@ class AudioChallenge extends ApiPage {
       ['next-button-word', 'btn', 'btn-outline-light', 'btn-sg', 'px-3'],
       `Don't know`
     );
-    buttonUnknowWord.addEventListener('click', async () => {
+    buttonUnknowWord.addEventListener('click', () => {
       this.answered(this.currentWordRus);
       this.inCorrectAnswers.push(this.currentIndexWord);
       this.createCorrectAnswerPage();
@@ -124,7 +124,6 @@ class AudioChallenge extends ApiPage {
     const ulRules = createElement('ul', ['list-rules']);
     ulRules.append(createElement('li', [listClass], 'Use the mouse to select.'));
     ulRules.append(createElement('li', [listClass], 'Use number keys from 1 to 5 to select an answer'));
-    ulRules.append(createElement('li', [listClass], 'Use the mouse to select.'));
     ulRules.append(createElement('li', [listClass], `Use a "space" to repeat a word`));
     ulRules.append(createElement('li', [listClass], `Use the "Enter" key for a hint or to move to the next word`));
     frontContainer.append(ulRules);
