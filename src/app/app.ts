@@ -70,9 +70,9 @@ class App {
     contentContainer.innerHTML = '';
     if (page instanceof ApiPage) {
       await page.render();
-      // page.addListeners();
+      page.addListeners();
     } else {
-      await page.render();
+      page.render();
     }
   };
 }
