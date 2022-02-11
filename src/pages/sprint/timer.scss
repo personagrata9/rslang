@@ -1,0 +1,114 @@
+@import "src/styles/common";
+
+.timer-wrapper {
+  min-height: 100%;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.timer-container {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  border: 1px solid $orange;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.timer-container:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  z-index: 3;
+  background-color: white;
+  animation: mask_left 60s steps(1,end) forwards;
+}
+
+.timer-container:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 50%;
+  height: 100%;
+  z-index: 3;
+  background-color: #005365;
+  animation: mask_right 60s steps(1,end) forwards;
+}
+
+.timer-line {
+  position: absolute;
+  top:0;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  animation: Line 60s linear forwards;
+}
+
+.timer-line:after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background-color: #005365;
+}
+
+.timer-body {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  text-align: center;
+  overflow: hidden;
+  background-color: $orange;
+  z-index: 4;
+}
+
+.timer-counter {
+  span {
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
+  }
+}
+
+@keyframes Line {
+  0% {
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes mask_left {
+  0% {
+    visibility: visible;
+  }
+  50%,
+  100% {
+    visibility: hidden;
+  }
+}
+
+@keyframes mask_right {
+  0% {
+    visibility: hidden;
+  }
+  50%,
+  100% {
+    visibility: visible;
+  }
+}
