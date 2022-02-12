@@ -8,6 +8,6 @@ const footerHtml = `
   <a href="https://github.com/personagrata9">personagrata9</a>
   <a href="https://github.com/kaputah-ulutka">KaPuTaH-UluTka</a>
   <a href="https://github.com/anterebol">anterebol</a>
-  <p class="year-created">© 2021</p>
+  <p class="year-created">© 2022</p>
 </div>`;
 export default footerHtml;
