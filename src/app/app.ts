@@ -34,7 +34,7 @@ class App {
   };
 
   private addComponentsListeners = (): void => {
-    // this.header.addListeners();
+    this.header.addListeners();
     this.aside.addListeners();
     // this.footer.addListeners();
   };
@@ -72,6 +72,7 @@ class App {
       await page.render();
       // page.addListeners();
     } else {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       await page.render();
     }
   };
