@@ -13,9 +13,9 @@ class Sprint extends ApiPage {
 
   private gameWords: IWord[];
 
-  private correctAnswers: number[];
+  private correctAnswers: IWord[];
 
-  private inCorrectAnswers: number[];
+  private inCorrectAnswers: IWord[];
 
   private wordContainer: HTMLElement;
 
@@ -52,7 +52,7 @@ class Sprint extends ApiPage {
     this.sprintGamePage.innerHTML = '';
     const state = localStorage.getItem('isTextbook');
     if (state) {
-      if (state === 'Textbook') {
+      if (this.selectedUnit) {
         await this.createGame(this.textbookGroup);
       }
     } else {
@@ -97,54 +97,16 @@ class Sprint extends ApiPage {
     const rightBtn = createButtonElement('button', 'right', 'btn', 'btn-right');
     const wrongBtn = createButtonElement('button', 'wrong', 'btn', 'btn-wrong');
     rightBtn.onclick = async () => {
-      if (generatedAnswer.currentWord.wordTranslate === generatedAnswer.answer) {
-        this.pointsCount += this.pointsMultiplier;
-        this.winstreak += 1;
-        if (this.winstreak > this.maxWinstreak) {
-          this.maxWinstreak = this.winstreak;
-        }
-        if (this.winstreak === this.borderMultiplier) {
-          this.pointsMultiplier += 10;
-          this.borderMultiplier += 3;
-        }
-        this.correctAnswers.push(1);
-        sprintStatistics.correct.set(generatedAnswer.currentWord.id, 1);
-        // await playAudio(`../../static/audio/correct-answer.mp3`);
-        await this.createWordblock();
-      } else {
-        // await playAudio(`../../static/audio/bad_answer.mp3`);
-        sprintStatistics.wrong.set(generatedAnswer.currentWord.id, 1);
-        this.winstreak = 0;
-        this.pointsMultiplier = 10;
-        this.borderMultiplier = 3;
-        this.inCorrectAnswers.push(1);
-        await this.createWordblock();
-      }
+      await this.checkAnswer(
+        generatedAnswer.currentWord.wordTranslate === generatedAnswer.answer,
+        generatedAnswer.currentWord
+      );
     };
     wrongBtn.onclick = async () => {
-      if (generatedAnswer.currentWord.wordTranslate !== generatedAnswer.answer) {
-        this.pointsCount += this.pointsMultiplier;
-        this.winstreak += 1;
-        if (this.winstreak > this.maxWinstreak) {
-          this.maxWinstreak = this.winstreak;
-        }
-        if (this.winstreak === this.borderMultiplier) {
-          this.pointsMultiplier += 10;
-          this.borderMultiplier += 3;
-        }
-        this.correctAnswers.push(1);
-        sprintStatistics.correct.set(generatedAnswer.currentWord.id, 1);
-        // await playAudio(`../../static/audio/correct-answer.mp3`);
-        await this.createWordblock();
-      } else {
-        // await playAudio(`../../static/audio/bad_answer.mp3`);
-        sprintStatistics.wrong.set(generatedAnswer.currentWord.id, 1);
-        this.winstreak = 0;
-        this.pointsMultiplier = 10;
-        this.borderMultiplier = 3;
-        this.inCorrectAnswers.push(1);
-        await this.createWordblock();
-      }
+      await this.checkAnswer(
+        generatedAnswer.currentWord.wordTranslate !== generatedAnswer.answer,
+        generatedAnswer.currentWord
+      );
     };
     answerBtns.append(rightBtn, wrongBtn);
     wordBlock.append(englishWord, translatedWord, answerBtns);
@@ -152,31 +114,43 @@ class Sprint extends ApiPage {
     return this.wordContainer;
   };
 
-  // checkAnswer = (condition: IWord) => {
-  //   if (condition) {
-  //     this.pointsCount += this.pointsMultiplier;
-  //     this.winstreak += 1;
-  //     if (this.winstreak > this.maxWinstreak) {
-  //       this.maxWinstreak = this.winstreak;
-  //     }
-  //     if (this.winstreak === this.borderMultiplier) {
-  //       this.pointsMultiplier += 10;
-  //       this.borderMultiplier += 3;
-  //     }
-  //     this.correctAnswers.push(1);
-  //     sprintStatistics.correct.set(generatedAnswer.currentWord.id, 1);
-  //     // await playAudio(`../../static/audio/correct-answer.mp3`);
-  //     await this.createWordblock();
-  //   } else {
-  //     // await playAudio(`../../static/audio/bad_answer.mp3`);
-  //     sprintStatistics.wrong.set(generatedAnswer.currentWord.id, 1);
-  //     this.winstreak = 0;
-  //     this.pointsMultiplier = 10;
-  //     this.borderMultiplier = 3;
-  //     this.inCorrectAnswers.push(1);
-  //     await this.createWordblock();
-  //   }
-  // };
+  private checkAnswer = async (condition: boolean, currentWord: IWord): Promise<void> => {
+    sprintStatistics.newWords.add(currentWord.id);
+    if (condition) {
+      this.pointsCount += this.pointsMultiplier;
+      this.winstreak += 1;
+      if (this.winstreak > this.maxWinstreak) {
+        this.maxWinstreak = this.winstreak;
+      }
+      if (this.winstreak === this.borderMultiplier) {
+        this.pointsMultiplier += 10;
+        this.borderMultiplier += 3;
+      }
+      this.correctAnswers.push(currentWord);
+      if (sprintStatistics.correct.has(currentWord.id)) {
+        const value = <number>sprintStatistics.correct.get(currentWord.id);
+        sprintStatistics.correct.set(currentWord.id, value + 1);
+      } else {
+        sprintStatistics.correct.set(currentWord.id, 1);
+      }
+      // await playAudio(`../../static/audio/correct-answer.mp3`);
+      await this.createWordblock();
+    } else {
+      // await playAudio(`../../static/audio/bad_answer.mp3`);
+      this.winstreak = 0;
+      this.pointsMultiplier = 10;
+      this.borderMultiplier = 3;
+      this.inCorrectAnswers.push(currentWord);
+      if (sprintStatistics.wrong.has(currentWord.id)) {
+        const value = <number>sprintStatistics.wrong.get(currentWord.id);
+        sprintStatistics.wrong.set(currentWord.id, value + 1);
+      } else {
+        sprintStatistics.wrong.set(currentWord.id, 1);
+      }
+      await this.createWordblock();
+    }
+    console.log(sprintStatistics);
+  };
 
   compareWords = async () => {
     const currentWord = this.gameWords[this.counter];
@@ -289,7 +263,9 @@ class Sprint extends ApiPage {
     const winrate = createElement('span', []);
     winrate.innerHTML = `Winrate: ${this.inCorrectAnswers.length / this.correctAnswers.length || 0}`;
     bestStreak.innerHTML = `Best winstreak: ${this.maxWinstreak}`;
-    sprintStatistics.bestSeries = this.maxWinstreak;
+    if (sprintStatistics.bestSeries < this.maxWinstreak) {
+      sprintStatistics.bestSeries = this.maxWinstreak;
+    }
     const rightAnswerCount = createElement('span', []);
     const wrongAnswerCount = createElement('span', []);
     rightAnswerCount.innerHTML = `Right answers: ${this.correctAnswers.length}`;
@@ -304,6 +280,7 @@ class Sprint extends ApiPage {
     this.correctAnswers = [];
     this.inCorrectAnswers = [];
     this.winstreak = 0;
+    this.maxWinstreak = 0;
     this.pointsCount = 0;
     this.counter = 0;
   };
