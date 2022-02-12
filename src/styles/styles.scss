@@ -10,3 +10,6 @@
 .content-container {
   padding: 0;
 }
+.content-container.preloader {
+  background: url('../static/Book.gif') no-repeat center;
+}

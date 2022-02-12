@@ -56,24 +56,24 @@ class AudioChallenge extends ApiPage {
 
   async render(): Promise<void> {
     const state = localStorage.getItem('isTextbook');
-    const contentContainer = <HTMLDivElement>document.querySelector('.content-container');
-    contentContainer.innerHTML = '';
+    this.contentContainer.innerHTML = '';
+    this.contentContainer.classList.add('preloader');
     const audioChallengePage = createElement('div', ['audio-challenge-container']);
     const structurePage = createElement('div', ['audio-challenge-structure']);
     if (state) {
-      if (state === 'Textbook') {
-        structurePage.append(await this.createGamePage());
-      } else {
-        this.level = state;
-        structurePage.append(await this.createGamePage(state));
-      }
+      structurePage.append(await this.createGamePage());
+      await playAudio(this.audioLink);
+      this.addKeyboardAnswers();
+    } else if (this.level) {
+      structurePage.append(await this.createGamePage(this.level));
+      await playAudio(this.audioLink);
+      this.addKeyboardAnswers();
     } else {
       structurePage.append(await this.createRulesPage());
     }
     audioChallengePage.append(structurePage);
-    contentContainer.append(audioChallengePage);
-    await playAudio(this.audioLink);
-    this.addKeyboardAnswers();
+    this.contentContainer.append(audioChallengePage);
+    this.contentContainer.classList.remove('preloader');
   }
 
   async createGamePage(state?: string): Promise<HTMLElement> {
@@ -106,8 +106,8 @@ class AudioChallenge extends ApiPage {
     buttonUnknowWord.onclick = async () => {
       this.inCorrectAnswers.push(this.currentIndexWord);
       await playAudio(`../../static/audio/bad_answer.mp3`);
-      this.answered(this.currentWordRus);
       this.createCorrectAnswerPage();
+      this.answered(this.currentWordRus);
     };
     gamePage.append(buttonUnknowWord);
     return gamePage;
@@ -130,18 +130,21 @@ class AudioChallenge extends ApiPage {
     frontContainer.append(ulRules);
     const controlBoxAudio = createElement('div', ['control-box-audio-page']);
     const selectLevel = createSelect(['1', '2', '3', '4', '5', '6']);
-    controlBoxAudio.append(selectLevel);
     const buttonChoiseLevel = createElement(
       'button',
       ['choise-audio-level-button', 'btn', 'btn-outline-light'],
       'Start'
     );
+    buttonChoiseLevel.setAttribute('disabled', 'true');
     buttonChoiseLevel.onclick = async (): Promise<void> => {
       const select = document.querySelector('.select-audio-rules-page') as HTMLSelectElement;
       this.level = String(Number(select.value) - 1);
-      localStorage.setItem('isTextbook', `${this.level}`);
       await this.render();
     };
+    selectLevel.addEventListener('input', () => {
+      buttonChoiseLevel.removeAttribute('disabled');
+    });
+    controlBoxAudio.append(selectLevel);
     controlBoxAudio.append(buttonChoiseLevel);
     frontContainer.append(controlBoxAudio);
     rulesPage.append(frontContainer);
@@ -194,7 +197,7 @@ class AudioChallenge extends ApiPage {
           answerButton.classList.add('incorect-answer');
         }
         this.createCorrectAnswerPage();
-        localStorage.setItem('isTextbook', `${this.level}`);
+        // localStorage.setItem('isTextbook', `${this.level}`);
         this.answered(currentWord);
       };
       answerButton.setAttribute('key', `Digit${i + 1}`);
@@ -239,17 +242,22 @@ class AudioChallenge extends ApiPage {
   }
 
   addKeyboardAnswers() {
+    const digitArr = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5'];
     const event = new Event('click');
     window.addEventListener(
       'keydown',
       (e) => {
         const evCode = e.code;
-        const answersButtons = document.querySelectorAll('.answer-button');
-        answersButtons.forEach((button) => {
-          if (button.getAttribute('key') === evCode) {
-            button.dispatchEvent(event);
-          }
-        });
+        if (digitArr.indexOf(evCode) === -1) {
+          this.addKeyboardAnswers();
+        } else {
+          const answersButtons = document.querySelectorAll('.answer-button');
+          answersButtons.forEach((button) => {
+            if (button.getAttribute('key') === evCode) {
+              button.dispatchEvent(event);
+            }
+          });
+        }
       },
       { once: true }
     );
@@ -283,12 +291,16 @@ class AudioChallenge extends ApiPage {
       const closeButton = createElement('button', ['close-popup-button'], 'Сlose game');
       closeButton.onclick = async () => {
         localStorage.removeItem('isTextbook');
+        this.level = '';
         await this.render();
       };
       popupResults.append(closeButton);
       audioChallengeContainer.append(popupResults);
     }
     this.currentIndexWord = 0;
+    this.correctAnswers = [];
+    this.inCorrectAnswers = [];
   }
 }
+window.addEventListener('beforeunload', () => localStorage.removeItem('isTextbook'));
 export default AudioChallenge;

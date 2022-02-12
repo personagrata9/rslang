@@ -34,7 +34,7 @@ class App {
   };
 
   private addComponentsListeners = (): void => {
-    // this.header.addListeners();
+    this.header.addListeners();
     this.aside.addListeners();
     // this.footer.addListeners();
   };
@@ -68,12 +68,14 @@ class App {
     const parsedURL = checkHash();
     const page = routes[parsedURL] || new Error404();
     contentContainer.innerHTML = '';
+    contentContainer.classList.add('preloader');
     if (page instanceof ApiPage) {
       await page.render();
       // page.addListeners();
     } else {
       await page.render();
     }
+    contentContainer.classList.remove('preloader');
   };
 }
 
