@@ -40,6 +40,8 @@ class AudioChallenge extends ApiPage {
 
   private wordImage: string;
 
+  private onceClick: boolean;
+
   constructor() {
     super('audio-challenge');
     this.currentIndexWord = 0;
@@ -52,28 +54,30 @@ class AudioChallenge extends ApiPage {
     this.wordImage = '';
     this.correctAnswers = [];
     this.inCorrectAnswers = [];
+    this.onceClick = true;
   }
 
   async render(): Promise<void> {
     const state = localStorage.getItem('isTextbook');
-    const contentContainer = <HTMLDivElement>document.querySelector('.content-container');
-    contentContainer.innerHTML = '';
+    this.contentContainer.innerHTML = '';
+    this.contentContainer.classList.add('preloader');
     const audioChallengePage = createElement('div', ['audio-challenge-container']);
     const structurePage = createElement('div', ['audio-challenge-structure']);
     if (state) {
-      if (state === 'Textbook') {
-        structurePage.append(await this.createGamePage());
-      } else {
-        this.level = state;
-        structurePage.append(await this.createGamePage(state));
-      }
+      structurePage.append(await this.createGamePage());
+      await playAudio(this.audioLink);
+      this.addKeyboardAnswers();
+    } else if (this.level) {
+      structurePage.append(await this.createGamePage(this.level));
+      await playAudio(this.audioLink);
+      this.addKeyboardAnswers();
     } else {
       structurePage.append(await this.createRulesPage());
     }
     audioChallengePage.append(structurePage);
-    contentContainer.append(audioChallengePage);
-    await playAudio(this.audioLink);
-    this.addKeyboardAnswers();
+    this.contentContainer.append(audioChallengePage);
+    this.contentContainer.classList.remove('preloader');
+    this.onceClick = true;
   }
 
   async createGamePage(state?: string): Promise<HTMLElement> {
@@ -106,8 +110,9 @@ class AudioChallenge extends ApiPage {
     buttonUnknowWord.onclick = async () => {
       this.inCorrectAnswers.push(this.currentIndexWord);
       await playAudio(`../../static/audio/bad_answer.mp3`);
-      this.answered(this.currentWordRus);
       this.createCorrectAnswerPage();
+      this.answered(this.currentWordRus);
+      this.onceClick = false;
     };
     gamePage.append(buttonUnknowWord);
     return gamePage;
@@ -130,18 +135,21 @@ class AudioChallenge extends ApiPage {
     frontContainer.append(ulRules);
     const controlBoxAudio = createElement('div', ['control-box-audio-page']);
     const selectLevel = createSelect(['1', '2', '3', '4', '5', '6']);
-    controlBoxAudio.append(selectLevel);
     const buttonChoiseLevel = createElement(
       'button',
       ['choise-audio-level-button', 'btn', 'btn-outline-light'],
       'Start'
     );
+    buttonChoiseLevel.setAttribute('disabled', 'true');
     buttonChoiseLevel.onclick = async (): Promise<void> => {
       const select = document.querySelector('.select-audio-rules-page') as HTMLSelectElement;
       this.level = String(Number(select.value) - 1);
-      localStorage.setItem('isTextbook', `${this.level}`);
       await this.render();
     };
+    selectLevel.addEventListener('input', () => {
+      buttonChoiseLevel.removeAttribute('disabled');
+    });
+    controlBoxAudio.append(selectLevel);
     controlBoxAudio.append(buttonChoiseLevel);
     frontContainer.append(controlBoxAudio);
     rulesPage.append(frontContainer);
@@ -157,6 +165,10 @@ class AudioChallenge extends ApiPage {
   };
 
   answered(currentWord: string) {
+    const buttonUnknowWord = document.querySelector('.next-button-word');
+    if (buttonUnknowWord) {
+      buttonUnknowWord.setAttribute('disabled', 'true');
+    }
     const buttons = document.querySelectorAll('.answer-button');
     buttons.forEach((button) => {
       button.setAttribute('disabled', 'true');
@@ -194,8 +206,8 @@ class AudioChallenge extends ApiPage {
           answerButton.classList.add('incorect-answer');
         }
         this.createCorrectAnswerPage();
-        localStorage.setItem('isTextbook', `${this.level}`);
         this.answered(currentWord);
+        this.onceClick = false;
       };
       answerButton.setAttribute('key', `Digit${i + 1}`);
       answersBox.append(answerButton);
@@ -204,52 +216,60 @@ class AudioChallenge extends ApiPage {
   }
 
   createCorrectAnswerPage() {
-    const audioChallengePage = document.querySelector('.audio-challenge-structure') as HTMLElement;
-    document?.querySelector('.box-audio-button')?.remove();
-    document?.querySelector('.next-button-word')?.remove();
-    const answersBox = document.querySelector('.answers-box') as HTMLElement;
-    const exampleBoxImage = createElement('div', ['example-image-box']);
-    const exampleImage = createElement('img', ['example-image']);
-    exampleImage.setAttribute('src', `http://localhost:3000/${this.wordImage}`);
-    exampleBoxImage.append(exampleImage);
-    audioChallengePage?.append(exampleBoxImage);
-    const containerInfo = createElement('div', ['container-info-correct-word']);
-    const repeatButton = createElement('div', ['box-audio-button-small']);
-    repeatButton.innerHTML = `<img class="repeat-audio-button-small" src="https://www.svgrepo.com/show/210514/music-player-audio.svg">`;
-    repeatButton.onclick = async () => playAudio(this.audioLink);
-    containerInfo.append(repeatButton);
-    const wordContainer = createElement('p', ['correct-word-container'], `${this.currentWordEn}`);
-    containerInfo.append(wordContainer);
-    audioChallengePage?.append(containerInfo);
-    containerInfo.after(answersBox);
-    const buttonNextWord = createElement(
-      'button',
-      ['button-nex-word', 'btn-sg', 'px-3', 'btn', 'btn-outline-light'],
-      '→'
-    );
-    buttonNextWord.onclick = async () => {
-      if (this.currentIndexWord < this.gameWords.length) {
-        audioChallengePage.innerHTML = '';
-        await this.render();
-      } else {
-        this.openResultPage();
-      }
-    };
-    audioChallengePage?.append(buttonNextWord);
+    if (this.onceClick) {
+      this.onceClick = false;
+      const audioChallengePage = document.querySelector('.audio-challenge-structure') as HTMLElement;
+      document?.querySelector('.box-audio-button')?.remove();
+      document?.querySelector('.next-button-word')?.remove();
+      const answersBox = document.querySelector('.answers-box') as HTMLElement;
+      const exampleBoxImage = createElement('div', ['example-image-box']);
+      const exampleImage = createElement('img', ['example-image']);
+      exampleImage.setAttribute('src', `http://localhost:3000/${this.wordImage}`);
+      exampleBoxImage.append(exampleImage);
+      audioChallengePage?.append(exampleBoxImage);
+      const containerInfo = createElement('div', ['container-info-correct-word']);
+      const repeatButton = createElement('div', ['box-audio-button-small']);
+      repeatButton.innerHTML = `<img class="repeat-audio-button-small" src="https://www.svgrepo.com/show/210514/music-player-audio.svg">`;
+      repeatButton.onclick = async () => playAudio(this.audioLink);
+      containerInfo.append(repeatButton);
+      const wordContainer = createElement('p', ['correct-word-container'], `${this.currentWordEn}`);
+      containerInfo.append(wordContainer);
+      audioChallengePage?.append(containerInfo);
+      containerInfo.after(answersBox);
+      const buttonNextWord = createElement(
+        'button',
+        ['button-nex-word', 'btn-sg', 'px-3', 'btn', 'btn-outline-light'],
+        '→'
+      );
+      buttonNextWord.onclick = async () => {
+        if (this.currentIndexWord < this.gameWords.length) {
+          audioChallengePage.innerHTML = '';
+          await this.render();
+        } else {
+          this.openResultPage();
+        }
+      };
+      audioChallengePage?.append(buttonNextWord);
+    }
   }
 
   addKeyboardAnswers() {
+    const digitArr = ['Digit1', 'Digit2', 'Digit3', 'Digit4', 'Digit5'];
     const event = new Event('click');
     window.addEventListener(
       'keydown',
       (e) => {
         const evCode = e.code;
-        const answersButtons = document.querySelectorAll('.answer-button');
-        answersButtons.forEach((button) => {
-          if (button.getAttribute('key') === evCode) {
-            button.dispatchEvent(event);
-          }
-        });
+        if (digitArr.indexOf(evCode) === -1) {
+          this.addKeyboardAnswers();
+        } else {
+          const answersButtons = document.querySelectorAll('.answer-button');
+          answersButtons.forEach((button) => {
+            if (button.getAttribute('key') === evCode) {
+              button.dispatchEvent(event);
+            }
+          });
+        }
       },
       { once: true }
     );
@@ -283,12 +303,16 @@ class AudioChallenge extends ApiPage {
       const closeButton = createElement('button', ['close-popup-button'], 'Сlose game');
       closeButton.onclick = async () => {
         localStorage.removeItem('isTextbook');
+        this.level = '';
         await this.render();
       };
       popupResults.append(closeButton);
       audioChallengeContainer.append(popupResults);
     }
     this.currentIndexWord = 0;
+    this.correctAnswers = [];
+    this.inCorrectAnswers = [];
   }
 }
+window.addEventListener('beforeunload', () => localStorage.removeItem('isTextbook'));
 export default AudioChallenge;
