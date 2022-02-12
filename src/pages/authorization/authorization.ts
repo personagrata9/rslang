@@ -54,10 +54,10 @@ class LoginPopup {
 
   private createModal = (): HTMLElement => {
     const modal = createElement('div', ['modal', 'fade', 'show']);
-    modal.onclick = this.closeModal;
+    modal.onmousedown = this.closeModal;
     modal.style.display = 'block';
     const modalDialog = createElement('div', ['modal-dialog']);
-    modalDialog.onclick = (e) => e.stopPropagation();
+    modalDialog.onmousedown = (e) => e.stopPropagation();
     const modalContent = createElement('div', ['modal-content']);
     const modalHeader = createElement('div', ['modal-header']);
     const closeBtn = createButtonElement('button', '', 'btn-close');
