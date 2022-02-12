@@ -2,6 +2,7 @@
 
 .textbook-group-navigation {
   background-color: $gray-light;
+  width: 100%;
 
   .navbar-nav {
     height: 56px;
@@ -40,6 +41,7 @@
 .textbook-page-navigation {
   gap: 1rem;
   margin: 1rem 0;
+  min-width: 400px;
 
   .pagination {
     list-style: none;
@@ -76,6 +78,85 @@
 
     &:hover {
       background-color: $gray-light;
+    }
+  }
+}
+
+.textbook-minigames-container {
+  position: relative;
+  align-self: center;
+  border-radius: 5px;
+  user-select: none;
+
+  &.active {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .minigames-title-container {
+    gap: 1rem;
+    min-width: 300px;
+    height: 40px;
+    padding: 0.5rem 0;
+    color: $white;
+    opacity: 0.7;
+    transition: all 0.3s linear;
+    cursor: pointer;
+
+    .minigames-chevron-icon {
+      transition: all 0.3s linear;
+    }
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  .textbook-minigames-links {
+    position: absolute;
+    display: none;
+    top: 40px;
+    gap: 10px;
+    width: 100%;
+    height: auto;
+    z-index: 2;
+    background-color: $white;
+    border-right: 2px solid;
+    border-bottom: 2px solid;
+    border-left: 2px solid;
+    transition: all 0.3s linear;
+
+    .textbook-minigames-link {
+      display: block;
+      width: 125px;
+      height: 125px;
+      border-radius: 50%;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      text-decoration: none;
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 22px;
+      opacity: 0.7;
+      transition: all 0.3s linear;
+      cursor: pointer;
+
+      &:hover {
+        opacity: 1;
+        transform: scale(1.02);
+      }
+
+      &:first-child {
+        padding-top: 5px;
+        background-image: url(https://images.unsplash.com/photo-1575975243243-5462a2054ed2?fit=max&fm=jpg&ixid=MXwzNTY3MHwwfDF8YWxsfHx8fHx8fHw&ixlib=rb-1.2.1&q=75&w=720&utm_medium=referral&utm_source=vocal.media);
+      }
+
+      &:last-child {
+        padding-top: 15px;
+        background-image: url(https://best-of-netflix.com/static/uploads/sites/4/2021/11/Squid-Game-doll.jpg);
+      }
     }
   }
 }
