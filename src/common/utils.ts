@@ -1,4 +1,4 @@
-import { Methods } from './types';
+import { IWord, Methods } from './types';
 
 export const createElement = (teg: string, classNames: string[], innerText?: string): HTMLElement => {
   const element = document.createElement(teg);
@@ -122,3 +122,8 @@ function addKeyboard() {
   });
 }
 addKeyboard();
+
+export function shuffle(array: IWord[]) {
+  array.sort(() => Math.random() - 0.5);
+  return array;
+}
