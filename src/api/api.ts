@@ -1,7 +1,9 @@
 import { BASE_URL } from '../common/constants';
 import {
+  IFilter,
   INewUser,
   INewUserWord,
+  INewUserWordData,
   ISignUser,
   ISignUserData,
   IStatistics,
@@ -95,7 +97,7 @@ class Api {
     return res.json().then();
   };
 
-  getUserWords = async (userId: string): Promise<INewUserWord[]> => {
+  getUserWords = async (userId: string): Promise<INewUserWordData[]> => {
     const res = await fetch(`${this.url}/users/${userId}/words`, {
       headers: {
         Authorization: `Bearer ${this.token}`,
@@ -117,7 +119,7 @@ class Api {
     });
   };
 
-  getUserWordById = async ({ userId, wordId }: IUserWord): Promise<INewUserWord> => {
+  getUserWordById = async ({ userId, wordId }: IUserWord): Promise<INewUserWordData> => {
     const res = await fetch(`${this.url}/users/${userId}/words/${wordId}`, {
       headers: {
         Authorization: `Bearer ${this.token}`,
@@ -169,6 +171,28 @@ class Api {
       },
       body: JSON.stringify(options),
     });
+  };
+
+  getAggregatedWords = async (
+    userId: string,
+    group: string,
+    page: string,
+    wordsPerPage: string,
+    filter: IFilter
+  ): Promise<void> => {
+    const res = await fetch(
+      `${
+        this.url
+      }/users/${userId}/aggregatedWords?group=${group}&page=${page}&wordsPerPage=${wordsPerPage}&filter=${JSON.stringify(
+        filter
+      )}`,
+      {
+        headers: {
+          Accept: 'application/json',
+        },
+      }
+    );
+    return res.json().then();
   };
 }
 

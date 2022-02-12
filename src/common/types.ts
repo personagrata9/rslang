@@ -44,8 +44,9 @@ export interface IUserWord {
 export type DifficultyType = 'hard' | 'easy';
 
 export interface INewUserWordData {
+  wordId?: string;
   difficulty: DifficultyType;
-  optional?: IOptional;
+  optional: IOptional;
 }
 
 export interface INewUserWord extends IUserWord {
@@ -53,7 +54,7 @@ export interface INewUserWord extends IUserWord {
 }
 
 export interface IOptional {
-  [key: string]: string;
+  learned?: boolean;
 }
 
 export interface IStatistics {
@@ -81,4 +82,13 @@ export enum Colors {
   Orange = '#e17719',
 }
 
-export type PageNameType = 'main' | 'textbook' | 'audio-challenge' | 'sprint' | 'statistics' | 'error404';
+export type PageNameType = 'textbook' | 'audio-challenge' | 'sprint';
+
+export type FilterType = {
+  [key: string]: string | boolean | null;
+};
+
+export interface IFilter {
+  $and?: FilterType[];
+  $or?: FilterType[];
+}
