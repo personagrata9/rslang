@@ -1,4 +1,4 @@
-import { createButtonElement, createElement, createInputElement, playAudio, random } from '../../common/utils';
+import { createButtonElement, createElement, createInputElement, random, shuffle } from '../../common/utils';
 import ApiPage from '../api-page';
 import { IWord } from '../../common/types';
 import { NUMBER_OF_PAGES, WORDS_PER_PAGE } from '../../common/constants';
@@ -8,12 +8,6 @@ class Sprint extends ApiPage {
   private selectedUnit: string;
 
   private sprintGamePage: HTMLElement;
-
-  private currentWordRus: string;
-
-  private currentIndexWord: number;
-
-  private currentWordEn: string;
 
   private page: number | boolean;
 
@@ -35,43 +29,47 @@ class Sprint extends ApiPage {
 
   private borderMultiplier: number;
 
+  private counter: number;
+
   constructor() {
     super('sprint');
     this.sprintGamePage = createElement('div', ['sprint-container']);
     this.wordContainer = createElement('div', ['container-sm', 'word-container']);
     this.selectedUnit = '';
-    this.currentIndexWord = 0;
-    this.currentWordRus = '';
-    this.currentWordEn = '';
     this.pointsCount = 0;
     this.page = false;
     this.pointsMultiplier = 10;
     this.borderMultiplier = 3;
     this.winstreak = 0;
     this.maxWinstreak = 0;
+    this.counter = 0;
     this.gameWords = [];
     this.correctAnswers = [];
     this.inCorrectAnswers = [];
   }
 
   async render(): Promise<void> {
-    this.correctAnswers = [];
-    this.inCorrectAnswers = [];
-    this.winstreak = 0;
-    this.pointsCount = 0;
     this.sprintGamePage.innerHTML = '';
-    this.sprintGamePage.append(this.createGameRules());
+    const state = localStorage.getItem('isTextbook');
+    if (state) {
+      if (state === 'Textbook') {
+        await this.createGame(this.textbookGroup);
+      }
+    } else {
+      this.sprintGamePage.append(this.createGameRules());
+    }
     this.contentContainer.append(this.sprintGamePage);
   }
 
-  createGame = async (state?: string): Promise<void> => {
-    if (this.gameWords.length === 0 && !this.page && state) {
+  createGame = async (group?: string): Promise<void> => {
+    if (this.gameWords.length === 0 && !this.page && group) {
       this.page = random(NUMBER_OF_PAGES);
-      this.gameWords = await this.getWordsItems(state, String(this.page));
-    } else if (this.gameWords.length === 0 && !this.page && !state) {
+      this.gameWords = await this.getWordsItems(group, String(this.page));
+    } else if (this.gameWords.length === 0 && !this.page && !group) {
       this.page = Number(this.textbookPage);
       this.gameWords = await this.getWordsItems(this.textbookGroup, String(this.page));
     }
+    this.shuffleGameWords();
     this.sprintGamePage.innerHTML = '';
     const gamePage = createElement('div', ['container', 'sprint-game-container']);
     gamePage.append(this.createTimer(), await this.createWordblock());
@@ -89,17 +87,17 @@ class Sprint extends ApiPage {
     const thirdCheckbox = createInputElement('checkbox', '', '', 'form-check-input');
     checkboxBlock.append(firstCheckbox, secondCheckbox, thirdCheckbox);
     pointsPerWord.textContent = `${this.pointsMultiplier}`;
-    const generatedAnswer = this.compareWords();
+    const generatedAnswer = await this.compareWords();
     const wordBlock = createElement('div', ['word-block']);
     const englishWord = createElement('p', ['current-word']);
     const translatedWord = createElement('p', ['answer-word']);
-    englishWord.innerHTML = `${generatedAnswer.currentWordEng}`;
+    englishWord.innerHTML = `${generatedAnswer.currentWord.word}`;
     translatedWord.innerHTML = `${generatedAnswer.answer}`;
     const answerBtns = createElement('div', ['answer-btns']);
     const rightBtn = createButtonElement('button', 'right', 'btn', 'btn-right');
     const wrongBtn = createButtonElement('button', 'wrong', 'btn', 'btn-wrong');
     rightBtn.onclick = async () => {
-      if (generatedAnswer.currentWordTranslate === generatedAnswer.answer) {
+      if (generatedAnswer.currentWord.wordTranslate === generatedAnswer.answer) {
         this.pointsCount += this.pointsMultiplier;
         this.winstreak += 1;
         if (this.winstreak > this.maxWinstreak) {
@@ -111,10 +109,10 @@ class Sprint extends ApiPage {
         }
         this.correctAnswers.push(1);
         sprintStatistics.correct.set(generatedAnswer.currentWord.id, 1);
-        await playAudio(`../../static/audio/correct-answer.mp3`);
+        // await playAudio(`../../static/audio/correct-answer.mp3`);
         await this.createWordblock();
       } else {
-        await playAudio(`../../static/audio/bad_answer.mp3`);
+        // await playAudio(`../../static/audio/bad_answer.mp3`);
         sprintStatistics.wrong.set(generatedAnswer.currentWord.id, 1);
         this.winstreak = 0;
         this.pointsMultiplier = 10;
@@ -124,7 +122,7 @@ class Sprint extends ApiPage {
       }
     };
     wrongBtn.onclick = async () => {
-      if (generatedAnswer.currentWordTranslate !== generatedAnswer.answer) {
+      if (generatedAnswer.currentWord.wordTranslate !== generatedAnswer.answer) {
         this.pointsCount += this.pointsMultiplier;
         this.winstreak += 1;
         if (this.winstreak > this.maxWinstreak) {
@@ -136,10 +134,10 @@ class Sprint extends ApiPage {
         }
         this.correctAnswers.push(1);
         sprintStatistics.correct.set(generatedAnswer.currentWord.id, 1);
-        await playAudio(`../../static/audio/correct-answer.mp3`);
+        // await playAudio(`../../static/audio/correct-answer.mp3`);
         await this.createWordblock();
       } else {
-        await playAudio(`../../static/audio/bad_answer.mp3`);
+        // await playAudio(`../../static/audio/bad_answer.mp3`);
         sprintStatistics.wrong.set(generatedAnswer.currentWord.id, 1);
         this.winstreak = 0;
         this.pointsMultiplier = 10;
@@ -154,19 +152,54 @@ class Sprint extends ApiPage {
     return this.wordContainer;
   };
 
-  compareWords = () => {
-    const currentWord = this.gameWords[random(WORDS_PER_PAGE)];
-    const currentWordEng = currentWord.word;
+  // checkAnswer = (condition: IWord) => {
+  //   if (condition) {
+  //     this.pointsCount += this.pointsMultiplier;
+  //     this.winstreak += 1;
+  //     if (this.winstreak > this.maxWinstreak) {
+  //       this.maxWinstreak = this.winstreak;
+  //     }
+  //     if (this.winstreak === this.borderMultiplier) {
+  //       this.pointsMultiplier += 10;
+  //       this.borderMultiplier += 3;
+  //     }
+  //     this.correctAnswers.push(1);
+  //     sprintStatistics.correct.set(generatedAnswer.currentWord.id, 1);
+  //     // await playAudio(`../../static/audio/correct-answer.mp3`);
+  //     await this.createWordblock();
+  //   } else {
+  //     // await playAudio(`../../static/audio/bad_answer.mp3`);
+  //     sprintStatistics.wrong.set(generatedAnswer.currentWord.id, 1);
+  //     this.winstreak = 0;
+  //     this.pointsMultiplier = 10;
+  //     this.borderMultiplier = 3;
+  //     this.inCorrectAnswers.push(1);
+  //     await this.createWordblock();
+  //   }
+  // };
+
+  compareWords = async () => {
+    const currentWord = this.gameWords[this.counter];
     const currentWordTranslate = currentWord.wordTranslate;
     const filteredWords = this.gameWords.filter((el) => el.word !== currentWord.word);
     const wrongAnswer = filteredWords[random(WORDS_PER_PAGE - 1)].wordTranslate;
     const answer = [currentWordTranslate, wrongAnswer][random(2)];
+    this.counter += 1;
+    // console.log(this.counter);
+    await this.newWordsLoader();
     return {
       currentWord,
-      currentWordEng,
-      currentWordTranslate,
       answer,
     };
+  };
+
+  newWordsLoader = async () => {
+    if (this.counter === this.gameWords.length - 1) {
+      this.page = +this.page - 1;
+      this.gameWords = await this.getWordsItems(this.selectedUnit, String(this.page));
+      this.shuffleGameWords();
+      this.counter = 0;
+    }
   };
 
   createTimer = (): HTMLElement => {
@@ -229,19 +262,28 @@ class Sprint extends ApiPage {
     setTimeout(() => {
       clearInterval(startTimer);
       this.resultWindow();
-    }, 6000);
+    }, 60000);
+  };
+
+  shuffleGameWords = () => {
+    const data: IWord[] = this.gameWords.slice();
+    shuffle(data);
+    this.gameWords = data;
   };
 
   resultWindow = (): void => {
     this.sprintGamePage.innerHTML = '';
     const resultWrapper = createElement('div', ['container', 'result-wrapper']);
     const resultHeader = createElement('div', ['result-header']);
-    const resultBtn = createButtonElement('button', 'Results', 'btn', 'result-btn');
-    const wordsBtn = createButtonElement('button', 'Words', 'btn', 'words-btn');
-    resultHeader.append(resultBtn, wordsBtn);
+    const switchBlock = createInputElement('checkbox', 'switch', '', 'switch-block');
+    const switchBlockLabel = createElement('label', ['switch-block-label']);
+    switchBlockLabel.innerHTML = `Results Words`;
+    switchBlockLabel.setAttribute('for', 'switch');
+    switchBlockLabel.onclick = this.resultToggle;
+    resultHeader.append(switchBlock, switchBlockLabel);
     const blockWrapper = createElement('div', ['block-wrapper']);
     const resultBlock = createElement('div', ['result-block']);
-    const wordsBlock = createElement('div', ['words-block']);
+    const wordsBlock = createElement('div', ['words-block', 'hide']);
     blockWrapper.append(resultBlock, wordsBlock);
     const bestStreak = createElement('span', []);
     const winrate = createElement('span', []);
@@ -258,6 +300,28 @@ class Sprint extends ApiPage {
     wordsBlock.append(rightAnswerCount, wrongAnswerCount);
     resultWrapper.append(resultHeader, blockWrapper, rulesBtn);
     this.sprintGamePage.append(resultWrapper);
+    localStorage.removeItem('isTextbook');
+    this.correctAnswers = [];
+    this.inCorrectAnswers = [];
+    this.winstreak = 0;
+    this.pointsCount = 0;
+    this.counter = 0;
+  };
+
+  resultToggle = () => {
+    const resultBlock = <HTMLElement>document.querySelector('.result-block');
+    const wordsBlock = <HTMLElement>document.querySelector('.words-block');
+    if (resultBlock.classList.contains('hide')) {
+      resultBlock.classList.remove('hide');
+      resultBlock.classList.add('visible');
+      wordsBlock.classList.remove('visible');
+      wordsBlock.classList.add('hide');
+    } else {
+      wordsBlock.classList.remove('hide');
+      wordsBlock.classList.add('visible');
+      resultBlock.classList.remove('visible');
+      resultBlock.classList.add('hide');
+    }
   };
 }
 
