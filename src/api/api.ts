@@ -188,6 +188,7 @@ class Api {
       )}`,
       {
         headers: {
+          Authorization: `Bearer ${this.token}`,
           Accept: 'application/json',
         },
       }

@@ -80,6 +80,8 @@ export enum Colors {
   Yellow = '#ebd567',
   YellowLight = '#fbf0a7',
   Orange = '#e17719',
+  White = '#ffffff',
+  Black = '#000000',
 }
 
 export type PageNameType = 'textbook' | 'audio-challenge' | 'sprint';

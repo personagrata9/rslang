@@ -1,5 +1,5 @@
 import { GROUP_COLORS, ICON_SIZE, NUMBER_OF_GROUPS, NUMBER_OF_PAGES } from '../../common/constants';
-import { Colors, DifficultyType, IWord } from '../../common/types';
+import { Colors, DifficultyType, INewUserWordData, IWord } from '../../common/types';
 import { createElement } from '../../common/utils';
 import WordCard from '../../components/word-card/word-card';
 import ApiPage from '../api-page';
@@ -148,8 +148,10 @@ class Textbook extends ApiPage {
       'rounded-3',
     ]);
 
-    const words = await this.getTextbookWordsItems();
-    const userWords = this.userId ? await this.api.getUserWords(this.userId).then((result) => result) : null;
+    const words: IWord[] = await this.getTextbookWordsItems();
+    const userWords: INewUserWordData[] = this.userId
+      ? await this.api.getUserWords(this.userId).then((result) => result)
+      : [];
 
     words.forEach((word: IWord) => {
       const Difficulty: DifficultyType | undefined = userWords?.find((data) => data.wordId === word.id)?.difficulty;

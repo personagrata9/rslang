@@ -1,5 +1,5 @@
 import Api from '../../api/api';
-import { BASE_URL } from '../../common/constants';
+import { BASE_URL, GROUP_COLORS } from '../../common/constants';
 import { Colors, DifficultyType, INewUserWordData, IWord } from '../../common/types';
 import { createElement, createButtonElement } from '../../common/utils';
 
@@ -11,6 +11,8 @@ class WordCard {
   private api: Api;
 
   private userId: string | null;
+
+  private groupColor: Colors = GROUP_COLORS[+this.word.group];
 
   constructor(
     private word: IWord,
@@ -121,23 +123,16 @@ class WordCard {
     return audioIcon;
   };
 
-  private createButtons = (): HTMLElement => {
-    const buttonsContainer: HTMLElement = createElement('div', [`${this.name}-buttons`, 'd-flex']);
-    const difficultWordButton: HTMLButtonElement = createButtonElement(
-      'button',
-      'Difficult',
-      'btn',
-      'btn-difficult-word'
-    );
-    difficultWordButton.tabIndex = -1;
+  private createDifficultWordButton = (): HTMLButtonElement => {
+    const button: HTMLButtonElement = createButtonElement('button', 'Difficult', 'btn', 'btn-difficult-word');
     if (this.Difficulty === 'hard') {
-      difficultWordButton.classList.add('active');
-      difficultWordButton.disabled = true;
+      button.classList.add('active');
+      button.disabled = true;
     }
 
-    difficultWordButton.onclick = async () => {
-      difficultWordButton.classList.add('active');
-      difficultWordButton.disabled = true;
+    button.onclick = async () => {
+      button.classList.add('active');
+      button.disabled = true;
 
       const marker = <HTMLDivElement>document.querySelector(`div[data-word-id = "${this.word.id}"] .word-card-marker`);
       marker.style.backgroundColor = Colors.Orange;
@@ -159,64 +154,108 @@ class WordCard {
       }
     };
 
-    const learnedWordButton: HTMLButtonElement = createButtonElement('button', 'Learned', 'btn', 'btn-learned-word');
-    learnedWordButton.tabIndex = -1;
+    return button;
+  };
+
+  private enableLearnedMode = (button: HTMLButtonElement): void => {
+    this.container.classList.add('learned');
+    this.container.style.backgroundColor = this.groupColor;
+    this.container.style.color = Colors.White;
+
+    button.classList.add('active');
+
+    button.setAttribute(
+      'style',
+      `background-color: ${this.groupColor}; border-color: ${Colors.GrayLight}; color: ${Colors.GrayLight}`
+    );
+
+    button.addEventListener('mouseover', () => {
+      button.setAttribute(
+        'style',
+        `background-color: ${Colors.White}; border-color: ${Colors.White}; color: ${this.groupColor}`
+      );
+    });
+
+    button.addEventListener('mouseout', () => {
+      button.setAttribute(
+        'style',
+        `background-color: ${this.groupColor}; border-color: ${Colors.GrayLight}; color: ${Colors.GrayLight}`
+      );
+    });
+  };
+
+  private disableLearnedMode = (button: HTMLButtonElement): void => {
+    this.container.classList.remove('learned');
+    this.container.style.backgroundColor = Colors.White;
+    this.container.style.color = Colors.Black;
+
+    button.classList.remove('active');
+
+    button.setAttribute(
+      'style',
+      `background-color: ${Colors.White}; border-color: ${Colors.GrayLight}; color: ${Colors.GrayLight}`
+    );
+
+    button.addEventListener('mouseover', () => {
+      button.setAttribute(
+        'style',
+        `background-color: ${Colors.White}; border-color: ${this.groupColor}; color: ${this.groupColor}`
+      );
+    });
+
+    button.addEventListener('mouseout', () => {
+      button.setAttribute(
+        'style',
+        `background-color: ${Colors.White}; border-color: ${Colors.GrayLight}; color: ${Colors.GrayLight}`
+      );
+    });
+  };
+
+  private createLearnedWordButton = (): HTMLButtonElement => {
+    const button: HTMLButtonElement = createButtonElement('button', 'Learned', 'btn', 'btn-learned-word');
     if (this.isLearned) {
-      learnedWordButton.classList.add('active');
+      this.enableLearnedMode(button);
+    } else {
+      this.disableLearnedMode(button);
     }
 
-    // learnedWordButton.onclick = async () => {
+    button.onclick = async () => {
+      const userWords: INewUserWordData[] = this.userId
+        ? await this.api.getUserWords(this.userId).then((result) => result)
+        : [];
+      if (this.userId) {
+        if (userWords.find((word) => word.wordId === this.word.id)) {
+          const userWord: INewUserWordData = await this.api.getUserWordById({
+            userId: this.userId,
+            wordId: this.word.id,
+          });
 
-    //   if (this.userId && !this.Difficulty) {
-    //     const wordData: INewUserWordData = { difficulty: 'easy', optional: { learned: true } };
-    //     await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
-    //     learnedWordButton.classList.add('active');
-    //   }
+          const wordData: INewUserWordData = { difficulty: userWord.difficulty, optional: userWord.optional || {} };
 
-    //   if (this.userId && this.isLearned) {
-    //     const userWord: INewUserWordData = await this.api.getUserWordById({
-    //       userId: this.userId,
-    //       wordId: this.word.id,
-    //     });
+          if (button.classList.contains('active')) {
+            wordData.optional.learned = false;
+            this.disableLearnedMode(button);
+          } else {
+            wordData.optional.learned = true;
+            this.enableLearnedMode(button);
+          }
 
-    //     const { optional } = userWord;
-    //     optional.learned = false;
+          await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
+        } else {
+          const wordData: INewUserWordData = { difficulty: 'easy', optional: { learned: true } };
+          await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
+          this.enableLearnedMode(button);
+        }
+      }
+    };
 
-    //     const wordData: INewUserWordData = { difficulty: userWord.difficulty, optional };
-    //     await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
-    //     learnedWordButton.classList.remove('active');
-    //   }
+    return button;
+  };
 
-    //   if (this.userId && !this.isLearned) {
-    //     const userWord: INewUserWordData = await this.api.getUserWordById({
-    //       userId: this.userId,
-    //       wordId: this.word.id,
-    //     });
-
-    //     let { optional } = userWord;
-    //     if (!optional) optional = {};
-    //     optional.learned = true;
-
-    //     const wordData: INewUserWordData = { difficulty: userWord.difficulty, optional };
-    //     await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
-    //     learnedWordButton.classList.add('active');
-    //   }
-
-    //   // if (this.userId && this.isLearned) {
-    //   //   const userWord: INewUserWordData = await this.api.getUserWordById({
-    //   //     userId: this.userId,
-    //   //     wordId: this.word.id,
-    //   //   });
-
-    //   //   const { optional } = userWord;
-    //   //   optional.learned = false;
-
-    //   //   const wordData: INewUserWordData = { difficulty: userWord.difficulty, optional };
-    //   //   await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
-    //   //   learnedWordButton.classList.remove('active');
-    //   // }
-    // };
-
+  private createButtons = (): HTMLElement => {
+    const buttonsContainer: HTMLElement = createElement('div', [`${this.name}-buttons`, 'd-flex']);
+    const difficultWordButton: HTMLButtonElement = this.createDifficultWordButton();
+    const learnedWordButton: HTMLButtonElement = this.createLearnedWordButton();
     buttonsContainer.append(difficultWordButton, learnedWordButton);
 
     return buttonsContainer;
@@ -232,9 +271,6 @@ class WordCard {
     );
     if (this.userId) {
       this.container.append(this.createButtons());
-      if (this.isLearned) {
-        this.container.classList.add('learned');
-      }
     }
 
     return this.container;

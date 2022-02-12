@@ -81,20 +81,6 @@
         border-color: $orange;
       }
     }
-
-    .btn-learned-word {
-      // &:hover {
-      //   color: $orange;
-      //   border-color: $orange;
-      // }
-
-      &:active,
-      &.active {
-        color: $white;
-        background-color: $yellow-light;
-        border-color: $white;
-      }
-    }
   }
 
   &:hover {
@@ -106,8 +92,6 @@
   }
 
   &.learned {
-    background-color: $yellow-light;
-
     .word-card-image {
       filter: grayscale(1);
     }
