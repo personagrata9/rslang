@@ -1,27 +1,37 @@
-import { BASE_URL } from '../../common/constants';
-import { IWord } from '../../common/types';
-import { createElement } from '../../common/utils';
+import Api from '../../api/api';
+import { BASE_URL, GROUP_COLORS } from '../../common/constants';
+import { Colors, DifficultyType, INewUserWordData, IWord } from '../../common/types';
+import { createElement, createButtonElement } from '../../common/utils';
 
 class WordCard {
+  private name: string;
+
   private container: HTMLElement;
 
-  private className: string;
+  private api: Api;
 
-  constructor(private word: IWord, private color: string) {
-    this.className = 'word-card';
-    this.container = createElement('div', [
-      'container',
-      `${this.className}-container`,
-      'd-flex',
-      'shadow',
-      'rounded-3',
-    ]);
+  private userId: string | null;
+
+  private groupColor: Colors = GROUP_COLORS[+this.word.group];
+
+  constructor(
+    private word: IWord,
+    private color: string,
+    private Difficulty: DifficultyType | undefined,
+    private isLearned: boolean | undefined
+  ) {
+    this.name = 'word-card';
+    this.container = createElement('div', ['container', `${this.name}-container`, 'd-flex', 'shadow', 'rounded-3']);
     this.word = word;
     this.color = color;
+    this.Difficulty = Difficulty;
+    this.isLearned = isLearned;
+    this.api = new Api();
+    this.userId = localStorage.getItem('UserId');
   }
 
   private createImage = (): HTMLElement => {
-    const imageContainer: HTMLElement = createElement('div', [`${this.className}-image`]);
+    const imageContainer: HTMLElement = createElement('div', [`${this.name}-image`]);
 
     const image: HTMLImageElement = new Image();
     image.src = `${BASE_URL}/${this.word.image}`;
@@ -33,24 +43,24 @@ class WordCard {
   };
 
   private createMarkerElement = (): HTMLElement => {
-    const markerElement: HTMLElement = createElement('div', [`${this.className}-marker`]);
-    markerElement.style.backgroundColor = this.color;
+    const markerElement: HTMLElement = createElement('div', [`${this.name}-marker`]);
+    markerElement.style.backgroundColor = this.Difficulty === 'hard' ? Colors.Orange : this.color;
 
     return markerElement;
   };
 
   private createWordElement = (): HTMLElement => {
-    const wordElement: HTMLElement = createElement('div', [`${this.className}-item`, 'd-flex', 'flex-wrap', 'mb-4']);
+    const wordElement: HTMLElement = createElement('div', [`${this.name}-item`, 'd-flex', 'flex-wrap', 'mb-3']);
 
-    const word: HTMLElement = createElement('h3', [`${this.className}-word`, 'text-capitalize'], this.word.word);
+    const word: HTMLElement = createElement('h3', [`${this.name}-word`, 'text-capitalize'], this.word.word);
     const transcription: HTMLElement = createElement(
       'p',
-      [`${this.className}-transcription`, 'ms-3', 'mb-0', 'pt-2'],
+      [`${this.name}-transcription`, 'ms-3', 'mb-0', 'pt-1'],
       this.word.transcription
     );
     const wordTranslate: HTMLElement = createElement(
       'p',
-      [`${this.className}-translate`, 'm-0', 'w-100'],
+      [`${this.name}-translate`, 'm-0', 'w-100'],
       this.word.wordTranslate.toLowerCase()
     );
 
@@ -60,16 +70,13 @@ class WordCard {
   };
 
   private createTextMeaningElement = (): HTMLElement => {
-    const textMeaningElement: HTMLElement = createElement('div', [`${this.className}-text-meaning-item`, 'mb-4']);
+    const textMeaningElement: HTMLElement = createElement('div', [`${this.name}-text-meaning-item`, 'mb-3']);
 
-    const textMeaning: HTMLElement = createElement(
-      'p',
-      [`${this.className}-text-meaning`, 'm-0'],
-      this.word.textMeaning
-    );
+    const textMeaning: HTMLElement = createElement('p', [`${this.name}-text-meaning`, 'm-0']);
+    textMeaning.innerHTML = this.word.textMeaning;
     const textMeaningTranslate: HTMLElement = createElement(
       'p',
-      [`${this.className}-text-meaning-translate`, 'm-0'],
+      [`${this.name}-text-meaning-translate`, 'm-0'],
       this.word.textMeaningTranslate
     );
 
@@ -79,16 +86,13 @@ class WordCard {
   };
 
   private textExampleElement = (): HTMLElement => {
-    const textExampleElement: HTMLElement = createElement('div', [`${this.className}-text-example-item`]);
+    const textExampleElement: HTMLElement = createElement('div', [`${this.name}-text-example-item`]);
 
-    const textExample: HTMLElement = createElement(
-      'p',
-      [`${this.className}-text-example`, 'm-0'],
-      this.word.textExample
-    );
+    const textExample: HTMLElement = createElement('p', [`${this.name}-text-example`, 'm-0']);
+    textExample.innerHTML = this.word.textExample;
     const textExampleTranslate: HTMLElement = createElement(
       'p',
-      [`${this.className}-text-example-translate`, 'm-0'],
+      [`${this.name}-text-example-translate`, 'm-0'],
       this.word.textExampleTranslate
     );
 
@@ -98,7 +102,7 @@ class WordCard {
   };
 
   private createWordDescriptionElement = (): HTMLElement => {
-    const descriptionElement: HTMLElement = createElement('div', [`${this.className}-description`, 'p-3']);
+    const descriptionElement: HTMLElement = createElement('div', [`${this.name}-description`, 'p-3']);
 
     descriptionElement.append(this.createWordElement(), this.createTextMeaningElement(), this.textExampleElement());
 
@@ -107,7 +111,7 @@ class WordCard {
 
   private createAudioIcon = (): HTMLElement => {
     const audioIcon = createElement('div', [
-      `${this.className}-audio-icon`,
+      `${this.name}-audio-icon`,
       'd-flex',
       'justify-content-center',
       'align-items-center',
@@ -119,14 +123,155 @@ class WordCard {
     return audioIcon;
   };
 
+  private createDifficultWordButton = (): HTMLButtonElement => {
+    const button: HTMLButtonElement = createButtonElement('button', 'Difficult', 'btn', 'btn-difficult-word');
+    if (this.Difficulty === 'hard') {
+      button.classList.add('active');
+      button.disabled = true;
+    }
+
+    button.onclick = async () => {
+      button.classList.add('active');
+      button.disabled = true;
+
+      const marker = <HTMLDivElement>document.querySelector(`div[data-word-id = "${this.word.id}"] .word-card-marker`);
+      marker.style.backgroundColor = Colors.Orange;
+
+      if (this.userId) {
+        if (!this.Difficulty) {
+          const wordData: INewUserWordData = { difficulty: 'hard', optional: {} };
+          await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
+        }
+        if (this.Difficulty === 'easy') {
+          const userWord: INewUserWordData = await this.api.getUserWordById({
+            userId: this.userId,
+            wordId: this.word.id,
+          });
+
+          const wordData: INewUserWordData = { difficulty: 'hard', optional: userWord.optional };
+          await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
+        }
+      }
+    };
+
+    return button;
+  };
+
+  private enableLearnedMode = (button: HTMLButtonElement): void => {
+    this.container.classList.add('learned');
+    this.container.style.backgroundColor = this.groupColor;
+    this.container.style.color = Colors.White;
+
+    button.classList.add('active');
+
+    button.setAttribute(
+      'style',
+      `background-color: ${this.groupColor}; border-color: ${Colors.GrayLight}; color: ${Colors.GrayLight}`
+    );
+
+    button.addEventListener('mouseover', () => {
+      button.setAttribute(
+        'style',
+        `background-color: ${Colors.White}; border-color: ${Colors.White}; color: ${this.groupColor}`
+      );
+    });
+
+    button.addEventListener('mouseout', () => {
+      button.setAttribute(
+        'style',
+        `background-color: ${this.groupColor}; border-color: ${Colors.GrayLight}; color: ${Colors.GrayLight}`
+      );
+    });
+  };
+
+  private disableLearnedMode = (button: HTMLButtonElement): void => {
+    this.container.classList.remove('learned');
+    this.container.style.backgroundColor = Colors.White;
+    this.container.style.color = Colors.Black;
+
+    button.classList.remove('active');
+
+    button.setAttribute(
+      'style',
+      `background-color: ${Colors.White}; border-color: ${Colors.GrayLight}; color: ${Colors.GrayLight}`
+    );
+
+    button.addEventListener('mouseover', () => {
+      button.setAttribute(
+        'style',
+        `background-color: ${Colors.White}; border-color: ${this.groupColor}; color: ${this.groupColor}`
+      );
+    });
+
+    button.addEventListener('mouseout', () => {
+      button.setAttribute(
+        'style',
+        `background-color: ${Colors.White}; border-color: ${Colors.GrayLight}; color: ${Colors.GrayLight}`
+      );
+    });
+  };
+
+  private createLearnedWordButton = (): HTMLButtonElement => {
+    const button: HTMLButtonElement = createButtonElement('button', 'Learned', 'btn', 'btn-learned-word');
+    if (this.isLearned) {
+      this.enableLearnedMode(button);
+    } else {
+      this.disableLearnedMode(button);
+    }
+
+    button.onclick = async () => {
+      const userWords: INewUserWordData[] = this.userId
+        ? await this.api.getUserWords(this.userId).then((result) => result)
+        : [];
+      if (this.userId) {
+        if (userWords.find((word) => word.wordId === this.word.id)) {
+          const userWord: INewUserWordData = await this.api.getUserWordById({
+            userId: this.userId,
+            wordId: this.word.id,
+          });
+
+          const wordData: INewUserWordData = { difficulty: userWord.difficulty, optional: userWord.optional || {} };
+
+          if (button.classList.contains('active')) {
+            wordData.optional.learned = false;
+            this.disableLearnedMode(button);
+          } else {
+            wordData.optional.learned = true;
+            this.enableLearnedMode(button);
+          }
+
+          await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
+        } else {
+          const wordData: INewUserWordData = { difficulty: 'easy', optional: { learned: true } };
+          await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
+          this.enableLearnedMode(button);
+        }
+      }
+    };
+
+    return button;
+  };
+
+  private createButtons = (): HTMLElement => {
+    const buttonsContainer: HTMLElement = createElement('div', [`${this.name}-buttons`, 'd-flex']);
+    const difficultWordButton: HTMLButtonElement = this.createDifficultWordButton();
+    const learnedWordButton: HTMLButtonElement = this.createLearnedWordButton();
+    buttonsContainer.append(difficultWordButton, learnedWordButton);
+
+    return buttonsContainer;
+  };
+
   render = (): HTMLElement => {
-    this.container.setAttribute('data-id', this.word.id);
+    this.container.setAttribute('data-word-id', this.word.id);
     this.container.append(
       this.createImage(),
       this.createMarkerElement(),
       this.createWordDescriptionElement(),
       this.createAudioIcon()
     );
+    if (this.userId) {
+      this.container.append(this.createButtons());
+    }
 
     return this.container;
   };

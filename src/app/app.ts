@@ -36,7 +36,6 @@ class App {
   private addComponentsListeners = (): void => {
     this.header.addListeners();
     this.aside.addListeners();
-    // this.footer.addListeners();
   };
 
   start = (): void => {
@@ -71,9 +70,8 @@ class App {
     contentContainer.classList.add('preloader');
     if (page instanceof ApiPage) {
       await page.render();
-      // page.addListeners();
     } else {
-      await page.render();
+      page.render();
     }
     contentContainer.classList.remove('preloader');
   };

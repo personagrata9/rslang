@@ -1,5 +1,5 @@
 class Sprint {
-  async render(): Promise<HTMLDivElement> {
+  render(): HTMLDivElement {
     const minigames = document.createElement('div');
     minigames.innerHTML = 'Sprint';
     return minigames;

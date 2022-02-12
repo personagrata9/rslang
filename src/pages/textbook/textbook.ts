@@ -1,5 +1,5 @@
 import { GROUP_COLORS, ICON_SIZE, NUMBER_OF_GROUPS, NUMBER_OF_PAGES } from '../../common/constants';
-import { Colors, IWord } from '../../common/types';
+import { Colors, DifficultyType, INewUserWordData, IWord } from '../../common/types';
 import { createAnchorElement, createElement } from '../../common/utils';
 import WordCard from '../../components/word-card/word-card';
 import ApiPage from '../api-page';
@@ -13,6 +13,16 @@ class Textbook extends ApiPage {
     super('textbook');
     this.color = GROUP_COLORS[+this.textbookGroup];
   }
+
+  protected getTextbookWordsItems = async (): Promise<IWord[]> => {
+    const words: IWord[] = [];
+
+    await this.api
+      .getWords(this.textbookGroup, this.textbookPage)
+      .then((results) => results.forEach((result: IWord) => words.push(result)));
+
+    return words;
+  };
 
   private createNavigationBar = (): HTMLElement => {
     const navElement: HTMLElement = createElement('nav', [
@@ -189,8 +199,6 @@ class Textbook extends ApiPage {
   };
 
   private createWordsCardsList = async (): Promise<HTMLElement> => {
-    const words = await this.getTextbookWordsItems();
-
     const listContainerElement: HTMLElement = createElement('div', [
       'container',
       'words-cards-list-container',
@@ -200,8 +208,16 @@ class Textbook extends ApiPage {
       'rounded-3',
     ]);
 
+    const words: IWord[] = await this.getTextbookWordsItems();
+    const userWords: INewUserWordData[] = this.userId
+      ? await this.api.getUserWords(this.userId).then((result) => result)
+      : [];
+
     words.forEach((word: IWord) => {
-      const wordCard: WordCard = new WordCard(word, this.color);
+      const Difficulty: DifficultyType | undefined = userWords?.find((data) => data.wordId === word.id)?.difficulty;
+      const isLearned: boolean | undefined = userWords?.find((data) => data.wordId === word.id)?.optional?.learned;
+
+      const wordCard: WordCard = new WordCard(word, this.color, Difficulty, isLearned);
       listContainerElement.append(wordCard.render());
     });
 
@@ -209,10 +225,14 @@ class Textbook extends ApiPage {
   };
 
   private onChangeGroupNum = async (groupNum: string) => {
-    this.textbookGroup = groupNum;
-    localStorage.setItem('group', groupNum);
-    this.styleGroupsItems();
-    await this.updateContent();
+    if (this.textbookGroup !== groupNum) {
+      this.textbookGroup = groupNum;
+      localStorage.setItem('group', groupNum);
+      this.textbookPage = '0';
+      localStorage.setItem('page', this.textbookPage);
+      this.styleGroupsItems();
+      await this.updateContent();
+    }
   };
 
   private onChangePageNum = async (pageNum: string) => {
