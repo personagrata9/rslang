@@ -160,7 +160,7 @@ class Textbook extends ApiPage {
       'shadow'
     );
     audioChallengeLink.style.color = this.color;
-    linksContainer.addEventListener('click', () => localStorage.setItem('isTextbook', 'Textbook'));
+    linksContainer.addEventListener('click', () => localStorage.setItem('isTextbook', 'true'));
 
     const sprintLink: HTMLAnchorElement = createAnchorElement(
       '#sprint',
@@ -169,7 +169,7 @@ class Textbook extends ApiPage {
       'shadow'
     );
     sprintLink.style.color = this.color;
-    sprintLink.addEventListener('click', () => localStorage.setItem('isTextbook', 'Textbook'));
+    sprintLink.addEventListener('click', () => localStorage.setItem('isTextbook', 'true'));
 
     linksContainer.append(audioChallengeLink, sprintLink);
     minigamesContainer.append(titleContainer, linksContainer);
