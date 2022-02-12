@@ -54,6 +54,8 @@ class Sprint extends ApiPage {
   }
 
   async render(): Promise<void> {
+    this.correctAnswers = [];
+    this.inCorrectAnswers = [];
     this.winstreak = 0;
     this.pointsCount = 0;
     this.sprintGamePage.innerHTML = '';
@@ -222,7 +224,7 @@ class Sprint extends ApiPage {
     setTimeout(() => {
       clearInterval(startTimer);
       this.resultWindow();
-    }, 60000);
+    }, 6000);
   };
 
   resultWindow = (): void => {
@@ -230,16 +232,25 @@ class Sprint extends ApiPage {
     const resultWrapper = createElement('div', ['container', 'result-wrapper']);
     const resultHeader = createElement('div', ['result-header']);
     const resultBtn = createButtonElement('button', 'Results', 'btn', 'result-btn');
-    const wordsBtn = createButtonElement('button', 'Results', 'btn', 'result-btn');
+    const wordsBtn = createButtonElement('button', 'Words', 'btn', 'words-btn');
     resultHeader.append(resultBtn, wordsBtn);
-    const resultTitle = createElement('h2', ['result-title'], 'Results');
+    const blockWrapper = createElement('div', ['block-wrapper']);
     const resultBlock = createElement('div', ['result-block']);
+    const wordsBlock = createElement('div', ['words-block']);
+    blockWrapper.append(resultBlock, wordsBlock);
     const bestStreak = createElement('span', []);
+    const winrate = createElement('span', []);
+    winrate.innerHTML = `Winrate: ${this.inCorrectAnswers.length / this.correctAnswers.length || 0}`;
     bestStreak.innerHTML = `Best winstreak: ${this.maxWinstreak}`;
-    const rulesBtn = createButtonElement('button', 'to start', 'btn');
+    const rightAnswerCount = createElement('span', []);
+    const wrongAnswerCount = createElement('span', []);
+    rightAnswerCount.innerHTML = `Right answers: ${this.correctAnswers.length}`;
+    wrongAnswerCount.innerHTML = `Wrong answers: ${this.inCorrectAnswers.length}`;
+    const rulesBtn = createButtonElement('button', 'to start', 'btn', 'to-rules-btn');
     rulesBtn.onclick = () => this.render();
-    resultBlock.append(bestStreak);
-    resultWrapper.append(resultTitle, resultHeader, resultBlock, rulesBtn);
+    resultBlock.append(bestStreak, winrate);
+    wordsBlock.append(rightAnswerCount, wrongAnswerCount);
+    resultWrapper.append(resultHeader, blockWrapper, rulesBtn);
     this.sprintGamePage.append(resultWrapper);
   };
 }
