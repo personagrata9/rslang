@@ -1,6 +1,6 @@
 import { GROUP_COLORS, ICON_SIZE, NUMBER_OF_GROUPS, NUMBER_OF_PAGES } from '../../common/constants';
 import { Colors, IWord } from '../../common/types';
-import { createElement } from '../../common/utils';
+import { createAnchorElement, createElement } from '../../common/utils';
 import WordCard from '../../components/word-card/word-card';
 import ApiPage from '../api-page';
 
@@ -128,6 +128,66 @@ class Textbook extends ApiPage {
     nextPageControl.style.pointerEvents = +this.textbookPage === NUMBER_OF_PAGES - 1 ? 'none' : 'auto';
   };
 
+  private createMinigamesLinks = (): HTMLElement => {
+    const minigamesContainer: HTMLElement = createElement('div', [
+      `${this.name}-minigames-container`,
+      'shadow',
+      'd-flex',
+      'flex-wrap',
+    ]);
+    minigamesContainer.style.backgroundColor = this.color;
+
+    const titleContainer = createElement('div', ['minigames-title-container', 'd-flex', 'justify-content-between']);
+
+    const textElement = createElement('p', ['minigames-text', 'ps-3', 'pb-0'], 'Minigames');
+    const chevronElement: HTMLElement = createElement('div', ['minigames-chevron-icon', 'pe-3']);
+    chevronElement.innerHTML =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-chevron-down" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z"/></svg>';
+    titleContainer.append(textElement, chevronElement);
+
+    const linksContainer: HTMLElement = createElement('div', [
+      `${this.name}-minigames-links`,
+      'rounded-bottom',
+      'justify-content-between',
+      'p-3',
+    ]);
+    linksContainer.style.borderColor = this.color;
+
+    const audioChallengeLink: HTMLAnchorElement = createAnchorElement(
+      '#audio-challenge',
+      `Audio Challenge`,
+      `${this.name}-minigames-link`,
+      'shadow'
+    );
+    audioChallengeLink.style.color = this.color;
+    linksContainer.addEventListener('click', () => localStorage.setItem('isTextbook', 'Textbook'));
+
+    const sprintLink: HTMLAnchorElement = createAnchorElement(
+      '#sprint',
+      'Sprint',
+      `${this.name}-minigames-link`,
+      'shadow'
+    );
+    sprintLink.style.color = this.color;
+    sprintLink.addEventListener('click', () => localStorage.setItem('isTextbook', 'Textbook'));
+
+    linksContainer.append(audioChallengeLink, sprintLink);
+    minigamesContainer.append(titleContainer, linksContainer);
+
+    titleContainer.onclick = (): void => {
+      minigamesContainer.classList.toggle('active');
+      if (minigamesContainer.classList.contains('active')) {
+        chevronElement.style.transform = 'rotateX(180deg)';
+        linksContainer.style.display = 'flex';
+      } else {
+        chevronElement.style.transform = 'rotateX(0deg)';
+        linksContainer.style.display = 'none';
+      }
+    };
+
+    return minigamesContainer;
+  };
+
   private createWordsCardsList = async (): Promise<HTMLElement> => {
     const words = await this.getTextbookWordsItems();
 
@@ -163,13 +223,17 @@ class Textbook extends ApiPage {
 
   private updateContent = async (): Promise<void> => {
     const paginationBarList = <HTMLElement>document.querySelector(`.${this.name}-page-navigation .pagination`);
-    const newPaginationBarList = this.createPaginationBarList();
+    const newPaginationBarList: HTMLElement = this.createPaginationBarList();
     paginationBarList.replaceWith(newPaginationBarList);
     this.stylePaginationControls();
 
     const cardsListContainer = <HTMLElement>document.querySelector('.words-cards-list-container');
-    const newCardsListContainer = await this.createWordsCardsList();
+    const newCardsListContainer: HTMLElement = await this.createWordsCardsList();
     cardsListContainer.replaceWith(newCardsListContainer);
+
+    const minigamesLinks = <HTMLElement>document.querySelector(`.${this.name}-minigames-container`);
+    const newMinigamesLinks: HTMLElement = this.createMinigamesLinks();
+    minigamesLinks.replaceWith(newMinigamesLinks);
   };
 
   render = async (): Promise<void> => {
@@ -177,9 +241,15 @@ class Textbook extends ApiPage {
       'container',
       `${this.name}-container`,
       'd-flex',
-      'flex-column',
+      'flex-wrap',
+      'justify-content-evenly',
     ]);
-    container.append(this.createNavigationBar(), this.createPaginationBar(), await this.createWordsCardsList());
+    container.append(
+      this.createNavigationBar(),
+      this.createPaginationBar(),
+      this.createMinigamesLinks(),
+      await this.createWordsCardsList()
+    );
 
     this.contentContainer.append(container);
 

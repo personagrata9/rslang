@@ -67,12 +67,12 @@ class AudioChallenge extends ApiPage {
         this.level = state;
         structurePage.append(await this.createGamePage(state));
       }
+      await playAudio(this.audioLink);
     } else {
       structurePage.append(await this.createRulesPage());
     }
     audioChallengePage.append(structurePage);
     contentContainer.append(audioChallengePage);
-    await playAudio(this.audioLink);
     this.addKeyboardAnswers();
   }
 

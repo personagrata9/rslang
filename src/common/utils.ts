@@ -73,6 +73,15 @@ export const createInputElement = (
   return element;
 };
 
+export const createAnchorElement = (href: string, innerHTML: string, ...classNames: string[]): HTMLAnchorElement => {
+  const element = document.createElement('a');
+  element.href = href;
+  element.innerHTML = innerHTML;
+  element.classList.add(...classNames);
+
+  return element;
+};
+
 export const playAudio = async (link: string) => {
   const audio = new Audio();
   audio.src = link;
