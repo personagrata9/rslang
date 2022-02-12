@@ -2,6 +2,7 @@ import { createButtonElement, createElement, createInputElement, playAudio, rand
 import ApiPage from '../api-page';
 import { IWord } from '../../common/types';
 import { NUMBER_OF_PAGES, WORDS_PER_PAGE } from '../../common/constants';
+import sprintStatistics from './gameStatistic';
 
 class Sprint extends ApiPage {
   private selectedUnit: string;
@@ -109,10 +110,12 @@ class Sprint extends ApiPage {
           this.borderMultiplier += 3;
         }
         this.correctAnswers.push(1);
+        sprintStatistics.correct.set(generatedAnswer.currentWord.id, 1);
         await playAudio(`../../static/audio/correct-answer.mp3`);
         await this.createWordblock();
       } else {
         await playAudio(`../../static/audio/bad_answer.mp3`);
+        sprintStatistics.wrong.set(generatedAnswer.currentWord.id, 1);
         this.winstreak = 0;
         this.pointsMultiplier = 10;
         this.borderMultiplier = 3;
@@ -132,10 +135,12 @@ class Sprint extends ApiPage {
           this.borderMultiplier += 3;
         }
         this.correctAnswers.push(1);
+        sprintStatistics.correct.set(generatedAnswer.currentWord.id, 1);
         await playAudio(`../../static/audio/correct-answer.mp3`);
         await this.createWordblock();
       } else {
         await playAudio(`../../static/audio/bad_answer.mp3`);
+        sprintStatistics.wrong.set(generatedAnswer.currentWord.id, 1);
         this.winstreak = 0;
         this.pointsMultiplier = 10;
         this.borderMultiplier = 3;
@@ -242,6 +247,7 @@ class Sprint extends ApiPage {
     const winrate = createElement('span', []);
     winrate.innerHTML = `Winrate: ${this.inCorrectAnswers.length / this.correctAnswers.length || 0}`;
     bestStreak.innerHTML = `Best winstreak: ${this.maxWinstreak}`;
+    sprintStatistics.bestSeries = this.maxWinstreak;
     const rightAnswerCount = createElement('span', []);
     const wrongAnswerCount = createElement('span', []);
     rightAnswerCount.innerHTML = `Right answers: ${this.correctAnswers.length}`;
@@ -256,16 +262,3 @@ class Sprint extends ApiPage {
 }
 
 export default Sprint;
-
-// interface IGameStatistics {
-//   newWords: Set<string>;
-//   correct: Map<string, number>;
-//   wrong: Map<string, number>;
-//   bestSeries: number;
-// }
-// const audioChallengeStatistics: IGameStatistics = {
-//   newWords: new Set([]),
-//   correct: new Map([]),
-//   wrong: new Map([]),
-//   bestSeries: 0,
-// };
