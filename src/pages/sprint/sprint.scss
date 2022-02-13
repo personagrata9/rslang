@@ -1,4 +1,4 @@
-@import "timer";
+@import "resultCircle";
 
 .sprint-container{
   display: flex;
@@ -170,6 +170,7 @@
   border-radius: 20px;
   background-color: rgba(0, 83, 101, 0.7);
   padding: 10px;
+  min-height: 400px;
   min-width: 550px;
   overflow: hidden;
   .result-header {
@@ -366,7 +367,7 @@
   100% {
     opacity: 0;
     visibility: hidden;
-    transform: translateX(-500px);
+    transform: translateX(500px);
   }
 }
 
