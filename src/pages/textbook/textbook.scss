@@ -56,37 +56,44 @@
     height: $icon-height;
     border-radius: 50%;
     text-align: center;
-    vertical-align: middle;
     opacity: 0.7;
-    transition: all 0.3s linear;
+    transition: opacity 0.3s linear, background-color 0.3s linear, border-color 0.3s linear;
     cursor: pointer;
     user-select: none;
 
     &:hover {
       opacity: 1;
-      transform: scale(1.1);
     }
+  }
 
-    &.active {
-      opacity: 1;
-      color: #ffffff;
+  .control {
+    &:hover {
+      transform: scale(1.03);
     }
   }
 
   .page-item {
-    padding-top: 0.2rem;
+    border-style: solid;
+    line-height: 24px;
+    border-width: 3px;
+    border-color: transparent;
 
     &:hover {
       background-color: $gray-light;
+      border-color: $gray-light;
+    }
+
+    &.active:hover {
+      background-color: $white;
     }
   }
 }
 
 .textbook-minigames-container {
   position: relative;
-  align-self: center;
   border-radius: 5px;
   user-select: none;
+  margin: 1rem 0;
 
   &.active {
     border-bottom-left-radius: 0;
@@ -166,4 +173,13 @@
   padding: 2rem;
   background-color: $gray-light;
   margin-bottom: 50px;
+  min-height: 200px;
+
+  &.authorized,
+  &.no-content {
+    justify-content: center;
+    align-items: center;
+    font-size: x-large;
+    color: $orange;
+  }
 }

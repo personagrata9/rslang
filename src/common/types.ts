@@ -44,13 +44,18 @@ export interface IUserWord {
 export type DifficultyType = 'hard' | 'easy';
 
 export interface INewUserWordData {
-  wordId?: string;
+  difficulty: DifficultyType;
+  optional: IOptional;
+}
+
+export interface IUserWordData {
+  wordId: string;
   difficulty: DifficultyType;
   optional: IOptional;
 }
 
 export interface INewUserWord extends IUserWord {
-  wordData?: INewUserWordData;
+  wordData: INewUserWordData;
 }
 
 export interface IOptional {

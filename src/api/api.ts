@@ -9,6 +9,7 @@ import {
   IStatistics,
   IUser,
   IUserWord,
+  IUserWordData,
   IWord,
   Methods,
 } from '../common/types';
@@ -97,7 +98,7 @@ class Api {
     return res.json().then();
   };
 
-  getUserWords = async (userId: string): Promise<INewUserWordData[]> => {
+  getUserWords = async (userId: string): Promise<IUserWordData[]> => {
     const res = await fetch(`${this.url}/users/${userId}/words`, {
       headers: {
         Authorization: `Bearer ${this.token}`,

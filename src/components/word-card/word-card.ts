@@ -1,6 +1,6 @@
 import Api from '../../api/api';
 import { BASE_URL, GROUP_COLORS } from '../../common/constants';
-import { Colors, DifficultyType, INewUserWordData, IWord } from '../../common/types';
+import { Colors, DifficultyType, INewUserWordData, IUserWordData, IWord } from '../../common/types';
 import { createElement, createButtonElement } from '../../common/utils';
 
 class WordCard {
@@ -13,6 +13,8 @@ class WordCard {
   private userId: string | null;
 
   private groupColor: Colors = GROUP_COLORS[+this.word.group];
+
+  private groupDifficult = localStorage.getItem('group') === '6';
 
   constructor(
     private word: IWord,
@@ -157,6 +159,28 @@ class WordCard {
     return button;
   };
 
+  private createEasyWordButton = (): HTMLButtonElement => {
+    const button: HTMLButtonElement = createButtonElement('button', 'Easy', 'btn', 'btn-easy-word');
+
+    button.onclick = async () => {
+      button.classList.add('active');
+      button.disabled = true;
+      setTimeout(() => this.container.remove(), 700);
+
+      if (this.userId) {
+        const userWord: INewUserWordData = await this.api.getUserWordById({
+          userId: this.userId,
+          wordId: this.word.id,
+        });
+
+        const wordData: INewUserWordData = { difficulty: 'easy', optional: userWord.optional };
+        await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
+      }
+    };
+
+    return button;
+  };
+
   private enableLearnedMode = (button: HTMLButtonElement): void => {
     this.container.classList.add('learned');
     this.container.style.backgroundColor = this.groupColor;
@@ -220,7 +244,7 @@ class WordCard {
     }
 
     button.onclick = async () => {
-      const userWords: INewUserWordData[] = this.userId
+      const userWords: IUserWordData[] = this.userId
         ? await this.api.getUserWords(this.userId).then((result) => result)
         : [];
       if (this.userId) {
@@ -255,8 +279,14 @@ class WordCard {
   private createButtons = (): HTMLElement => {
     const buttonsContainer: HTMLElement = createElement('div', [`${this.name}-buttons`, 'd-flex']);
     const difficultWordButton: HTMLButtonElement = this.createDifficultWordButton();
+    const easyWordButton: HTMLButtonElement = this.createEasyWordButton();
     const learnedWordButton: HTMLButtonElement = this.createLearnedWordButton();
-    buttonsContainer.append(difficultWordButton, learnedWordButton);
+
+    if (this.groupDifficult) {
+      buttonsContainer.append(easyWordButton, learnedWordButton);
+    } else {
+      buttonsContainer.append(difficultWordButton, learnedWordButton);
+    }
 
     return buttonsContainer;
   };

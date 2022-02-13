@@ -1,5 +1,5 @@
 import { GROUP_COLORS, ICON_SIZE, NUMBER_OF_GROUPS, NUMBER_OF_PAGES } from '../../common/constants';
-import { Colors, DifficultyType, INewUserWordData, IWord } from '../../common/types';
+import { Colors, DifficultyType, IUserWordData, IWord } from '../../common/types';
 import { createAnchorElement, createElement } from '../../common/utils';
 import WordCard from '../../components/word-card/word-card';
 import ApiPage from '../api-page';
@@ -87,7 +87,7 @@ class Textbook extends ApiPage {
       pageItemElement.textContent = `${+pageNum + 1}`;
 
       if (pageNum === this.textbookPage) {
-        pageItemElement.style.backgroundColor = this.color;
+        pageItemElement.style.borderColor = this.color;
         pageItemElement.classList.add('active');
       }
 
@@ -119,6 +119,16 @@ class Textbook extends ApiPage {
     navElement.append(prevPageControl, listElement, nextPageControl);
 
     return navElement;
+  };
+
+  private togglePaginationBar = (): void => {
+    const paginationBar = <HTMLElement>document.querySelector(`.${this.name}-page-navigation`);
+    if (this.textbookGroup === '6') {
+      paginationBar.style.visibility = 'hidden';
+      paginationBar.hidden = true;
+    } else {
+      paginationBar.style.visibility = 'visible';
+    }
   };
 
   private stylePaginationControls = (): void => {
@@ -208,10 +218,19 @@ class Textbook extends ApiPage {
       'rounded-3',
     ]);
 
-    const words: IWord[] = await this.getTextbookWordsItems();
-    const userWords: INewUserWordData[] = this.userId
+    let words: IWord[] = await this.getTextbookWordsItems();
+    const userWords: IUserWordData[] = this.userId
       ? await this.api.getUserWords(this.userId).then((result) => result)
       : [];
+
+    if (this.userId && this.textbookGroup === '6') {
+      const difficultWordsData: IUserWordData[] = userWords.filter((data) => data.difficulty === 'hard');
+      const difficultWords: IWord[] = await Promise.all(
+        difficultWordsData.map((data: IUserWordData): Promise<IWord> => this.api.getWordById(data.wordId))
+      );
+
+      words = difficultWords;
+    }
 
     words.forEach((word: IWord) => {
       const Difficulty: DifficultyType | undefined = userWords?.find((data) => data.wordId === word.id)?.difficulty;
@@ -220,6 +239,13 @@ class Textbook extends ApiPage {
       const wordCard: WordCard = new WordCard(word, this.color, Difficulty, isLearned);
       listContainerElement.append(wordCard.render());
     });
+
+    if (!this.userId && this.textbookGroup === '6') {
+      listContainerElement.innerHTML = 'Only authorized users are able to see this page content. Please Sign in!';
+      listContainerElement.classList.add('authorized');
+    } else {
+      listContainerElement.classList.remove('authorized');
+    }
 
     return listContainerElement;
   };
@@ -246,6 +272,7 @@ class Textbook extends ApiPage {
     const newPaginationBarList: HTMLElement = this.createPaginationBarList();
     paginationBarList.replaceWith(newPaginationBarList);
     this.stylePaginationControls();
+    this.togglePaginationBar();
 
     const cardsListContainer = <HTMLElement>document.querySelector('.words-cards-list-container');
     const newCardsListContainer: HTMLElement = await this.createWordsCardsList();
@@ -262,7 +289,8 @@ class Textbook extends ApiPage {
       `${this.name}-container`,
       'd-flex',
       'flex-wrap',
-      'justify-content-evenly',
+      'justify-content-between',
+      'py-3',
     ]);
     container.append(
       this.createNavigationBar(),
@@ -275,6 +303,7 @@ class Textbook extends ApiPage {
 
     this.styleGroupsItems();
     this.stylePaginationControls();
+    this.togglePaginationBar();
   };
 }
 
