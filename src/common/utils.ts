@@ -109,14 +109,12 @@ function addKeyboard() {
   window.addEventListener('keydown', (e) => {
     const repearButton = document.querySelector('.box-audio-button');
     const repeatButtonSmall = document.querySelector('.box-audio-button-small');
-    const buttonUnknow = document.querySelector('.next-button-word');
-    const buttonNextWord = document.querySelector('.button-nex-word');
+    const buttonNextWord = document.querySelector('.button-next-word');
     if (e.code === 'Space') {
       repearButton?.dispatchEvent(event);
       repeatButtonSmall?.dispatchEvent(event);
     }
     if (e.code === 'Enter') {
-      buttonUnknow?.dispatchEvent(event);
       buttonNextWord?.dispatchEvent(event);
     }
   });
