@@ -71,8 +71,17 @@ class Sprint extends ApiPage {
     this.shuffleGameWords();
     this.sprintGamePage.innerHTML = '';
     const gamePage = createElement('div', ['container', 'sprint-game-container']);
-    gamePage.append(this.createTimer(), await this.createWordblock());
+    gamePage.append(this.createTimer(), this.createCheckboxes(), await this.createWordblock());
     this.sprintGamePage.append(gamePage);
+  };
+
+  createCheckboxes = () => {
+    const checkboxBlock = createElement('div', []);
+    const firstCheckbox = createInputElement('checkbox', '', '', 'form-check-input', 'bonus-check');
+    const secondCheckbox = createInputElement('checkbox', '', '', 'form-check-input', 'bonus-check');
+    const thirdCheckbox = createInputElement('checkbox', '', '', 'form-check-input', 'bonus-check');
+    checkboxBlock.append(firstCheckbox, secondCheckbox, thirdCheckbox);
+    return checkboxBlock;
   };
 
   createWordblock = async () => {
@@ -80,11 +89,6 @@ class Sprint extends ApiPage {
     const currentResult = createElement('h2', ['word-container__title']);
     currentResult.textContent = `Current result is ${this.pointsCount}`;
     const pointsPerWord = createElement('p', []);
-    const checkboxBlock = createElement('div', []);
-    const firstCheckbox = createInputElement('checkbox', '', '', 'form-check-input');
-    const secondCheckbox = createInputElement('checkbox', '', '', 'form-check-input');
-    const thirdCheckbox = createInputElement('checkbox', '', '', 'form-check-input');
-    checkboxBlock.append(firstCheckbox, secondCheckbox, thirdCheckbox);
     pointsPerWord.textContent = `${this.pointsMultiplier}`;
     const generatedAnswer = await this.compareWords();
     const wordBlock = createElement('div', ['word-block']);
@@ -109,12 +113,13 @@ class Sprint extends ApiPage {
     };
     answerBtns.append(rightBtn, wrongBtn);
     wordBlock.append(englishWord, translatedWord, answerBtns);
-    this.wordContainer.append(currentResult, pointsPerWord, checkboxBlock, wordBlock);
+    this.wordContainer.append(currentResult, pointsPerWord, wordBlock);
     return this.wordContainer;
   };
 
   private checkAnswer = async (condition: boolean, currentWord: IWord): Promise<void> => {
     sprintStatistics.newWords.add(currentWord.id);
+    const bonusChecker = document.querySelectorAll('.bonus-check');
     if (condition) {
       this.pointsCount += this.pointsMultiplier;
       this.winstreak += 1;
@@ -122,8 +127,23 @@ class Sprint extends ApiPage {
         this.maxWinstreak = this.winstreak;
       }
       if (this.winstreak === this.borderMultiplier) {
-        this.pointsMultiplier += 10;
+        if (this.pointsMultiplier !== 80) {
+          this.pointsMultiplier += 10;
+        }
         this.borderMultiplier += 3;
+      }
+      if (this.winstreak % 3 === 1) {
+        bonusChecker[0].removeAttribute('checked');
+        bonusChecker[1].removeAttribute('checked');
+        bonusChecker[2].removeAttribute('checked');
+        bonusChecker[0].setAttribute('checked', '');
+      } else if (this.winstreak % 3 === 2) {
+        bonusChecker[0].setAttribute('checked', '');
+        bonusChecker[1].setAttribute('checked', '');
+      } else if (this.winstreak % 3 === 0) {
+        bonusChecker[0].setAttribute('checked', '');
+        bonusChecker[1].setAttribute('checked', '');
+        bonusChecker[2].setAttribute('checked', '');
       }
       this.correctAnswers.push(currentWord);
       if (sprintStatistics.correct.has(currentWord.id)) {
@@ -281,12 +301,7 @@ class Sprint extends ApiPage {
     resultWrapper.append(resultHeader, blockWrapper, rulesBtn);
     this.sprintGamePage.append(resultWrapper);
     localStorage.removeItem('isTextbook');
-    this.correctAnswers = [];
-    this.inCorrectAnswers = [];
-    this.winstreak = 0;
-    this.maxWinstreak = 0;
-    this.pointsCount = 0;
-    this.counter = 0;
+    this.restoreValues();
   };
 
   createResultCircle = (): HTMLElement => {
@@ -335,6 +350,16 @@ class Sprint extends ApiPage {
       resultBlock.classList.remove('visible');
       resultBlock.classList.add('hide');
     }
+  };
+
+  restoreValues = () => {
+    this.correctAnswers = [];
+    this.inCorrectAnswers = [];
+    this.winstreak = 0;
+    this.pointsMultiplier = 0;
+    this.maxWinstreak = 0;
+    this.pointsCount = 0;
+    this.counter = 0;
   };
 }
 
