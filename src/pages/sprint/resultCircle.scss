@@ -4,7 +4,6 @@
   --height: 0;
 }
 
-
 .circle-wrapper {
   min-height: 100%;
   padding: 20px;
@@ -32,7 +31,7 @@
   bottom: 0;
   width: 100%;
   z-index: 3;
-  background-color: #005365;
+  background-color: $turquoise-dark;
   animation: wipe 1.5s cubic-bezier(.2,.6,.8,.4) forwards;
 }
 
@@ -42,7 +41,7 @@
   border-radius: 50%;
   text-align: center;
   overflow: hidden;
-  background-color: white;
+  background-color: $turquoise-light;
   z-index: 4;
 }
 
@@ -54,6 +53,8 @@
     justify-content: center;
     align-items: center;
     height: 40px;
+    font-weight: bold;
+    color: $turquoise-dark;
   }
 }
 

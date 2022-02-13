@@ -80,9 +80,9 @@
       border: none;
     }
     .form-check-input:checked {
-      box-shadow: 0px 0px 5px 2px greenyellow;
-      border: 1px solid greenyellow;
-      background-color: greenyellow;
+      box-shadow: 0px 0px 5px 2px $green;
+      border: 1px solid $green;
+      background-color: $green;
     }
   }
   .word-container {
@@ -121,20 +121,20 @@
           transition: all .1s linear;
         }
         .btn-right {
-          background-color: $orange;
-          box-shadow: 0 5px 0 $yellow-dark;
-        }
-        .btn-right:active {
-          transform: translateY(3px);
-          box-shadow: 0 2px 0 $yellow-dark;
-        }
-        .btn-wrong {
           background-color: $turquoise;
           box-shadow: 0 5px 0 $turquoise-dark;
         }
-        .btn-wrong:active {
+        .btn-right:active {
           transform: translateY(3px);
           box-shadow: 0 2px 0 $turquoise-dark;
+        }
+        .btn-wrong {
+          background-color: $orange;
+          box-shadow: 0 5px 0 $yellow-dark;
+        }
+        .btn-wrong:active {
+          transform: translateY(3px);
+          box-shadow: 0 2px 0 $yellow-dark;
         }
         .btn:hover {
         }
@@ -241,15 +241,15 @@
       .correct-answer-block {
         .right-answer-count {
           span {
-            padding: 1px 3px;
-            background-color: greenyellow;
+            padding: 1px 5px;
+            background-color: $green;
             border-radius: 3px;
           }
         }
         .wrong-answer-count {
           span {
-            padding: 1px 3px;
-            background-color: red;
+            padding: 1px 5px;
+            background-color: $red;
             border-radius: 3px;
           }
         }
@@ -293,29 +293,55 @@
       animation: toVisible 0.5s linear;
     }
   }
-  .to-rules-btn {
-    position:absolute;
+  .footer-btns{
+    display: flex;
+    width: 100%;
+    position: absolute;
+    justify-content: space-around;
     bottom: 10px;
-    background-color: $orange;
-    box-shadow: 0 5px 0 $yellow-dark;
-    width: 90px;
-    padding: 5px;
-    font-weight: bold;
-    color: white;
-    margin-left: calc(50% - 45px);
-    transition: all .1s linear;
-  }
-  .to-rules-btn:active {
-    box-shadow: 0 2px 0 $yellow-dark;
-    transform: translateY(3px);
-  }
-  .to-rules-btn:focus,
-  .to-rules-btn:checked,
-  {
-    box-shadow: none;
-  }
-  .to-rules-btn:hover {
+    .to-rules-btn {
+      background-color: $orange;
+      box-shadow: 0 5px 0 $yellow-dark;
+      width: 110px;
+      padding: 5px;
+      font-weight: bold;
+      color: white;
+      transition: all .1s linear;
+    }
+    .to-rules-btn:active {
+      box-shadow: 0 2px 0 $yellow-dark;
+      transform: translateY(3px);
+    }
+    .to-rules-btn:focus,
+    .to-rules-btn:checked,
+    {
+      box-shadow: none;
+    }
+    .to-rules-btn:hover {
 
+    }
+    .to-textbook-btn {
+      bottom: 10px;
+      background-color: $turquoise;
+      box-shadow: 0 5px 0 $turquoise-dark;
+      width: 110px;
+      padding: 5px;
+      font-weight: bold;
+      color: white;
+      transition: all .1s linear;
+    }
+    .to-textbook-btn:active {
+      box-shadow: 0 2px 0 $turquoise-dark;
+      transform: translateY(3px);
+    }
+    .to-textbook-btn:focus,
+    .to-textbook-btn:checked,
+    {
+      box-shadow: none;
+    }
+    .to-textbook-btn:hover {
+
+    }
   }
 }
 
