@@ -132,20 +132,21 @@ class Sprint extends ApiPage {
         if (this.pointsMultiplier !== 80) {
           this.pointsMultiplier += 10;
         }
-        this.borderMultiplier += 3;
+        this.borderMultiplier += 4;
       }
-      if (this.winstreak % 3 === 1) {
-        bonusChecker[0].removeAttribute('checked');
-        bonusChecker[1].removeAttribute('checked');
-        bonusChecker[2].removeAttribute('checked');
+      if (this.winstreak % 4 === 1) {
         bonusChecker[0].setAttribute('checked', '');
-      } else if (this.winstreak % 3 === 2) {
+      } else if (this.winstreak % 4 === 2) {
         bonusChecker[0].setAttribute('checked', '');
         bonusChecker[1].setAttribute('checked', '');
-      } else if (this.winstreak % 3 === 0) {
+      } else if (this.winstreak % 4 === 3) {
         bonusChecker[0].setAttribute('checked', '');
         bonusChecker[1].setAttribute('checked', '');
         bonusChecker[2].setAttribute('checked', '');
+      } else if (this.winstreak % 4 === 0) {
+        bonusChecker[0].removeAttribute('checked');
+        bonusChecker[1].removeAttribute('checked');
+        bonusChecker[2].removeAttribute('checked');
       }
       this.correctAnswers.push(currentWord);
       if (sprintStatistics.correct.has(currentWord.id)) {
@@ -168,6 +169,9 @@ class Sprint extends ApiPage {
       } else {
         sprintStatistics.wrong.set(currentWord.id, 1);
       }
+      bonusChecker[0].removeAttribute('checked');
+      bonusChecker[1].removeAttribute('checked');
+      bonusChecker[2].removeAttribute('checked');
       await this.createWordblock();
     }
   };
