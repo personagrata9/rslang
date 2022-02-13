@@ -1,0 +1,63 @@
+@import "timer";
+
+.circle-wrapper {
+  min-height: 100%;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.circle-container {
+  width: 260px;
+  height: 260px;
+  border-radius: 50%;
+  border: 1px solid white;
+  background-color: gray;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.circle-container:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 3;
+  background-color: #005365;
+  animation: wipe 1.5s cubic-bezier(.2,.6,.8,.4) forwards;
+}
+
+.circle-body {
+  width: 230px;
+  height: 230px;
+  border-radius: 50%;
+  text-align: center;
+  overflow: hidden;
+  background-color: white;
+  z-index: 4;
+}
+
+.circle-counter {
+  margin-top: 50px;
+  span {
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+  }
+}
+
+@keyframes wipe {
+  0% {
+    height: 0;
+  }
+  100% {
+    height: 100%;
+  }
+}
