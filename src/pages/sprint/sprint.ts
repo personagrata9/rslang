@@ -259,10 +259,7 @@ class Sprint extends ApiPage {
     const resultBlock = createElement('div', ['result-block']);
     const wordsBlock = createElement('div', ['words-block', 'hide']);
     blockWrapper.append(resultBlock, wordsBlock);
-    const bestStreak = createElement('span', []);
-    const winrate = createElement('span', []);
-    winrate.innerHTML = `Winrate: ${Math.ceil(this.inCorrectAnswers.length / this.correctAnswers.length) * 10 || 0}%`;
-    bestStreak.innerHTML = `Best winstreak: ${this.maxWinstreak}`;
+    resultBlock.append(this.createResultCircle());
     if (sprintStatistics.bestSeries < this.maxWinstreak) {
       sprintStatistics.bestSeries = this.maxWinstreak;
     }
@@ -282,7 +279,6 @@ class Sprint extends ApiPage {
     });
     const rulesBtn = createButtonElement('button', 'to start', 'btn', 'to-rules-btn');
     rulesBtn.onclick = () => this.render();
-    resultBlock.append(bestStreak, winrate);
     wordsBlock.append(correctAnswerBlock, inCorrectAnswerBlock);
     resultWrapper.append(resultHeader, blockWrapper, rulesBtn);
     this.sprintGamePage.append(resultWrapper);
@@ -293,6 +289,22 @@ class Sprint extends ApiPage {
     this.maxWinstreak = 0;
     this.pointsCount = 0;
     this.counter = 0;
+  };
+
+  createResultCircle = (): HTMLElement => {
+    const circleWrapper = createElement('div', ['circle-wrapper']);
+    const circleContainer = createElement('div', ['circle-container']);
+    const circleBody = createElement('div', ['circle-body']);
+    const circleCounter = createElement('div', ['circle-counter']);
+    const bestStreak = createElement('span', []);
+    const winrate = createElement('span', []);
+    winrate.innerHTML = `Winrate: ${Math.ceil(this.inCorrectAnswers.length / this.correctAnswers.length) * 10 || 0}%`;
+    bestStreak.innerHTML = `Best winstreak: ${this.maxWinstreak}`;
+    circleCounter.append(bestStreak, winrate);
+    circleBody.append(circleCounter);
+    circleContainer.append(circleBody);
+    circleWrapper.append(circleContainer);
+    return circleWrapper;
   };
 
   addBoxResults = (word: IWord) => {
