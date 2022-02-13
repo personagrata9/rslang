@@ -109,7 +109,7 @@ function addKeyboard() {
   window.addEventListener('keydown', (e) => {
     const repearButton = document.querySelector('.box-audio-button');
     const repeatButtonSmall = document.querySelector('.box-audio-button-small');
-    const buttonNextWord = document.querySelector('.button-nex-word');
+    const buttonNextWord = document.querySelector('.button-next-word');
     if (e.code === 'Space') {
       repearButton?.dispatchEvent(event);
       repeatButtonSmall?.dispatchEvent(event);

@@ -104,7 +104,7 @@ class AudioChallenge extends ApiPage {
     gamePage.append(await this.createAnswersBox(this.currentWordRus));
     const buttonUnknowWord = createElement(
       'button',
-      ['answer-button', 'next-button-word', 'btn', 'btn-outline-light', 'btn-sg', 'px-3'],
+      ['answer-button', 'button-unknow-word', 'btn', 'btn-outline-light', 'btn-sg', 'px-3'],
       `Don't know`
     );
     buttonUnknowWord.setAttribute('key', 'Enter');
@@ -227,13 +227,12 @@ class AudioChallenge extends ApiPage {
       this.onceClick = false;
       const audioChallengePage = document.querySelector('.audio-challenge-structure') as HTMLElement;
       document?.querySelector('.box-audio-button')?.remove();
-      document?.querySelector('.next-button-word')?.remove();
+      document?.querySelector('.button-unknow-word')?.remove();
       const answersBox = document.querySelector('.answers-box') as HTMLElement;
-      const exampleBoxImage = createElement('div', ['example-image-box']);
-      const exampleImage = createElement('img', ['example-image']);
-      exampleImage.setAttribute('src', `http://localhost:3000/${this.wordImage}`);
-      exampleBoxImage.append(exampleImage);
-      audioChallengePage?.append(exampleBoxImage);
+      const exampleImage = createElement('div', ['example-image']);
+      exampleImage.style.backgroundSize = `cover`;
+      exampleImage.style.background = `url(http://localhost:3000/${this.wordImage}) no-repeat center`;
+      audioChallengePage?.append(exampleImage);
       const containerInfo = createElement('div', ['container-info-correct-word']);
       const repeatButton = createElement('div', ['box-audio-button-small']);
       repeatButton.innerHTML = `<img class="repeat-audio-button-small" src="https://www.svgrepo.com/show/210514/music-player-audio.svg">`;
@@ -245,7 +244,7 @@ class AudioChallenge extends ApiPage {
       containerInfo.after(answersBox);
       const buttonNextWord = createElement(
         'button',
-        ['button-nex-word', 'btn-sg', 'px-3', 'btn', 'btn-outline-light'],
+        ['button-next-word', 'btn-sg', 'px-3', 'btn', 'btn-outline-light'],
         '→'
       );
       buttonNextWord.onclick = async () => {
