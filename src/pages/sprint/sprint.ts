@@ -53,9 +53,7 @@ class Sprint extends ApiPage {
     this.sprintGamePage.innerHTML = '';
     const state = localStorage.getItem('isTextbook');
     if (state) {
-      if (this.selectedUnit) {
-        await this.createGame(this.textbookGroup);
-      }
+      await this.createGame(this.textbookGroup);
     } else {
       this.sprintGamePage.append(this.createGameRules());
     }
@@ -134,10 +132,10 @@ class Sprint extends ApiPage {
       } else {
         sprintStatistics.correct.set(currentWord.id, 1);
       }
-      // await playAudio(`../../static/audio/correct-answer.mp3`);
+      await playAudio(`../../static/audio/correct-answer.mp3`);
       await this.createWordblock();
     } else {
-      // await playAudio(`../../static/audio/bad_answer.mp3`);
+      await playAudio(`../../static/audio/bad_answer.mp3`);
       this.winstreak = 0;
       this.pointsMultiplier = 10;
       this.borderMultiplier = 3;
@@ -159,7 +157,7 @@ class Sprint extends ApiPage {
     const wrongAnswer = filteredWords[random(WORDS_PER_PAGE - 1)].wordTranslate;
     const answer = [currentWordTranslate, wrongAnswer][random(2)];
     this.counter += 1;
-    console.log(this.counter);
+    // console.log(this.counter);
     await this.newWordsLoader();
     return {
       currentWord,
@@ -236,7 +234,7 @@ class Sprint extends ApiPage {
     setTimeout(() => {
       clearInterval(startTimer);
       this.resultWindow();
-    }, 6000);
+    }, 60000);
   };
 
   shuffleGameWords = () => {
