@@ -60,7 +60,7 @@ class Sprint extends ApiPage {
     this.contentContainer.append(this.sprintGamePage);
   }
 
-  createGame = async (group?: string): Promise<void> => {
+  private createGame = async (group?: string): Promise<void> => {
     if (this.selectedUnit) {
       this.page = random(NUMBER_OF_PAGES);
       this.gameWords = await this.getWordsItems(this.selectedUnit, String(this.page));
@@ -68,15 +68,15 @@ class Sprint extends ApiPage {
       this.page = Number(this.textbookPage);
       this.gameWords = await this.getWordsItems(group, String(this.page));
     }
-    // this.shuffleGameWords();
+    this.shuffleGameWords();
     this.sprintGamePage.innerHTML = '';
     const gamePage = createElement('div', ['container', 'sprint-game-container']);
     gamePage.append(this.createTimer(), this.createCheckboxes(), <HTMLElement>await this.createWordblock());
     this.sprintGamePage.append(gamePage);
   };
 
-  createCheckboxes = (): HTMLElement => {
-    const checkboxBlock = createElement('div', []);
+  private createCheckboxes = (): HTMLElement => {
+    const checkboxBlock = createElement('div', ['checkbox-block']);
     const firstCheckbox = createInputElement('checkbox', '', '', 'form-check-input', 'bonus-check');
     const secondCheckbox = createInputElement('checkbox', '', '', 'form-check-input', 'bonus-check');
     const thirdCheckbox = createInputElement('checkbox', '', '', 'form-check-input', 'bonus-check');
@@ -84,7 +84,7 @@ class Sprint extends ApiPage {
     return checkboxBlock;
   };
 
-  createWordblock = async (): Promise<HTMLElement | void> => {
+  private createWordblock = async (): Promise<HTMLElement | void> => {
     const generatedAnswer = await this.compareWords();
     if (generatedAnswer) {
       this.wordContainer.innerHTML = '';
@@ -178,7 +178,7 @@ class Sprint extends ApiPage {
     }
   };
 
-  compareWords = async (): Promise<{ currentWord: IWord; answer: string } | undefined> => {
+  private compareWords = async (): Promise<{ currentWord: IWord; answer: string } | undefined> => {
     const currentWord = this.gameWords[this.counter];
     console.log(currentWord);
     // if (!currentWord) {
@@ -199,21 +199,21 @@ class Sprint extends ApiPage {
     };
   };
 
-  newWordsLoader = async (): Promise<void> => {
+  private newWordsLoader = async (): Promise<void> => {
+    if (this.page === -1) {
+      this.resultWindow();
+    }
     if (this.counter === this.gameWords.length) {
       this.page = +this.page - 1;
       console.log('before', this.gameWords);
       this.gameWords = await this.getWordsItems(this.selectedUnit, String(this.page));
       console.log('after', this.gameWords);
-      // this.shuffleGameWords();
+      this.shuffleGameWords();
       this.counter = 0;
-    }
-    if (this.page === -1) {
-      setTimeout(() => this.resultWindow(), 2000);
     }
   };
 
-  createTimer = (): HTMLElement => {
+  private createTimer = (): HTMLElement => {
     const timerWrapper = createElement('div', ['timer-wrapper']);
     const timerContainer = createElement('div', ['timer-container']);
     const timerLine = createElement('div', ['timer-line']);
@@ -228,7 +228,7 @@ class Sprint extends ApiPage {
     return timerWrapper;
   };
 
-  createGameRules(): HTMLElement {
+  private createGameRules(): HTMLElement {
     const rulesContainer = createElement('div', ['container', 'sprint-rules-container']);
     const functionsUl = createElement(
       'ul',
@@ -262,7 +262,7 @@ class Sprint extends ApiPage {
     return rulesContainer;
   }
 
-  timer = (): void => {
+  private timer = (): void => {
     function tickTack() {
       const timer = <HTMLElement>document.querySelector('.timer');
       if (timer) {
@@ -280,13 +280,13 @@ class Sprint extends ApiPage {
     }, 60000);
   };
 
-  shuffleGameWords = (): void => {
+  private shuffleGameWords = (): void => {
     const data: IWord[] = this.gameWords.slice();
     shuffle(data);
     this.gameWords = data;
   };
 
-  resultWindow = (): void => {
+  private resultWindow = (): void => {
     this.sprintGamePage.innerHTML = '';
     const resultWrapper = createElement('div', ['container', 'result-wrapper']);
     const resultHeader = createElement('div', ['result-header']);
@@ -327,16 +327,18 @@ class Sprint extends ApiPage {
     this.restoreValues();
   };
 
-  createResultCircle = (): HTMLElement => {
+  private createResultCircle = (): HTMLElement => {
     const circleWrapper = createElement('div', ['circle-wrapper']);
     const circleContainer = createElement('div', ['circle-container']);
     const circleBody = createElement('div', ['circle-body']);
     const circleCounter = createElement('div', ['circle-counter']);
     const bestStreak = createElement('span', []);
     const winrate = createElement('span', []);
-    winrate.innerHTML = `Winrate: ${
-      Math.ceil((this.correctAnswers.length / (this.wrongAnswers.length + this.correctAnswers.length)) * 100) || 0
-    }%`;
+    const winrateNum =
+      Math.ceil((this.correctAnswers.length / (this.wrongAnswers.length + this.correctAnswers.length)) * 100) || 0;
+    const root = <HTMLElement>document.querySelector(':root');
+    root.style.setProperty('--height', `${winrateNum}%`);
+    winrate.innerHTML = `Winrate: ${winrateNum}%`;
     bestStreak.innerHTML = `Best winstreak: ${this.maxWinstreak}`;
     circleCounter.append(bestStreak, winrate);
     circleBody.append(circleCounter);
@@ -345,7 +347,7 @@ class Sprint extends ApiPage {
     return circleWrapper;
   };
 
-  addBoxResults = (word: IWord): HTMLElement => {
+  private addBoxResults = (word: IWord): HTMLElement => {
     const boxWordInfo = createElement('div', ['box-word-info']);
     const repeatButton = createElement('button', ['popup-button-repeat']);
     repeatButton.innerHTML = svgAudio;
@@ -361,7 +363,7 @@ class Sprint extends ApiPage {
     return boxWordInfo;
   };
 
-  resultToggle = (): void => {
+  private resultToggle = (): void => {
     const resultBlock = <HTMLElement>document.querySelector('.result-block');
     const wordsBlock = <HTMLElement>document.querySelector('.words-block');
     if (resultBlock.classList.contains('hide')) {
@@ -377,7 +379,7 @@ class Sprint extends ApiPage {
     }
   };
 
-  restoreValues = () => {
+  private restoreValues = (): void => {
     this.correctAnswers = [];
     this.wrongAnswers = [];
     this.winstreak = 0;
