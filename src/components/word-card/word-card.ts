@@ -1,6 +1,6 @@
 import Api from '../../api/api';
 import { BASE_URL, GROUP_COLORS } from '../../common/constants';
-import { Colors, DifficultyType, INewUserWordData, IUserWordData, IWord } from '../../common/types';
+import { Colors, DifficultyType, IUserWordNewData, IUserWordData, IWord } from '../../common/types';
 import { createElement, createButtonElement } from '../../common/utils';
 
 class WordCard {
@@ -141,16 +141,16 @@ class WordCard {
 
       if (this.userId) {
         if (!this.Difficulty) {
-          const wordData: INewUserWordData = { difficulty: 'hard', optional: {} };
+          const wordData: IUserWordNewData = { difficulty: 'hard', optional: {} };
           await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
         }
         if (this.Difficulty === 'easy') {
-          const userWord: INewUserWordData = await this.api.getUserWordById({
+          const userWord: IUserWordNewData = await this.api.getUserWordById({
             userId: this.userId,
             wordId: this.word.id,
           });
 
-          const wordData: INewUserWordData = { difficulty: 'hard', optional: userWord.optional };
+          const wordData: IUserWordNewData = { difficulty: 'hard', optional: userWord.optional };
           await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
         }
       }
@@ -168,12 +168,12 @@ class WordCard {
       setTimeout(() => this.container.remove(), 700);
 
       if (this.userId) {
-        const userWord: INewUserWordData = await this.api.getUserWordById({
+        const userWord: IUserWordNewData = await this.api.getUserWordById({
           userId: this.userId,
           wordId: this.word.id,
         });
 
-        const wordData: INewUserWordData = { difficulty: 'easy', optional: userWord.optional };
+        const wordData: IUserWordNewData = { difficulty: 'easy', optional: userWord.optional };
         await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
       }
     };
@@ -249,12 +249,12 @@ class WordCard {
         : [];
       if (this.userId) {
         if (userWords.find((word) => word.wordId === this.word.id)) {
-          const userWord: INewUserWordData = await this.api.getUserWordById({
+          const userWord: IUserWordNewData = await this.api.getUserWordById({
             userId: this.userId,
             wordId: this.word.id,
           });
 
-          const wordData: INewUserWordData = { difficulty: userWord.difficulty, optional: userWord.optional || {} };
+          const wordData: IUserWordNewData = { difficulty: userWord.difficulty, optional: userWord.optional || {} };
 
           if (button.classList.contains('active')) {
             wordData.optional.learned = false;
@@ -266,7 +266,7 @@ class WordCard {
 
           await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
         } else {
-          const wordData: INewUserWordData = { difficulty: 'easy', optional: { learned: true } };
+          const wordData: IUserWordNewData = { difficulty: 'easy', optional: { learned: true } };
           await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
           this.enableLearnedMode(button);
         }

@@ -1,5 +1,5 @@
 import Api from '../api/api';
-import { IWord, PageNameType } from '../common/types';
+import { IWord, ApiPageNameType } from '../common/types';
 
 abstract class ApiPage {
   protected contentContainer = <HTMLDivElement>document.querySelector('.content-container');
@@ -12,7 +12,7 @@ abstract class ApiPage {
 
   protected api: Api;
 
-  constructor(protected readonly name: PageNameType) {
+  constructor(protected readonly name: ApiPageNameType) {
     this.name = name;
     this.textbookGroup = localStorage.getItem('group') || '0';
     this.textbookPage = localStorage.getItem('page') || '0';
