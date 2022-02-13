@@ -12,6 +12,7 @@ import {
   IUserWordData,
   IWord,
   Methods,
+  IAggregatedResult,
 } from '../common/types';
 
 class Api {
@@ -180,7 +181,7 @@ class Api {
     page: string,
     wordsPerPage: string,
     filter: IFilter
-  ): Promise<void> => {
+  ): Promise<IAggregatedResult[]> => {
     const res = await fetch(
       `${
         this.url

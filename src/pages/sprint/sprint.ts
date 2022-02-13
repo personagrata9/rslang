@@ -214,7 +214,15 @@ class Sprint extends ApiPage {
 
   private compareWords = async (): Promise<{ currentWord: IWord; answer: string }> => {
     const currentWord = this.gameWords[this.counter];
+    // console.log(currentWord);
     const currentWordTranslate = currentWord.wordTranslate;
+    if (this.gameWords.length === 1) {
+      const answer = currentWordTranslate;
+      return {
+        currentWord,
+        answer,
+      };
+    }
     const filteredWords = this.gameWords.filter((el) => el.word !== currentWord.word);
     const wrongAnswer = filteredWords[random(filteredWords.length)].wordTranslate;
     const answer = [currentWordTranslate, wrongAnswer][random(2)];
@@ -226,11 +234,13 @@ class Sprint extends ApiPage {
 
   private newWordsLoader = async (): Promise<boolean> => {
     let isWordsLoaded = false;
-    if (typeof this.page === 'number' && this.page > 0) {
+    if (typeof this.page === 'number' && this.page > -1) {
       isWordsLoaded = true;
       this.page -= 1;
       this.selectedUnit = this.selectedUnit || this.textbookGroup;
+      // console.log('before', this.gameWords);
       this.gameWords = await this.getWordsItems(this.selectedUnit, this.page.toString());
+      // console.log('after', this.gameWords);
     }
 
     return isWordsLoaded;

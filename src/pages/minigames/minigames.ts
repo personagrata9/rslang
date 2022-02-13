@@ -1,6 +1,6 @@
 class Minigames {
   render(): void {
-    console.log('Minigames');
+    // console.log('Minigames');
     const minigames = document.createElement('div');
     minigames.innerHTML = 'minigames';
 

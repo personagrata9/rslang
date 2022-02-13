@@ -97,3 +97,12 @@ export interface IFilter {
   $and?: FilterType[];
   $or?: FilterType[];
 }
+
+type TotalCountType = {
+  count: number;
+};
+
+export interface IAggregatedResult {
+  paginatedResults: IWord[];
+  totalCount: TotalCountType[];
+}

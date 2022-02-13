@@ -1,6 +1,6 @@
 class Error404 {
   render(): void {
-    console.log('Error404');
+    // console.log('Error404');
     const error404 = document.createElement('div');
     error404.innerHTML = 'error404';
 
