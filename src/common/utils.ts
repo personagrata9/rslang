@@ -123,7 +123,7 @@ function addKeyboard() {
 }
 addKeyboard();
 
-export function shuffle(array: IWord[]) {
+export function shuffle(array: IWord[]): IWord[] {
   array.sort(() => Math.random() - 0.5);
   return array;
 }

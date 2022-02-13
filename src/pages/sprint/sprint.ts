@@ -1,7 +1,7 @@
 import { createButtonElement, createElement, createInputElement, playAudio, random, shuffle } from '../../common/utils';
 import ApiPage from '../api-page';
 import { IWord } from '../../common/types';
-import { BASE_URL, NUMBER_OF_PAGES, WORDS_PER_PAGE } from '../../common/constants';
+import { BASE_URL, NUMBER_OF_PAGES } from '../../common/constants';
 import sprintStatistics from './gameStatistic';
 import svgAudio from '../audio-challenge/audio';
 
@@ -16,7 +16,7 @@ class Sprint extends ApiPage {
 
   private correctAnswers: IWord[];
 
-  private inCorrectAnswers: IWord[];
+  private wrongAnswers: IWord[];
 
   private wordContainer: HTMLElement;
 
@@ -46,7 +46,7 @@ class Sprint extends ApiPage {
     this.counter = 0;
     this.gameWords = [];
     this.correctAnswers = [];
-    this.inCorrectAnswers = [];
+    this.wrongAnswers = [];
   }
 
   async render(): Promise<void> {
@@ -61,21 +61,21 @@ class Sprint extends ApiPage {
   }
 
   createGame = async (group?: string): Promise<void> => {
-    if (this.gameWords.length === 0 && !this.page && group) {
+    if (this.selectedUnit) {
       this.page = random(NUMBER_OF_PAGES);
-      this.gameWords = await this.getWordsItems(group, String(this.page));
-    } else if (this.gameWords.length === 0 && !this.page && !group) {
+      this.gameWords = await this.getWordsItems(this.selectedUnit, String(this.page));
+    } else if (!this.page && group) {
       this.page = Number(this.textbookPage);
-      this.gameWords = await this.getWordsItems(this.textbookGroup, String(this.page));
+      this.gameWords = await this.getWordsItems(group, String(this.page));
     }
-    this.shuffleGameWords();
+    // this.shuffleGameWords();
     this.sprintGamePage.innerHTML = '';
     const gamePage = createElement('div', ['container', 'sprint-game-container']);
-    gamePage.append(this.createTimer(), this.createCheckboxes(), await this.createWordblock());
+    gamePage.append(this.createTimer(), this.createCheckboxes(), <HTMLElement>await this.createWordblock());
     this.sprintGamePage.append(gamePage);
   };
 
-  createCheckboxes = () => {
+  createCheckboxes = (): HTMLElement => {
     const checkboxBlock = createElement('div', []);
     const firstCheckbox = createInputElement('checkbox', '', '', 'form-check-input', 'bonus-check');
     const secondCheckbox = createInputElement('checkbox', '', '', 'form-check-input', 'bonus-check');
@@ -84,37 +84,41 @@ class Sprint extends ApiPage {
     return checkboxBlock;
   };
 
-  createWordblock = async () => {
-    this.wordContainer.innerHTML = '';
-    const currentResult = createElement('h2', ['word-container__title']);
-    currentResult.textContent = `Current result is ${this.pointsCount}`;
-    const pointsPerWord = createElement('p', []);
-    pointsPerWord.textContent = `${this.pointsMultiplier}`;
+  createWordblock = async (): Promise<HTMLElement | void> => {
     const generatedAnswer = await this.compareWords();
-    const wordBlock = createElement('div', ['word-block']);
-    const englishWord = createElement('p', ['current-word']);
-    const translatedWord = createElement('p', ['answer-word']);
-    englishWord.innerHTML = `${generatedAnswer.currentWord.word}`;
-    translatedWord.innerHTML = `${generatedAnswer.answer}`;
-    const answerBtns = createElement('div', ['answer-btns']);
-    const rightBtn = createButtonElement('button', 'right', 'btn', 'btn-right');
-    const wrongBtn = createButtonElement('button', 'wrong', 'btn', 'btn-wrong');
-    rightBtn.onclick = async () => {
-      await this.checkAnswer(
-        generatedAnswer.currentWord.wordTranslate === generatedAnswer.answer,
-        generatedAnswer.currentWord
-      );
-    };
-    wrongBtn.onclick = async () => {
-      await this.checkAnswer(
-        generatedAnswer.currentWord.wordTranslate !== generatedAnswer.answer,
-        generatedAnswer.currentWord
-      );
-    };
-    answerBtns.append(rightBtn, wrongBtn);
-    wordBlock.append(englishWord, translatedWord, answerBtns);
-    this.wordContainer.append(currentResult, pointsPerWord, wordBlock);
-    return this.wordContainer;
+    if (generatedAnswer) {
+      this.wordContainer.innerHTML = '';
+      const currentResult = createElement('h2', ['word-container__title']);
+      currentResult.textContent = `Current result is ${this.pointsCount}`;
+      const pointsPerWord = createElement('p', []);
+      pointsPerWord.textContent = `${this.pointsMultiplier}`;
+      const wordBlock = createElement('div', ['word-block']);
+      const englishWord = createElement('p', ['current-word']);
+      const translatedWord = createElement('p', ['answer-word']);
+      englishWord.innerHTML = `${generatedAnswer.currentWord.word}`;
+      translatedWord.innerHTML = `${generatedAnswer.answer}`;
+      const answerBtns = createElement('div', ['answer-btns']);
+      const rightBtn = createButtonElement('button', 'right', 'btn', 'btn-right');
+      const wrongBtn = createButtonElement('button', 'wrong', 'btn', 'btn-wrong');
+      rightBtn.onclick = async () => {
+        await this.checkAnswer(
+          generatedAnswer.currentWord.wordTranslate === generatedAnswer.answer,
+          generatedAnswer.currentWord
+        );
+      };
+      wrongBtn.onclick = async () => {
+        await this.checkAnswer(
+          generatedAnswer.currentWord.wordTranslate !== generatedAnswer.answer,
+          generatedAnswer.currentWord
+        );
+      };
+      answerBtns.append(wrongBtn, rightBtn);
+      wordBlock.append(englishWord, translatedWord, answerBtns);
+      this.wordContainer.append(currentResult, pointsPerWord, wordBlock);
+      return this.wordContainer;
+    }
+    this.wordContainer.remove();
+    return this.resultWindow();
   };
 
   private checkAnswer = async (condition: boolean, currentWord: IWord): Promise<void> => {
@@ -153,14 +157,14 @@ class Sprint extends ApiPage {
       } else {
         sprintStatistics.correct.set(currentWord.id, 1);
       }
-      await playAudio(`../../static/audio/correct-answer.mp3`);
+      // await playAudio(`../../static/audio/correct-answer.mp3`);
       await this.createWordblock();
     } else {
-      await playAudio(`../../static/audio/bad_answer.mp3`);
+      // await playAudio(`../../static/audio/bad_answer.mp3`);
       this.winstreak = 0;
       this.pointsMultiplier = 10;
       this.borderMultiplier = 3;
-      this.inCorrectAnswers.push(currentWord);
+      this.wrongAnswers.push(currentWord);
       if (sprintStatistics.wrong.has(currentWord.id)) {
         const value = <number>sprintStatistics.wrong.get(currentWord.id);
         sprintStatistics.wrong.set(currentWord.id, value + 1);
@@ -174,27 +178,38 @@ class Sprint extends ApiPage {
     }
   };
 
-  compareWords = async () => {
+  compareWords = async (): Promise<{ currentWord: IWord; answer: string } | undefined> => {
     const currentWord = this.gameWords[this.counter];
+    console.log(currentWord);
+    // if (!currentWord) {
+    //   // await this.newWordsLoader();
+    //   // return undefined;
+    // }
     const currentWordTranslate = currentWord.wordTranslate;
+    console.log(currentWordTranslate);
     const filteredWords = this.gameWords.filter((el) => el.word !== currentWord.word);
-    const wrongAnswer = filteredWords[random(WORDS_PER_PAGE - 1)].wordTranslate;
+    const wrongAnswer = filteredWords[random(filteredWords.length)].wordTranslate;
     const answer = [currentWordTranslate, wrongAnswer][random(2)];
     this.counter += 1;
-    // console.log(this.counter);
     await this.newWordsLoader();
+    console.log(this.counter);
     return {
       currentWord,
       answer,
     };
   };
 
-  newWordsLoader = async () => {
-    if (this.counter === this.gameWords.length - 1) {
+  newWordsLoader = async (): Promise<void> => {
+    if (this.counter === this.gameWords.length) {
       this.page = +this.page - 1;
+      console.log('before', this.gameWords);
       this.gameWords = await this.getWordsItems(this.selectedUnit, String(this.page));
-      this.shuffleGameWords();
+      console.log('after', this.gameWords);
+      // this.shuffleGameWords();
       this.counter = 0;
+    }
+    if (this.page === -1) {
+      setTimeout(() => this.resultWindow(), 2000);
     }
   };
 
@@ -250,18 +265,22 @@ class Sprint extends ApiPage {
   timer = (): void => {
     function tickTack() {
       const timer = <HTMLElement>document.querySelector('.timer');
-      let secs = +timer.innerHTML;
-      secs -= 1;
-      timer.innerHTML = `${secs}`;
+      if (timer) {
+        let secs = +timer.innerHTML;
+        secs -= 1;
+        timer.innerHTML = `${secs}`;
+      }
     }
     const startTimer = setInterval(tickTack, 1000);
     setTimeout(() => {
       clearInterval(startTimer);
-      this.resultWindow();
+      if (!document.querySelector('.result-wrapper')) {
+        this.resultWindow();
+      }
     }, 60000);
   };
 
-  shuffleGameWords = () => {
+  shuffleGameWords = (): void => {
     const data: IWord[] = this.gameWords.slice();
     shuffle(data);
     this.gameWords = data;
@@ -290,13 +309,13 @@ class Sprint extends ApiPage {
     const correctAnswerBlock = createElement('div', ['correct-answer-block']);
     const inCorrectAnswerBlock = createElement('div', ['correct-answer-block']);
     rightAnswerCount.innerHTML = `Right answers: <span>${this.correctAnswers.length}</span>`;
-    wrongAnswerCount.innerHTML = `Wrong answers: <span>${this.inCorrectAnswers.length}</span>`;
+    wrongAnswerCount.innerHTML = `Wrong answers: <span>${this.wrongAnswers.length}</span>`;
     correctAnswerBlock.append(rightAnswerCount);
     inCorrectAnswerBlock.append(wrongAnswerCount);
     this.correctAnswers.forEach((e) => {
       correctAnswerBlock.append(this.addBoxResults(e));
     });
-    this.inCorrectAnswers.forEach((e) => {
+    this.wrongAnswers.forEach((e) => {
       inCorrectAnswerBlock.append(this.addBoxResults(e));
     });
     const rulesBtn = createButtonElement('button', 'to start', 'btn', 'to-rules-btn');
@@ -315,7 +334,9 @@ class Sprint extends ApiPage {
     const circleCounter = createElement('div', ['circle-counter']);
     const bestStreak = createElement('span', []);
     const winrate = createElement('span', []);
-    winrate.innerHTML = `Winrate: ${Math.ceil(this.inCorrectAnswers.length / this.correctAnswers.length) * 10 || 0}%`;
+    winrate.innerHTML = `Winrate: ${
+      Math.ceil((this.correctAnswers.length / (this.wrongAnswers.length + this.correctAnswers.length)) * 100) || 0
+    }%`;
     bestStreak.innerHTML = `Best winstreak: ${this.maxWinstreak}`;
     circleCounter.append(bestStreak, winrate);
     circleBody.append(circleCounter);
@@ -324,7 +345,7 @@ class Sprint extends ApiPage {
     return circleWrapper;
   };
 
-  addBoxResults = (word: IWord) => {
+  addBoxResults = (word: IWord): HTMLElement => {
     const boxWordInfo = createElement('div', ['box-word-info']);
     const repeatButton = createElement('button', ['popup-button-repeat']);
     repeatButton.innerHTML = svgAudio;
@@ -340,7 +361,7 @@ class Sprint extends ApiPage {
     return boxWordInfo;
   };
 
-  resultToggle = () => {
+  resultToggle = (): void => {
     const resultBlock = <HTMLElement>document.querySelector('.result-block');
     const wordsBlock = <HTMLElement>document.querySelector('.words-block');
     if (resultBlock.classList.contains('hide')) {
@@ -358,12 +379,13 @@ class Sprint extends ApiPage {
 
   restoreValues = () => {
     this.correctAnswers = [];
-    this.inCorrectAnswers = [];
+    this.wrongAnswers = [];
     this.winstreak = 0;
     this.pointsMultiplier = 0;
     this.maxWinstreak = 0;
     this.pointsCount = 0;
     this.counter = 0;
+    this.selectedUnit = '';
   };
 }
 

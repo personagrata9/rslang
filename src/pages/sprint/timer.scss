@@ -12,7 +12,7 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  border: 1px solid $orange;
+  border: 1px solid $turquoise-dark;
   background-color: white;
   display: flex;
   justify-content: center;
@@ -41,7 +41,7 @@
   width: 50%;
   height: 100%;
   z-index: 3;
-  background-color: #005365;
+  background-color: $turquoise-dark;
   animation: mask_right 60s steps(1,end) forwards;
 }
 
@@ -62,7 +62,7 @@
   left: 0;
   width: 50%;
   height: 100%;
-  background-color: #005365;
+  background-color: $turquoise-dark;
 }
 
 .timer-body {
