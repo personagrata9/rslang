@@ -40,6 +40,8 @@ class Sprint extends ApiPage {
 
   private counter: number;
 
+  private startTimer: NodeJS.Timer | null;
+
   constructor() {
     super('sprint');
     this.sprintGamePage = createElement('div', ['sprint-container']);
@@ -55,6 +57,7 @@ class Sprint extends ApiPage {
     this.gameWords = [];
     this.correctAnswers = [];
     this.wrongAnswers = [];
+    this.startTimer = null;
   }
 
   async render(): Promise<void> {
@@ -291,9 +294,9 @@ class Sprint extends ApiPage {
         timer.innerHTML = `${secs}`;
       }
     }
-    const startTimer = setInterval(tickTack, 1000);
+    this.startTimer = setInterval(tickTack, 1000);
     setTimeout(() => {
-      clearInterval(startTimer);
+      clearInterval(<NodeJS.Timeout>this.startTimer);
       if (!document.querySelector('.result-wrapper')) {
         this.resultWindow();
       }
@@ -307,6 +310,7 @@ class Sprint extends ApiPage {
   };
 
   private resultWindow = (): void => {
+    clearInterval(<NodeJS.Timeout>this.startTimer);
     this.sprintGamePage.innerHTML = '';
     const resultWrapper = createElement('div', ['container', 'result-wrapper']);
     const resultHeader = createElement('div', ['result-header']);
