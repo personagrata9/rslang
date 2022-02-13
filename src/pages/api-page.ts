@@ -8,27 +8,17 @@ abstract class ApiPage {
 
   protected textbookPage: string;
 
-  protected api: Api;
+  protected userId: string | null;
 
-  private lastPage: string;
+  protected api: Api;
 
   constructor(protected readonly name: ApiPageNameType) {
     this.name = name;
     this.textbookGroup = localStorage.getItem('group') || '0';
     this.textbookPage = localStorage.getItem('page') || '0';
-    this.lastPage = localStorage.getItem('lastPage') || '';
+    this.userId = localStorage.getItem('UserId');
     this.api = new Api();
   }
-
-  protected getTextbookWordsItems = async (): Promise<IWord[]> => {
-    const words: IWord[] = [];
-
-    await this.api
-      .getWords(this.textbookGroup, this.textbookPage)
-      .then((results) => results.forEach((result: IWord) => words.push(result)));
-
-    return words;
-  };
 
   protected getWordsItems = async (group?: string, page?: string): Promise<IWord[]> => {
     const words: IWord[] = [];
