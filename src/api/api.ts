@@ -2,13 +2,14 @@ import { BASE_URL } from '../common/constants';
 import {
   IFilter,
   INewUser,
-  INewUserWord,
-  INewUserWordData,
+  IUserNewWord,
+  IUserWordNewData,
   ISignUser,
   ISignUserData,
   IStatistics,
   IUser,
   IUserWord,
+  IUserWordData,
   IWord,
   Methods,
 } from '../common/types';
@@ -97,7 +98,7 @@ class Api {
     return res.json().then();
   };
 
-  getUserWords = async (userId: string): Promise<INewUserWordData[]> => {
+  getUserWords = async (userId: string): Promise<IUserWordData[]> => {
     const res = await fetch(`${this.url}/users/${userId}/words`, {
       headers: {
         Authorization: `Bearer ${this.token}`,
@@ -107,7 +108,7 @@ class Api {
     return res.json().then();
   };
 
-  createUserWord = async ({ userId, wordId, wordData }: INewUserWord): Promise<void> => {
+  createUserWord = async ({ userId, wordId, wordData }: IUserNewWord): Promise<void> => {
     await fetch(`${this.url}/users/${userId}/words/${wordId}`, {
       method: Methods.Post,
       headers: {
@@ -119,7 +120,7 @@ class Api {
     });
   };
 
-  getUserWordById = async ({ userId, wordId }: IUserWord): Promise<INewUserWordData> => {
+  getUserWordById = async ({ userId, wordId }: IUserWord): Promise<IUserWordNewData> => {
     const res = await fetch(`${this.url}/users/${userId}/words/${wordId}`, {
       headers: {
         Authorization: `Bearer ${this.token}`,
@@ -129,7 +130,7 @@ class Api {
     return res.json().then();
   };
 
-  updateUserWord = async ({ userId, wordId, wordData }: INewUserWord): Promise<void> => {
+  updateUserWord = async ({ userId, wordId, wordData }: IUserNewWord): Promise<void> => {
     await fetch(`${this.url}/users/${userId}/words/${wordId}`, {
       method: Methods.Put,
       headers: {

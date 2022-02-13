@@ -43,14 +43,17 @@ export interface IUserWord {
 
 export type DifficultyType = 'hard' | 'easy';
 
-export interface INewUserWordData {
-  wordId?: string;
+export interface IUserWordNewData {
   difficulty: DifficultyType;
   optional: IOptional;
 }
 
-export interface INewUserWord extends IUserWord {
-  wordData?: INewUserWordData;
+export interface IUserWordData extends IUserWordNewData {
+  wordId: string;
+}
+
+export interface IUserNewWord extends IUserWord {
+  wordData: IUserWordNewData;
 }
 
 export interface IOptional {
@@ -84,7 +87,7 @@ export enum Colors {
   Black = '#000000',
 }
 
-export type PageNameType = 'textbook' | 'audio-challenge' | 'sprint';
+export type ApiPageNameType = 'textbook' | 'audio-challenge' | 'sprint';
 
 export type FilterType = {
   [key: string]: string | boolean | null;

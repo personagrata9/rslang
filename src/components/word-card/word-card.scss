@@ -62,6 +62,7 @@
     gap: 0.75rem;
 
     .btn {
+      min-width: 100px;
       color: $gray-light;
       border-color: $gray-light;
       border-width: 0.15rem;
@@ -79,6 +80,20 @@
         color: $white;
         background-color: $orange;
         border-color: $orange;
+      }
+    }
+
+    .btn-easy-word {
+      &:hover {
+        color: $green;
+        border-color: $green;
+      }
+
+      &:active,
+      &.active {
+        color: $white;
+        background-color: $green;
+        border-color: $green;
       }
     }
   }
