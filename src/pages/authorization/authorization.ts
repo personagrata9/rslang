@@ -235,6 +235,7 @@ class LoginPopup {
       };
       await api.loginUser(user);
       this.closeModal();
+      window.location.reload();
     }
   };
 
