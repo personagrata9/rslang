@@ -13,6 +13,7 @@ import {
   IWord,
   Methods,
   IAggregatedResult,
+  IAggregatedFilter,
 } from '../common/types';
 
 class Api {
@@ -175,12 +176,12 @@ class Api {
     });
   };
 
-  getAggregatedWords = async (
+  getUserAggregatedWords = async (
     userId: string,
     group: string,
     page: string,
     wordsPerPage: string,
-    filter: IFilter
+    filter: IFilter | IAggregatedFilter
   ): Promise<IAggregatedResult[]> => {
     const res = await fetch(
       `${
@@ -195,6 +196,16 @@ class Api {
         },
       }
     );
+    return res.json().then();
+  };
+
+  getUserAggregetedWord = async ({ userId, wordId }: IUserWord): Promise<IWord> => {
+    const res = await fetch(`${this.url}/users/${userId}/aggregatedWords/${wordId}`, {
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+        Accept: 'application/json',
+      },
+    });
     return res.json().then();
   };
 }

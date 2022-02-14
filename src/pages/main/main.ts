@@ -1,6 +1,6 @@
 class Main {
   render(): void {
-    // console.log('Main');
+    console.log('Main');
     const main = document.createElement('div');
     main.innerHTML = 'main';
 

@@ -120,11 +120,11 @@ class Sprint extends ApiPage {
         );
       } else {
         this.counter = 0;
+        const isWordsLoaded = await this.newWordsLoader();
         await this.checkAnswer(
           generatedAnswer.currentWord.wordTranslate === generatedAnswer.answer,
           generatedAnswer.currentWord
         ).then(async () => {
-          const isWordsLoaded = await this.newWordsLoader();
           if (!isWordsLoaded) this.resultWindow();
         });
       }
@@ -140,11 +140,11 @@ class Sprint extends ApiPage {
         );
       } else {
         this.counter = 0;
+        const isWordsLoaded = await this.newWordsLoader();
         await this.checkAnswer(
           generatedAnswer.currentWord.wordTranslate !== generatedAnswer.answer,
           generatedAnswer.currentWord
         ).then(async () => {
-          const isWordsLoaded = await this.newWordsLoader();
           if (!isWordsLoaded) this.resultWindow();
         });
       }
@@ -156,66 +156,71 @@ class Sprint extends ApiPage {
   };
 
   private checkAnswer = async (condition: boolean, currentWord: IWord): Promise<void> => {
-    sprintStatistics.newWords.add(currentWord.id);
-    const bonusChecker = document.querySelectorAll('.bonus-check');
-    if (condition) {
-      this.pointsCount += this.pointsMultiplier;
-      this.winstreak += 1;
-      if (this.winstreak > this.maxWinstreak) {
-        this.maxWinstreak = this.winstreak;
-      }
-      if (this.winstreak === this.borderMultiplier) {
-        if (this.pointsMultiplier !== 80) {
-          this.pointsMultiplier += 10;
+    // eslint-disable-next-line no-underscore-dangle
+    const wordId = currentWord.id || currentWord._id;
+
+    if (wordId) {
+      sprintStatistics.newWords.add(wordId);
+      const bonusChecker = document.querySelectorAll('.bonus-check');
+      if (condition) {
+        this.pointsCount += this.pointsMultiplier;
+        this.winstreak += 1;
+        if (this.winstreak > this.maxWinstreak) {
+          this.maxWinstreak = this.winstreak;
         }
-        this.borderMultiplier += 4;
-      }
-      if (this.winstreak % 4 === 1) {
-        bonusChecker[0].setAttribute('checked', '');
-      } else if (this.winstreak % 4 === 2) {
-        bonusChecker[0].setAttribute('checked', '');
-        bonusChecker[1].setAttribute('checked', '');
-      } else if (this.winstreak % 4 === 3) {
-        bonusChecker[0].setAttribute('checked', '');
-        bonusChecker[1].setAttribute('checked', '');
-        bonusChecker[2].setAttribute('checked', '');
-      } else if (this.winstreak % 4 === 0) {
+        if (this.winstreak === this.borderMultiplier) {
+          if (this.pointsMultiplier !== 80) {
+            this.pointsMultiplier += 10;
+          }
+          this.borderMultiplier += 4;
+        }
+        if (this.winstreak % 4 === 1) {
+          bonusChecker[0].setAttribute('checked', '');
+        } else if (this.winstreak % 4 === 2) {
+          bonusChecker[0].setAttribute('checked', '');
+          bonusChecker[1].setAttribute('checked', '');
+        } else if (this.winstreak % 4 === 3) {
+          bonusChecker[0].setAttribute('checked', '');
+          bonusChecker[1].setAttribute('checked', '');
+          bonusChecker[2].setAttribute('checked', '');
+        } else if (this.winstreak % 4 === 0) {
+          bonusChecker[0].removeAttribute('checked');
+          bonusChecker[1].removeAttribute('checked');
+          bonusChecker[2].removeAttribute('checked');
+        }
+        this.correctAnswers.push(currentWord);
+        if (sprintStatistics.correct.has(wordId)) {
+          const value = <number>sprintStatistics.correct.get(wordId);
+          sprintStatistics.correct.set(currentWord.id, value + 1);
+        } else {
+          sprintStatistics.correct.set(wordId, 1);
+        }
+        // await playAudio(`../../static/audio/correct-answer.mp3`);
+        await this.createWordblock();
+      } else {
+        // await playAudio(`../../static/audio/bad_answer.mp3`);
+        this.winstreak = 0;
+        this.pointsMultiplier = 10;
+        this.borderMultiplier = 3;
+        this.wrongAnswers.push(currentWord);
+        if (sprintStatistics.wrong.has(wordId)) {
+          const value = <number>sprintStatistics.wrong.get(wordId);
+          sprintStatistics.wrong.set(wordId, value + 1);
+        } else {
+          sprintStatistics.wrong.set(wordId, 1);
+        }
         bonusChecker[0].removeAttribute('checked');
         bonusChecker[1].removeAttribute('checked');
         bonusChecker[2].removeAttribute('checked');
+        await this.createWordblock();
       }
-      this.correctAnswers.push(currentWord);
-      if (sprintStatistics.correct.has(currentWord.id)) {
-        const value = <number>sprintStatistics.correct.get(currentWord.id);
-        sprintStatistics.correct.set(currentWord.id, value + 1);
-      } else {
-        sprintStatistics.correct.set(currentWord.id, 1);
-      }
-      // await playAudio(`../../static/audio/correct-answer.mp3`);
-      await this.createWordblock();
-    } else {
-      // await playAudio(`../../static/audio/bad_answer.mp3`);
-      this.winstreak = 0;
-      this.pointsMultiplier = 10;
-      this.borderMultiplier = 3;
-      this.wrongAnswers.push(currentWord);
-      if (sprintStatistics.wrong.has(currentWord.id)) {
-        const value = <number>sprintStatistics.wrong.get(currentWord.id);
-        sprintStatistics.wrong.set(currentWord.id, value + 1);
-      } else {
-        sprintStatistics.wrong.set(currentWord.id, 1);
-      }
-      bonusChecker[0].removeAttribute('checked');
-      bonusChecker[1].removeAttribute('checked');
-      bonusChecker[2].removeAttribute('checked');
-      await this.createWordblock();
     }
   };
 
   private compareWords = async (): Promise<{ currentWord: IWord; answer: string }> => {
     const currentWord = this.gameWords[this.counter];
-    // console.log(currentWord);
     const currentWordTranslate = currentWord.wordTranslate;
+
     if (this.gameWords.length === 1) {
       const answer = currentWordTranslate;
       return {
@@ -234,13 +239,12 @@ class Sprint extends ApiPage {
 
   private newWordsLoader = async (): Promise<boolean> => {
     let isWordsLoaded = false;
-    if (typeof this.page === 'number' && this.page > -1) {
+    if (typeof this.page === 'number' && this.page > 0) {
       isWordsLoaded = true;
       this.page -= 1;
       this.selectedUnit = this.selectedUnit || this.textbookGroup;
-      // console.log('before', this.gameWords);
       this.gameWords = await this.getWordsItems(this.selectedUnit, this.page.toString());
-      // console.log('after', this.gameWords);
+      this.shuffleGameWords();
     }
 
     return isWordsLoaded;
