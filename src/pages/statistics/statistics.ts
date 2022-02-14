@@ -1,6 +1,6 @@
 class Statistics {
   render(): void {
-    console.log('Statistics');
+    // console.log('Statistics');
     const statistics = document.createElement('div');
     statistics.innerHTML = 'statistics';
 

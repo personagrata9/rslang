@@ -12,28 +12,30 @@ export interface IUser extends ISignUser {
 }
 
 export interface ISignUserData {
-  message: 'string';
-  token: 'string';
-  refreshToken: 'string';
-  userId: 'string';
-  name: 'string';
+  message: string;
+  token: string;
+  refreshToken: string;
+  userId: string;
+  name: string;
 }
 
 export interface IWord {
-  id: 'string';
+  id: string;
   group: number;
   page: number;
-  word: 'string';
-  image: 'string';
-  audio: 'string';
-  audioMeaning: 'string';
-  audioExample: 'string';
-  textMeaning: 'string';
-  textExample: 'string';
-  transcription: 'string';
-  wordTranslate: 'string';
-  textMeaningTranslate: 'string';
-  textExampleTranslate: 'string';
+  word: string;
+  image: string;
+  audio: string;
+  audioMeaning: string;
+  audioExample: string;
+  textMeaning: string;
+  textExample: string;
+  transcription: string;
+  wordTranslate: string;
+  textMeaningTranslate: string;
+  textExampleTranslate: string;
+  _id?: string;
+  userWord?: IUserWordNewData;
 }
 
 export interface IUserWord {
@@ -58,6 +60,7 @@ export interface IUserNewWord extends IUserWord {
 
 export interface IOptional {
   learned?: boolean;
+  repeat?: number;
 }
 
 export interface IStatistics {
@@ -90,10 +93,26 @@ export enum Colors {
 export type ApiPageNameType = 'textbook' | 'audio-challenge' | 'sprint';
 
 export type FilterType = {
-  [key: string]: string | boolean | null;
+  userWord?: null;
+  'userWord.difficulty'?: DifficultyType;
+  'userWord.optional'?: IOptional | null;
+  'userWord.optional.learned'?: boolean;
 };
 
 export interface IFilter {
   $and?: FilterType[];
   $or?: FilterType[];
+}
+
+export interface IAggregatedFilter {
+  $or: [IFilter, FilterType];
+}
+
+type TotalCountType = {
+  count: number;
+};
+
+export interface IAggregatedResult {
+  paginatedResults: IWord[];
+  totalCount: TotalCountType[];
 }
