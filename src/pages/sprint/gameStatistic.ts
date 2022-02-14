@@ -1,5 +1,3 @@
-// import Api from "../../api/api";
-
 interface IGameStatistics {
   newWords: Set<string>;
   correct: Map<string, number>;
@@ -12,15 +10,5 @@ const sprintStatistics: IGameStatistics = {
   wrong: new Map([]),
   bestSeries: 0,
 };
-
-// const api = new Api();
-// async function test() {
-//   const words = await api.getUserAggregatedWords('6209b65e901fe6344a03002a', '1', '0', '200', {
-//     $or: [{ 'userWord.optional.learned': true }],
-//   });
-//   console.log(words);
-// }
-
-// test();
 
 export default sprintStatistics;
