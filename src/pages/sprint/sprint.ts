@@ -86,7 +86,7 @@ class Sprint extends ApiPage {
     const gamePage = createElement('div', ['container', 'sprint-game-container']);
     gamePage.append(this.createTimer(), this.createCheckboxes(), await this.createWordblock());
     this.sprintGamePage.append(gamePage);
-    this.state.initGameState();
+    this.state.initStatistics();
     await this.timer();
   };
 
@@ -171,7 +171,7 @@ class Sprint extends ApiPage {
     // eslint-disable-next-line no-underscore-dangle
     const wordId = currentWord.id || currentWord._id;
     if (wordId) {
-      this.state.setGameWords(wordId);
+      this.state.setNewWords(wordId);
       const bonusChecker = document.querySelectorAll('.bonus-check');
       if (condition) {
         this.pointsCount += this.pointsMultiplier;
@@ -251,7 +251,13 @@ class Sprint extends ApiPage {
       this.page -= 1;
       this.selectedUnit = this.selectedUnit || this.textbookGroup;
       this.gameWords = await this.getWordsItems(this.selectedUnit, this.page.toString());
-      this.shuffleGameWords();
+      // if (this.gameWords.length === 0) {
+      //   isWordsLoaded = false;
+      // } else {
+      //   isWordsLoaded = true;
+      //   this.shuffleGameWords();
+      // }
+      // this.shuffleGameWords();
     }
 
     return isWordsLoaded;
