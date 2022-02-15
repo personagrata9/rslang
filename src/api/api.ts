@@ -55,6 +55,7 @@ class Api {
     });
     const data = await res.json().then((result: ISignUserData) => result);
     localStorage.setItem('UserToken', data.token);
+    localStorage.setItem('UserRefreshToken', data.refreshToken);
     localStorage.setItem('UserId', data.userId);
     localStorage.setItem('UserName', data.name);
     return data;
