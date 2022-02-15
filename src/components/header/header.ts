@@ -10,11 +10,24 @@ class Header {
   }
 
   addListeners = () => {
-    const openPopup = <HTMLButtonElement>document.querySelector('.open-popup');
-    openPopup.addEventListener('click', () => {
+    const openPopupBtn = <HTMLButtonElement>document.querySelector('.open-popup');
+    const userName = <HTMLElement>document.querySelector('.user-name');
+    const logoutBtn = <HTMLButtonElement>document.querySelector('.logout');
+    userName.innerHTML = `Hello <span>${<string>localStorage.getItem('UserName') || 'guest'}</span>!`;
+    openPopupBtn.addEventListener('click', () => {
       const loginPopup = new LoginPopup();
       loginPopup.render();
     });
+    logoutBtn.addEventListener('click', () => {
+      localStorage.removeItem('UserName');
+      localStorage.removeItem('UserToken');
+      localStorage.removeItem('UserId');
+      window.location.reload();
+    });
+    if (localStorage.getItem('UserName')) {
+      logoutBtn.classList.remove('hide');
+      openPopupBtn.classList.add('hide');
+    }
   };
 }
 export default Header;

@@ -11,7 +11,7 @@
     margin: auto 30px;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+
     .app-logo {
       margin: auto 0;
       font-size: 30px;
@@ -26,12 +26,26 @@
       }
     }
     .page-name {
-      margin: auto 0;
+      margin: 0 auto;
       font-size: 30px;
       color: $white;
     }
+    .user-name {
+      color: white;
+      font-weight: bold;
+      font-family: sans-serif;
+      margin-right: 20px;
+      font-size: 20px;
+      padding-top: 10px;
+      span {
+        color: $turquoise;
+      }
+    }
     .btn {
       margin: auto 0;
+    }
+    .hide {
+      display: none;
     }
   }
 }

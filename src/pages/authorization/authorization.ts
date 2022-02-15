@@ -228,6 +228,7 @@ class LoginPopup {
       });
       await api.loginUser({ email: this.emailInput.value, password: this.passwordInput.value });
       this.closeModal();
+      window.location.reload();
     } else {
       user = {
         email: this.emailInput.value,
