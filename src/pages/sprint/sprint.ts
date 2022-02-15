@@ -10,7 +10,7 @@ import {
 import ApiPage from '../api-page';
 import { IWord } from '../../common/types';
 import { BASE_URL, NUMBER_OF_PAGES } from '../../common/constants';
-import sprintStatistics from './gameStatistic';
+// import { sprintStatistics, stringifyGameState } from './gameStatistic';
 import svgAudio from '../audio-challenge/audio';
 
 class Sprint extends ApiPage {
@@ -69,6 +69,7 @@ class Sprint extends ApiPage {
       this.sprintGamePage.append(this.createGameRules());
     }
     this.contentContainer.append(this.sprintGamePage);
+    this.initStatistics();
   }
 
   private createGame = async (group?: string): Promise<void> => {
@@ -162,7 +163,10 @@ class Sprint extends ApiPage {
     // eslint-disable-next-line no-underscore-dangle
     const wordId = currentWord.id || currentWord._id;
     if (wordId) {
-      sprintStatistics.newWords.add(wordId);
+      if (this.statistics && !this.statistics.totalNewWords.has(wordId)) {
+        this.statistics.totalNewWords.add(wordId);
+        this.statistics.sprint.newWords.add(wordId);
+      }
       const bonusChecker = document.querySelectorAll('.bonus-check');
       if (condition) {
         this.pointsCount += this.pointsMultiplier;
@@ -191,11 +195,16 @@ class Sprint extends ApiPage {
           bonusChecker[2].removeAttribute('checked');
         }
         this.correctAnswers.push(currentWord);
-        if (sprintStatistics.correct.has(wordId)) {
-          const value = <number>sprintStatistics.correct.get(wordId);
-          sprintStatistics.correct.set(currentWord.id, value + 1);
-        } else {
-          sprintStatistics.correct.set(wordId, 1);
+        if (this.statistics) {
+          if (this.statistics.totalCorrect.has(wordId)) {
+            const totalValue = <number>this.statistics.totalCorrect.get(wordId);
+            this.statistics.totalCorrect.set(wordId, totalValue + 1);
+            const value = <number>this.statistics.sprint.correct.get(wordId);
+            this.statistics.sprint.correct.set(wordId, value + 1);
+          } else {
+            this.statistics.totalCorrect.set(wordId, 1);
+            this.statistics.sprint.correct.set(wordId, 1);
+          }
         }
         // await playAudio(`../../static/audio/correct-answer.mp3`);
         await this.createWordblock();
@@ -205,11 +214,16 @@ class Sprint extends ApiPage {
         this.pointsMultiplier = 10;
         this.borderMultiplier = 3;
         this.wrongAnswers.push(currentWord);
-        if (sprintStatistics.wrong.has(wordId)) {
-          const value = <number>sprintStatistics.wrong.get(wordId);
-          sprintStatistics.wrong.set(wordId, value + 1);
-        } else {
-          sprintStatistics.wrong.set(wordId, 1);
+        if (this.statistics) {
+          if (this.statistics.totalWrong.has(wordId)) {
+            const totalValue = <number>this.statistics.totalWrong.get(wordId);
+            this.statistics.totalWrong.set(wordId, totalValue + 1);
+            const value = <number>this.statistics.sprint.wrong.get(wordId);
+            this.statistics.sprint.wrong.set(wordId, value + 1);
+          } else {
+            this.statistics.totalWrong.set(wordId, 1);
+            this.statistics.sprint.wrong.set(wordId, 1);
+          }
         }
         bonusChecker[0].removeAttribute('checked');
         bonusChecker[1].removeAttribute('checked');
@@ -251,13 +265,7 @@ class Sprint extends ApiPage {
       this.page -= 1;
       this.selectedUnit = this.selectedUnit || this.textbookGroup;
       this.gameWords = await this.getWordsItems(this.selectedUnit, this.page.toString());
-      // if (this.gameWords.length === 0) {
-      //   isWordsLoaded = false;
-      // } else {
-      //   isWordsLoaded = true;
-      //   this.shuffleGameWords();
-      // }
-      // this.shuffleGameWords();
+      this.shuffleGameWords();
     }
 
     return isWordsLoaded;
@@ -352,8 +360,8 @@ class Sprint extends ApiPage {
     const wordsBlock = createElement('div', ['words-block', 'hide']);
     blockWrapper.append(resultBlock, wordsBlock);
     resultBlock.append(this.createResultCircle());
-    if (sprintStatistics.bestSeries < this.maxWinstreak) {
-      sprintStatistics.bestSeries = this.maxWinstreak;
+    if (this.statistics && this.statistics.sprint.bestSeries < this.maxWinstreak) {
+      this.statistics.sprint.bestSeries = this.maxWinstreak;
     }
     const rightAnswerCount = createElement('span', ['right-answer-count']);
     const wrongAnswerCount = createElement('span', ['wrong-answer-count']);
@@ -378,6 +386,9 @@ class Sprint extends ApiPage {
     resultWrapper.append(resultHeader, blockWrapper, footerBtns);
     this.sprintGamePage.append(resultWrapper);
     localStorage.removeItem('isTextbook');
+
+    this.setStatistics();
+
     this.restoreValues();
   };
 

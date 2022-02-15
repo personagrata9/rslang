@@ -1,6 +1,8 @@
 import Api from '../api/api';
-import { IWord, ApiPageNameType, IFilter, IUserWordData } from '../common/types';
+import { IWord, ApiPageNameType, IFilter, IUserWordData, IGameStatisticsTotal } from '../common/types';
 import { WORDS_PER_PAGE } from '../common/constants';
+import { convertDate } from '../common/utils';
+import { stringifyGameStatisticsTotal, getParsedGameStatisticsTotal } from './statistics/state';
 
 abstract class ApiPage {
   protected contentContainer = <HTMLDivElement>document.querySelector('.content-container');
@@ -13,12 +15,15 @@ abstract class ApiPage {
 
   protected api: Api;
 
+  protected statistics: IGameStatisticsTotal | null;
+
   constructor(protected readonly name: ApiPageNameType) {
     this.name = name;
     this.textbookGroup = localStorage.getItem('group') || '0';
     this.textbookPage = localStorage.getItem('page') || '0';
     this.userId = localStorage.getItem('UserId');
     this.api = new Api();
+    this.statistics = null;
   }
 
   protected getWordsItems = async (group: string, page: string): Promise<IWord[]> => {
@@ -49,12 +54,39 @@ abstract class ApiPage {
     return words;
   };
 
-  // protected setLearnedWord = async (wordId: string) => {
-  //   if (this.userId) {
-  //     const userWord = this.api.getUserAggregetedWord({ userId: this.userId, wordId });
-  //     console.log('userWord', userWord);
-  //   }
-  // };
+  protected setStatistics = (): void => {
+    if (this.statistics) localStorage.setItem('statistics', stringifyGameStatisticsTotal(this.statistics));
+  };
+
+  protected initStatistics = (): void => {
+    const storage: string | null = localStorage.getItem('statistics');
+    if (!storage) {
+      const initStatistics: IGameStatisticsTotal = {
+        date: convertDate(new Date()),
+        totalNewWords: new Set([]),
+        totalCorrect: new Map([]),
+        totalWrong: new Map([]),
+        totalLearnedWords: new Set([]),
+        audioChallenge: {
+          newWords: new Set([]),
+          correct: new Map([]),
+          wrong: new Map([]),
+          bestSeries: 0,
+        },
+        sprint: {
+          newWords: new Set([]),
+          correct: new Map([]),
+          wrong: new Map([]),
+          bestSeries: 0,
+        },
+      };
+      this.statistics = initStatistics;
+      console.log('no-storage', this.statistics);
+    } else {
+      this.statistics = getParsedGameStatisticsTotal(storage);
+      console.log('storage', this.statistics);
+    }
+  };
 }
 
 export default ApiPage;
