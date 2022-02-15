@@ -125,3 +125,24 @@ export const shuffle = (array: IWord[]): IWord[] => {
   array.sort(() => Math.random() - 0.5);
   return array;
 };
+
+export const mapFromString = (value: string): Map<string, number> => {
+  if (value.length) {
+    const arr = value.split(',');
+    const ids = arr.filter((_, i) => !(i % 2));
+    const counts = arr.filter((_, i) => i % 2).map(Number);
+    return new Map(ids.map((id, i) => [id, counts[i]]));
+  }
+  return new Map([]);
+};
+
+export const setFromString = (value: string): Set<string> => {
+  if (value.length) {
+    const arr = value.split(',');
+    return new Set(arr);
+  }
+  return new Set([]);
+};
+
+export const convertDate = (date: Date): string =>
+  `${date.getFullYear()}${date.getMonth().toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}`;

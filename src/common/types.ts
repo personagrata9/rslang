@@ -116,3 +116,25 @@ export interface IAggregatedResult {
   paginatedResults: IWord[];
   totalCount: TotalCountType[];
 }
+
+export interface IGameStatistics {
+  newWords: Set<string>;
+  correct: Map<string, number>;
+  wrong: Map<string, number>;
+  bestSeries: number;
+}
+
+export interface IGameStatisticsTotal {
+  date: string;
+  totalNew: Set<string>;
+  totalCorrect: Map<string, number>;
+  totalWrong: Map<string, number>;
+  totalLearned: Set<string>;
+  totalRepeats: Map<string, number>;
+  audioChallenge: IGameStatistics;
+  sprint: IGameStatistics;
+}
+
+export interface IGameStatisticsStr {
+  [key: string]: string;
+}
