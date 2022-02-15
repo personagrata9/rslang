@@ -133,7 +133,11 @@ class Sprint extends ApiPage {
             generatedAnswer.currentWord
           ).then(async () => {
             if (!isWordsLoaded) await this.resultWindow();
+<<<<<<< HEAD
             // console.log('right-btn-res');
+=======
+            console.log('right-btn-res');
+>>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
           });
         }
       };
@@ -155,7 +159,11 @@ class Sprint extends ApiPage {
             generatedAnswer.currentWord
           ).then(async () => {
             if (!isWordsLoaded) await this.resultWindow();
+<<<<<<< HEAD
             // console.log('wrong-btn-res');
+=======
+            console.log('wrong-btn-res');
+>>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
           });
         }
       };
@@ -171,7 +179,11 @@ class Sprint extends ApiPage {
     // eslint-disable-next-line no-underscore-dangle
     const wordId = currentWord.id || currentWord._id;
     if (wordId) {
+<<<<<<< HEAD
       this.state.setNewWords(wordId);
+=======
+      this.state.updateNewWords(wordId);
+>>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
       const bonusChecker = document.querySelectorAll('.bonus-check');
       if (condition) {
         this.pointsCount += this.pointsMultiplier;
@@ -200,7 +212,11 @@ class Sprint extends ApiPage {
           bonusChecker[2].removeAttribute('checked');
         }
         this.correctAnswers.push(currentWord);
+<<<<<<< HEAD
         this.state.setCorrectWords(wordId);
+=======
+        this.state.updateCorrectWords(wordId);
+>>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
         // await playAudio(`../../static/audio/correct-answer.mp3`);
         await this.createWordblock();
       } else {
@@ -209,7 +225,11 @@ class Sprint extends ApiPage {
         this.pointsMultiplier = 10;
         this.borderMultiplier = 3;
         this.wrongAnswers.push(currentWord);
+<<<<<<< HEAD
         this.state.setWrongWords(wordId);
+=======
+        this.state.updateWrongWords(wordId);
+>>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
         bonusChecker[0].removeAttribute('checked');
         bonusChecker[1].removeAttribute('checked');
         bonusChecker[2].removeAttribute('checked');
@@ -222,7 +242,11 @@ class Sprint extends ApiPage {
     const currentWord = this.gameWords[this.counter];
     if (!currentWord) {
       await this.resultWindow();
+<<<<<<< HEAD
       // console.log('compare-res');
+=======
+      console.log('compare-res');
+>>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
       return undefined;
     }
 
@@ -251,13 +275,7 @@ class Sprint extends ApiPage {
       this.page -= 1;
       this.selectedUnit = this.selectedUnit || this.textbookGroup;
       this.gameWords = await this.getWordsItems(this.selectedUnit, this.page.toString());
-      // if (this.gameWords.length === 0) {
-      //   isWordsLoaded = false;
-      // } else {
-      //   isWordsLoaded = true;
-      //   this.shuffleGameWords();
-      // }
-      // this.shuffleGameWords();
+      this.shuffleGameWords();
     }
 
     return isWordsLoaded;
@@ -325,6 +343,7 @@ class Sprint extends ApiPage {
 
     this.resultTimer = new Promise((resolve) => {
       const interval = setInterval(() => {
+<<<<<<< HEAD
         // console.log('in-res-timer');
         const timer = <HTMLElement>document.querySelector('.timer');
         if (!timer) {
@@ -333,6 +352,16 @@ class Sprint extends ApiPage {
         }
         if (timer && +timer.innerHTML < 0) {
           // console.log('stop-res-timer-2');
+=======
+        console.log('in-res-timer');
+        const timer = <HTMLElement>document.querySelector('.timer');
+        if (!timer) {
+          console.log('stop-res-timer-1');
+          clearInterval(interval);
+        }
+        if (timer && +timer.innerHTML < 0) {
+          console.log('stop-res-timer-2');
+>>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
           resolve(this.resultWindow());
           clearInterval(interval);
         }
@@ -362,7 +391,11 @@ class Sprint extends ApiPage {
     const wordsBlock = createElement('div', ['words-block', 'hide']);
     blockWrapper.append(resultBlock, wordsBlock);
     resultBlock.append(this.createResultCircle());
+<<<<<<< HEAD
     this.state.setMaxWinstreak(this.maxWinstreak);
+=======
+    this.state.updateMaxWinstreak(this.maxWinstreak);
+>>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
     const rightAnswerCount = createElement('span', ['right-answer-count']);
     const wrongAnswerCount = createElement('span', ['wrong-answer-count']);
     const correctAnswerBlock = createElement('div', ['correct-answer-block']);
@@ -387,7 +420,11 @@ class Sprint extends ApiPage {
     this.sprintGamePage.append(resultWrapper);
     localStorage.removeItem('isTextbook');
 
+<<<<<<< HEAD
     await this.state.updateGameState();
+=======
+    await this.state.update();
+>>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
 
     this.restoreValues();
     // console.log('result');
