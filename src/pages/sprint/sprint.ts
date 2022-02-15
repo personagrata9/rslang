@@ -96,6 +96,7 @@ class Sprint extends ApiPage {
   };
 
   private createWordblock = async (): Promise<HTMLElement> => {
+    this.keyboardControls();
     const generatedAnswer = await this.compareWords();
     this.wordContainer.innerHTML = '';
     const currentResult = createElement('h2', ['word-container__title']);
@@ -131,7 +132,6 @@ class Sprint extends ApiPage {
     };
     wrongBtn.onclick = async () => {
       // rightBtn.disabled = true;
-
       if (this.counter < this.gameWords.length - 1) {
         this.counter += 1;
         await this.checkAnswer(
@@ -366,6 +366,7 @@ class Sprint extends ApiPage {
     this.sprintGamePage.append(resultWrapper);
     localStorage.removeItem('isTextbook');
     this.restoreValues();
+    console.log('result');
   };
 
   private createResultCircle = (): HTMLElement => {
@@ -429,6 +430,34 @@ class Sprint extends ApiPage {
     this.pointsCount = 0;
     this.counter = 0;
     this.selectedUnit = '';
+  };
+
+  keyboardControls = () => {
+    const event = new KeyboardEvent('click');
+    if (!document.querySelector('.result-wrapper')) {
+      window.addEventListener(
+        'keydown',
+        (e) => {
+          const evCode = e.code;
+          switch (evCode) {
+            case 'KeyZ':
+              if (<HTMLButtonElement>document.querySelector('.btn-wrong')) {
+                (<HTMLButtonElement>document.querySelector('.btn-wrong')).dispatchEvent(event);
+              }
+
+              break;
+            case 'KeyX':
+              if (<HTMLButtonElement>document.querySelector('.btn-right')) {
+                (<HTMLButtonElement>document.querySelector('.btn-right')).dispatchEvent(event);
+              }
+              break;
+            default:
+              break;
+          }
+        },
+        { once: true }
+      );
+    }
   };
 }
 
