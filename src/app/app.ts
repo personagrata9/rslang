@@ -66,6 +66,15 @@ class App {
     const contentContainer = document.querySelector('.content-container') as HTMLElement;
     const parsedURL = checkHash();
     const page = routes[parsedURL] || new Error404();
+    const footer = <HTMLElement>document.querySelector('footer');
+    const aside = <HTMLElement>document.querySelector('.navbar-aside');
+    if (page instanceof Sprint || page instanceof AudioChallenge) {
+      footer.classList.add('hide');
+      aside.style.height = 'calc(100vh - 66px)';
+    } else {
+      footer.classList.remove('hide');
+      aside.style.height = 'calc(100vh - 116px)';
+    }
     contentContainer.innerHTML = '';
     contentContainer.classList.add('preloader');
     if (page instanceof ApiPage) {
