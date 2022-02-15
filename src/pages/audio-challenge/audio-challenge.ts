@@ -88,7 +88,7 @@ class AudioChallenge extends ApiPage {
   async createGamePage(level?: string): Promise<HTMLElement> {
     if (this.gameWords.length === 0 && !this.page && level) {
       this.page = random(NUMBER_OF_PAGES);
-      this.gameWords = await this.getWordsItems(level, '0');
+      this.gameWords = await this.getWordsItems(level, String(this.page));
     } else if (this.gameWords.length === 0 && !this.page && !level) {
       this.page = Number(this.textbookPage);
       this.gameWords = await this.getWordsItems(this.textbookGroup, String(this.page));
