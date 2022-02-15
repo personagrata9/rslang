@@ -88,6 +88,7 @@ export enum Colors {
   Orange = '#e17719',
   White = '#ffffff',
   Black = '#000000',
+  Green = '#61b6aa',
 }
 
 export type ApiPageNameType = 'textbook' | 'audio-challenge' | 'sprint';
