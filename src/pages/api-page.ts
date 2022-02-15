@@ -1,7 +1,15 @@
+<<<<<<< HEAD
 import { IWord, ApiPageNameType, IFilter, IUserWordData, IGameStatisticsTotal } from '../common/types';
 import { WORDS_PER_PAGE } from '../common/constants';
 import State from '../state/state';
 import Api from '../api/api';
+=======
+import Api from '../api/api';
+import { IWord, ApiPageNameType, IFilter, IUserWordData, IGameStatisticsTotal } from '../common/types';
+import { WORDS_PER_PAGE } from '../common/constants';
+import { convertDate } from '../common/utils';
+import { stringifyGameStatisticsTotal, getParsedGameStatisticsTotal } from './statistics/state';
+>>>>>>> 3d73784 (feat: add statistics state for interaction wirh localStorage)
 
 abstract class ApiPage {
   protected contentContainer = <HTMLDivElement>document.querySelector('.content-container');
@@ -48,6 +56,7 @@ abstract class ApiPage {
     return words;
   };
 
+<<<<<<< HEAD
   protected getDifficultUserWords = async (): Promise<IWord[]> => {
     const userWords: IUserWordData[] = this.userId
       ? await this.api.getUserWords(this.userId).then((result) => result)
@@ -56,6 +65,40 @@ abstract class ApiPage {
     return Promise.all(
       difficultWordsData.map((data: IUserWordData): Promise<IWord> => this.api.getWordById(data.wordId))
     );
+=======
+  protected setStatistics = (): void => {
+    if (this.statistics) localStorage.setItem('statistics', stringifyGameStatisticsTotal(this.statistics));
+  };
+
+  protected initStatistics = (): void => {
+    const storage: string | null = localStorage.getItem('statistics');
+    if (!storage) {
+      const initStatistics: IGameStatisticsTotal = {
+        date: convertDate(new Date()),
+        totalNewWords: new Set([]),
+        totalCorrect: new Map([]),
+        totalWrong: new Map([]),
+        totalLearnedWords: new Set([]),
+        audioChallenge: {
+          newWords: new Set([]),
+          correct: new Map([]),
+          wrong: new Map([]),
+          bestSeries: 0,
+        },
+        sprint: {
+          newWords: new Set([]),
+          correct: new Map([]),
+          wrong: new Map([]),
+          bestSeries: 0,
+        },
+      };
+      this.statistics = initStatistics;
+      console.log('no-storage', this.statistics);
+    } else {
+      this.statistics = getParsedGameStatisticsTotal(storage);
+      console.log('storage', this.statistics);
+    }
+>>>>>>> 3d73784 (feat: add statistics state for interaction wirh localStorage)
   };
 }
 

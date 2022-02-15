@@ -119,8 +119,12 @@ export interface IAggregatedResult {
 }
 
 export interface IGameStatistics {
+<<<<<<< HEAD
   gameWords: Set<string>;
   new: Set<string>;
+=======
+  newWords: Set<string>;
+>>>>>>> 3d73784 (feat: add statistics state for interaction wirh localStorage)
   correct: Map<string, number>;
   wrong: Map<string, number>;
   bestSeries: number;
@@ -128,12 +132,19 @@ export interface IGameStatistics {
 
 export interface IGameStatisticsTotal {
   date: string;
+<<<<<<< HEAD
   totalGameWords: Set<string>;
   totalNew: Set<string>;
   totalCorrect: Map<string, number>;
   totalWrong: Map<string, number>;
   totalLearned: Set<string>;
   totalRepeats: Map<string, number>;
+=======
+  totalNewWords: Set<string>;
+  totalCorrect: Map<string, number>;
+  totalWrong: Map<string, number>;
+  totalLearnedWords: Set<string>;
+>>>>>>> 3d73784 (feat: add statistics state for interaction wirh localStorage)
   audioChallenge: IGameStatistics;
   sprint: IGameStatistics;
 }

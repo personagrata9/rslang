@@ -127,6 +127,7 @@ export const shuffle = (array: IWord[]): IWord[] => {
 };
 
 export const mapFromString = (value: string): Map<string, number> => {
+<<<<<<< HEAD
   if (value.length) {
     const arr = value.split(',');
     const ids = arr.filter((_, i) => !(i % 2));
@@ -142,6 +143,12 @@ export const setFromString = (value: string): Set<string> => {
     return new Set(arr);
   }
   return new Set([]);
+=======
+  const arr = value.split(',');
+  const ids = arr.filter((_, i) => !(i % 2));
+  const counts = arr.filter((_, i) => i % 2);
+  return new Map(ids.map((id, i) => [id, +counts[i]]));
+>>>>>>> 3d73784 (feat: add statistics state for interaction wirh localStorage)
 };
 
 export const convertDate = (date: Date): string =>
