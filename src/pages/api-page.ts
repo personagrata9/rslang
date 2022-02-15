@@ -1,6 +1,7 @@
-import Api from '../api/api';
 import { IWord, ApiPageNameType, IFilter, IUserWordData } from '../common/types';
 import { WORDS_PER_PAGE } from '../common/constants';
+import State from '../state/state';
+import Api from '../api/api';
 
 abstract class ApiPage {
   protected contentContainer = <HTMLDivElement>document.querySelector('.content-container');
@@ -8,6 +9,8 @@ abstract class ApiPage {
   protected textbookGroup: string;
 
   protected textbookPage: string;
+
+  protected state = new State(this.name);
 
   protected userId: string | null;
 
@@ -26,14 +29,7 @@ abstract class ApiPage {
 
     if (this.userId && localStorage.getItem('isTextbook')) {
       if (group === '6') {
-        const userWords: IUserWordData[] = this.userId
-          ? await this.api.getUserWords(this.userId).then((result) => result)
-          : [];
-        const difficultWordsData: IUserWordData[] = userWords.filter((data) => data.difficulty === 'hard');
-
-        words = await Promise.all(
-          difficultWordsData.map((data: IUserWordData): Promise<IWord> => this.api.getWordById(data.wordId))
-        );
+        words = await this.getDifficultUserWords();
       } else {
         const filter: IFilter = {
           $or: [{ userWord: null }, { 'userWord.optional': {} || null }, { 'userWord.optional.learned': false }],
@@ -49,12 +45,15 @@ abstract class ApiPage {
     return words;
   };
 
-  // protected setLearnedWord = async (wordId: string) => {
-  //   if (this.userId) {
-  //     const userWord = this.api.getUserAggregetedWord({ userId: this.userId, wordId });
-  //     console.log('userWord', userWord);
-  //   }
-  // };
+  protected getDifficultUserWords = async (): Promise<IWord[]> => {
+    const userWords: IUserWordData[] = this.userId
+      ? await this.api.getUserWords(this.userId).then((result) => result)
+      : [];
+    const difficultWordsData: IUserWordData[] = userWords.filter((data) => data.difficulty === 'hard');
+    return Promise.all(
+      difficultWordsData.map((data: IUserWordData): Promise<IWord> => this.api.getWordById(data.wordId))
+    );
+  };
 }
 
 export default ApiPage;

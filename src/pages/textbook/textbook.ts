@@ -223,19 +223,7 @@ class Textbook extends ApiPage {
       : [];
 
     if (this.userId && this.textbookGroup === '6') {
-      const difficultWordsData: IUserWordData[] = userWords.filter((data) => data.difficulty === 'hard');
-      const difficultWords: IWord[] = await Promise.all(
-        difficultWordsData.map((data: IUserWordData): Promise<IWord> => this.api.getWordById(data.wordId))
-      );
-
-      words = difficultWords;
-
-      if (words.length === 0) {
-        listContainerElement.innerHTML = `You don't have difficult words! You are able to mark word as difficult in Unit 1-6.`;
-        listContainerElement.classList.add('empty');
-      } else {
-        listContainerElement.classList.remove('empty');
-      }
+      words = await this.getDifficultUserWords();
     }
 
     words.forEach((word: IWord) => {
