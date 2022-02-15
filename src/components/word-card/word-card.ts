@@ -287,6 +287,7 @@ class WordCard {
 
           if (button.classList.contains('active')) {
             wordData.optional.learned = false;
+            wordData.optional.repeat = 0;
             this.disableLearnedMode(button);
           } else {
             wordData.optional.learned = true;

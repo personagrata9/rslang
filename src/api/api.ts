@@ -112,6 +112,7 @@ class Api {
   };
 
   createUserWord = async ({ userId, wordId, wordData }: IUserNewWord): Promise<void> => {
+    console.log(wordData);
     await fetch(`${this.url}/users/${userId}/words/${wordId}`, {
       method: Methods.Post,
       headers: {
