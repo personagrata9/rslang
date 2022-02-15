@@ -121,16 +121,6 @@ class Textbook extends ApiPage {
     return navElement;
   };
 
-  private togglePaginationBar = (): void => {
-    const paginationBar = <HTMLElement>document.querySelector(`.${this.name}-page-navigation`);
-    if (this.textbookGroup === '6') {
-      paginationBar.style.visibility = 'hidden';
-      paginationBar.hidden = true;
-    } else {
-      paginationBar.style.visibility = 'visible';
-    }
-  };
-
   private stylePaginationControls = (): void => {
     const prevPageControl = <HTMLElement>document.querySelector(`.${this.name}-page-navigation .prev-page`);
     const nextPageControl = <HTMLElement>document.querySelector(`.${this.name}-page-navigation .next-page`);
@@ -148,9 +138,18 @@ class Textbook extends ApiPage {
     nextPageControl.style.pointerEvents = +this.textbookPage === NUMBER_OF_PAGES - 1 ? 'none' : 'auto';
   };
 
+  private togglePaginationBar = (): void => {
+    const paginationBar = <HTMLElement>document.querySelector(`.${this.name}-page-navigation`);
+    if (this.textbookGroup === '6') {
+      paginationBar.style.visibility = 'hidden';
+    } else {
+      paginationBar.style.visibility = 'visible';
+    }
+  };
+
   private createMinigamesLinks = (): HTMLElement => {
     const minigamesContainer: HTMLElement = createElement('div', [
-      `${this.name}-minigames-container`,
+      `${this.name}-minigames-links-container`,
       'shadow',
       'd-flex',
       'flex-wrap',
@@ -250,6 +249,15 @@ class Textbook extends ApiPage {
     return listContainerElement;
   };
 
+  private toggleMinigamesLinks = (): void => {
+    const minigamesLinks = <HTMLElement>document.querySelector(`.${this.name}-minigames-links-container`);
+    if (!this.userId && this.textbookGroup === '6') {
+      minigamesLinks.style.visibility = 'hidden';
+    } else {
+      minigamesLinks.style.visibility = 'visible';
+    }
+  };
+
   private onChangeGroupNum = async (groupNum: string) => {
     if (this.textbookGroup !== groupNum) {
       this.textbookGroup = groupNum;
@@ -278,9 +286,10 @@ class Textbook extends ApiPage {
     const newCardsListContainer: HTMLElement = await this.createWordsCardsList();
     cardsListContainer.replaceWith(newCardsListContainer);
 
-    const minigamesLinks = <HTMLElement>document.querySelector(`.${this.name}-minigames-container`);
+    const minigamesLinks = <HTMLElement>document.querySelector(`.${this.name}-minigames-links-container`);
     const newMinigamesLinks: HTMLElement = this.createMinigamesLinks();
     minigamesLinks.replaceWith(newMinigamesLinks);
+    this.toggleMinigamesLinks();
   };
 
   render = async (): Promise<void> => {
@@ -304,6 +313,7 @@ class Textbook extends ApiPage {
     this.styleGroupsItems();
     this.stylePaginationControls();
     this.togglePaginationBar();
+    this.toggleMinigamesLinks();
   };
 }
 
