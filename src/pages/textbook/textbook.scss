@@ -89,7 +89,7 @@
   }
 }
 
-.textbook-minigames-container {
+.textbook-minigames-links-container {
   position: relative;
   border-radius: 5px;
   user-select: none;
@@ -176,7 +176,7 @@
   min-height: 200px;
 
   &.authorized,
-  &.no-content {
+  &.empty {
     justify-content: center;
     align-items: center;
     font-size: x-large;

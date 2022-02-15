@@ -133,25 +133,37 @@ class WordCard {
     }
 
     button.onclick = async () => {
-      button.classList.add('active');
-      button.disabled = true;
-
-      const marker = <HTMLDivElement>document.querySelector(`div[data-word-id = "${this.word.id}"] .word-card-marker`);
-      marker.style.backgroundColor = Colors.Orange;
-
       if (this.userId) {
-        if (!this.Difficulty) {
-          const wordData: IUserWordNewData = { difficulty: 'hard', optional: {} };
-          await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
-        }
-        if (this.Difficulty === 'easy') {
+        button.classList.add('active');
+        button.disabled = true;
+
+        const marker = <HTMLDivElement>(
+          document.querySelector(`div[data-word-id = "${this.word.id}"] .word-card-marker`)
+        );
+        marker.style.backgroundColor = Colors.Orange;
+
+        const learnedWordButton = <HTMLButtonElement>(
+          document.querySelector(`div[data-word-id = "${this.word.id}"] .btn-learned-word`)
+        );
+        this.disableLearnedMode(learnedWordButton);
+
+        const userWords: IUserWordData[] = await this.api.getUserWords(this.userId).then((result) => result);
+
+        if (userWords.find((word) => word.wordId === this.word.id)) {
           const userWord: IUserWordNewData = await this.api.getUserWordById({
             userId: this.userId,
             wordId: this.word.id,
           });
 
-          const wordData: IUserWordNewData = { difficulty: 'hard', optional: userWord.optional };
+          const { optional } = userWord;
+          optional.learned = false;
+
+          const wordData: IUserWordNewData = { difficulty: 'hard', optional };
           await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
+        } else {
+          const wordData: IUserWordNewData = { difficulty: 'hard', optional: { learned: false } };
+
+          await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
         }
       }
     };
@@ -163,11 +175,15 @@ class WordCard {
     const button: HTMLButtonElement = createButtonElement('button', 'Easy', 'btn', 'btn-easy-word');
 
     button.onclick = async () => {
-      button.classList.add('active');
-      button.disabled = true;
-      setTimeout(() => this.container.remove(), 700);
-
       if (this.userId) {
+        button.classList.add('active');
+        button.disabled = true;
+        const marker = <HTMLDivElement>(
+          document.querySelector(`div[data-word-id = "${this.word.id}"] .word-card-marker`)
+        );
+        marker.style.backgroundColor = Colors.Green;
+        this.remove();
+
         const userWord: IUserWordNewData = await this.api.getUserWordById({
           userId: this.userId,
           wordId: this.word.id,
@@ -235,6 +251,18 @@ class WordCard {
     });
   };
 
+  private disableDifficultMode = (buttonName: 'difficult' | 'easy'): void => {
+    const button = <HTMLButtonElement>(
+      document.querySelector(`div[data-word-id = "${this.word.id}"] .btn-${buttonName}-word`)
+    );
+
+    button.classList.remove('active');
+    button.removeAttribute('disabled');
+
+    const marker = <HTMLDivElement>document.querySelector(`div[data-word-id = "${this.word.id}"] .word-card-marker`);
+    marker.style.backgroundColor = buttonName === 'difficult' ? this.color : this.groupColor;
+  };
+
   private createLearnedWordButton = (): HTMLButtonElement => {
     const button: HTMLButtonElement = createButtonElement('button', 'Learned', 'btn', 'btn-learned-word');
     if (this.isLearned) {
@@ -244,17 +272,18 @@ class WordCard {
     }
 
     button.onclick = async () => {
-      const userWords: IUserWordData[] = this.userId
-        ? await this.api.getUserWords(this.userId).then((result) => result)
-        : [];
       if (this.userId) {
+        const userWords: IUserWordData[] = this.userId
+          ? await this.api.getUserWords(this.userId).then((result) => result)
+          : [];
+
         if (userWords.find((word) => word.wordId === this.word.id)) {
           const userWord: IUserWordNewData = await this.api.getUserWordById({
             userId: this.userId,
             wordId: this.word.id,
           });
 
-          const wordData: IUserWordNewData = { difficulty: userWord.difficulty, optional: userWord.optional || {} };
+          const wordData: IUserWordNewData = { difficulty: 'easy', optional: userWord.optional };
 
           if (button.classList.contains('active')) {
             wordData.optional.learned = false;
@@ -265,10 +294,19 @@ class WordCard {
           }
 
           await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
+
+          if (localStorage.getItem('group') === '6') {
+            this.disableDifficultMode('easy');
+            this.remove();
+          } else {
+            this.disableDifficultMode('difficult');
+          }
         } else {
           const wordData: IUserWordNewData = { difficulty: 'easy', optional: { learned: true } };
+
           await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
           this.enableLearnedMode(button);
+          this.disableDifficultMode('difficult');
         }
       }
     };
@@ -289,6 +327,19 @@ class WordCard {
     }
 
     return buttonsContainer;
+  };
+
+  private remove = (): void => {
+    setTimeout(() => {
+      this.container.remove();
+      const wordsCardsList = <HTMLElement>document.querySelector('.words-cards-list-container');
+      if (!wordsCardsList.firstChild) {
+        wordsCardsList.innerHTML = `You don't have difficult words! You are able to mark word as difficult in Unit 1-6.`;
+        wordsCardsList.classList.add('empty');
+      } else {
+        wordsCardsList.classList.remove('empty');
+      }
+    }, 700);
   };
 
   render = (): HTMLElement => {
