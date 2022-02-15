@@ -13,7 +13,7 @@ class Header {
     const openPopupBtn = <HTMLButtonElement>document.querySelector('.open-popup');
     const userName = <HTMLElement>document.querySelector('.user-name');
     const logoutBtn = <HTMLButtonElement>document.querySelector('.logout');
-    userName.innerHTML = `Hello <span>${<string>localStorage.getItem('UserName') || 'guest'}</span>!`;
+    userName.innerHTML = `Hello, <span>${<string>localStorage.getItem('UserName') || 'guest'}</span>!`;
     openPopupBtn.addEventListener('click', () => {
       const loginPopup = new LoginPopup();
       loginPopup.render();
