@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { createElement, createSelect, playAudio, random, shuffle } from '../../common/utils';
 import { NUMBER_OF_PAGES, WORDS_PER_PAGE, NUMBER_OF_GROUPS } from '../../common/constants';
 import { IWord } from '../../common/types';
@@ -87,7 +88,7 @@ class AudioChallenge extends ApiPage {
   async createGamePage(level?: string): Promise<HTMLElement> {
     if (this.gameWords.length === 0 && !this.page && level) {
       this.page = random(NUMBER_OF_PAGES);
-      this.gameWords = await this.getWordsItems(level, String(this.page));
+      this.gameWords = await this.getWordsItems(level, '0');
     } else if (this.gameWords.length === 0 && !this.page && !level) {
       this.page = Number(this.textbookPage);
       this.gameWords = await this.getWordsItems(this.textbookGroup, String(this.page));
@@ -231,9 +232,11 @@ class AudioChallenge extends ApiPage {
         if (answerButton.getAttribute('current-word') === currentWord) {
           await playAudio(`../../static/audio/correct-answer.mp3`);
           this.correctAnswers.push(this.currentIndexWord);
+          await this.updateUserWord(this.gameWords[this.currentIndexWord], true);
         } else {
           await playAudio(`../../static/audio/bad_answer.mp3`);
           this.inCorrectAnswers.push(this.currentIndexWord);
+          await this.updateUserWord(this.gameWords[this.currentIndexWord], false);
           answerButton.classList.add('incorect-answer');
         }
         this.createCorrectAnswerPage();
@@ -355,6 +358,64 @@ class AudioChallenge extends ApiPage {
         await this.loaderWords();
       } else if (this.gameWords.length > 20) {
         this.gameWords.splice(20);
+      }
+    }
+  }
+
+  async updateUserWord(currentWord: IWord, currentAnswer: boolean) {
+    const userWords = this.userId ? await this.api.getUserWords(this.userId).then((result) => result) : [];
+    let currentId: string | undefined;
+    // eslint-disable-next-line no-underscore-dangle
+    if (currentWord._id) {
+      // eslint-disable-next-line no-underscore-dangle
+      currentId = currentWord._id;
+    } else {
+      currentId = currentWord.id;
+    }
+    if (this.userId) {
+      if (userWords.find((word) => word.wordId === currentId) && currentId) {
+        const userWord = await this.api.getUserWordById({
+          userId: this.userId,
+          wordId: currentId,
+        });
+
+        const wordData = { difficulty: userWord.difficulty, optional: userWord.optional || {} };
+
+        if (currentAnswer) {
+          if (wordData.difficulty === 'easy') {
+            if (wordData.optional.repeat) {
+              wordData.optional.repeat += 1;
+            } else {
+              wordData.optional.repeat = 1;
+            }
+            if (wordData.optional.repeat > 2) {
+              wordData.optional.learned = true;
+            } else {
+              wordData.optional.learned = false;
+            }
+          } else if (wordData.difficulty === 'hard') {
+            if (wordData.optional.repeat) {
+              wordData.optional.repeat += 1;
+            } else {
+              wordData.optional.repeat = 1;
+            }
+            if (wordData.optional.repeat > 4) {
+              wordData.optional.learned = true;
+            } else {
+              wordData.optional.learned = false;
+            }
+          }
+        } else {
+          wordData.optional.learned = false;
+          wordData.optional.repeat = 0;
+        }
+        await this.api.updateUserWord({ userId: this.userId, wordId: currentId, wordData });
+      } else if (currentAnswer && currentId) {
+        const wordData = { difficulty: 'easy', optional: { learned: false, repeat: 1 } };
+        await this.api.createUserWord({ userId: this.userId, wordId: currentId, wordData });
+      } else if (!currentAnswer && currentId) {
+        const wordData = { difficulty: 'hard', optional: { learned: false, repeat: 0 } };
+        await this.api.createUserWord({ userId: this.userId, wordId: currentId, wordData });
       }
     }
   }
