@@ -229,6 +229,13 @@ class Textbook extends ApiPage {
       );
 
       words = difficultWords;
+
+      if (words.length === 0) {
+        listContainerElement.innerHTML = `You don't have difficult words! You are able to mark word as difficult in Unit 1-6.`;
+        listContainerElement.classList.add('empty');
+      } else {
+        listContainerElement.classList.remove('empty');
+      }
     }
 
     words.forEach((word: IWord) => {
@@ -240,7 +247,8 @@ class Textbook extends ApiPage {
     });
 
     if (!this.userId && this.textbookGroup === '6') {
-      listContainerElement.innerHTML = 'Only authorized users are able to see this page content. Please Sign in!';
+      listContainerElement.innerHTML =
+        'Only authorized users are able to see unit with difficult words. Please Sign in!';
       listContainerElement.classList.add('authorized');
     } else {
       listContainerElement.classList.remove('authorized');

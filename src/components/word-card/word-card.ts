@@ -182,7 +182,7 @@ class WordCard {
           document.querySelector(`div[data-word-id = "${this.word.id}"] .word-card-marker`)
         );
         marker.style.backgroundColor = Colors.Green;
-        setTimeout(() => this.container.remove(), 700);
+        this.remove();
 
         const userWord: IUserWordNewData = await this.api.getUserWordById({
           userId: this.userId,
@@ -297,7 +297,7 @@ class WordCard {
 
           if (localStorage.getItem('group') === '6') {
             this.disableDifficultMode('easy');
-            setTimeout(() => this.container.remove(), 700);
+            this.remove();
           } else {
             this.disableDifficultMode('difficult');
           }
@@ -327,6 +327,19 @@ class WordCard {
     }
 
     return buttonsContainer;
+  };
+
+  private remove = (): void => {
+    setTimeout(() => {
+      this.container.remove();
+      const wordsCardsList = <HTMLElement>document.querySelector('.words-cards-list-container');
+      if (!wordsCardsList.firstChild) {
+        wordsCardsList.innerHTML = `You don't have difficult words! You are able to mark word as difficult in Unit 1-6.`;
+        wordsCardsList.classList.add('empty');
+      } else {
+        wordsCardsList.classList.remove('empty');
+      }
+    }, 700);
   };
 
   render = (): HTMLElement => {
