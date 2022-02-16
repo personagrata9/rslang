@@ -1,4 +1,4 @@
-import { IWord, ApiPageNameType, IFilter, IUserWordData } from '../common/types';
+import { IWord, ApiPageNameType, IFilter, IUserWordData, IGameStatisticsTotal } from '../common/types';
 import { WORDS_PER_PAGE } from '../common/constants';
 import State from '../state/state';
 import Api from '../api/api';
@@ -16,12 +16,15 @@ abstract class ApiPage {
 
   protected api: Api;
 
+  protected statistics: IGameStatisticsTotal | null;
+
   constructor(protected readonly name: ApiPageNameType) {
     this.name = name;
     this.textbookGroup = localStorage.getItem('group') || '0';
     this.textbookPage = localStorage.getItem('page') || '0';
     this.userId = localStorage.getItem('UserId');
     this.api = new Api();
+    this.statistics = null;
   }
 
   protected getWordsItems = async (group: string, page: string): Promise<IWord[]> => {
