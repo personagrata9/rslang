@@ -3,7 +3,7 @@ import asideHtml from './aside-html';
 class Aside {
   render() {
     const aside = document.createElement('nav');
-    aside.className = 'navbar-aside';
+    aside.classList.add('navbar-aside', 'with-footer');
     aside.innerHTML = asideHtml;
     return aside;
   }

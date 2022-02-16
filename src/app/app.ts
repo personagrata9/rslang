@@ -69,11 +69,15 @@ class App {
     const footer = <HTMLElement>document.querySelector('footer');
     const aside = <HTMLElement>document.querySelector('.navbar-aside');
     if (page instanceof Sprint || page instanceof AudioChallenge) {
-      footer.classList.add('hide');
-      aside.style.height = 'calc(100vh - 66px)';
+      footer.classList.remove('show-footer');
+      footer.classList.add('hide-footer');
+      aside.classList.add('without-footer');
+      aside.classList.remove('with-footer');
     } else {
-      footer.classList.remove('hide');
-      aside.style.height = 'calc(100vh - 116px)';
+      footer.classList.remove('hide-footer');
+      footer.classList.add('show-footer');
+      aside.classList.remove('without-footer');
+      aside.classList.add('with-footer');
     }
     contentContainer.innerHTML = '';
     contentContainer.classList.add('preloader');

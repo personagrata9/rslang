@@ -8,8 +8,14 @@ footer {
   height: 50px;
 }
 
-.hide {
-  display: none;
+.hide-footer {
+  animation: hideFooter 1s ease-in-out;
+  visibility: hidden;
+}
+
+.show-footer {
+  animation: showFooter 1s ease-in-out;
+  visibility: visible;
 }
 
 .footer-container {
@@ -33,5 +39,29 @@ footer {
   .year-created {
     margin: auto 0;
     color: $white;
+  }
+}
+
+@keyframes hideFooter {
+  0% {
+    height: 50px;
+    visibility: visible;
+  }
+  100% {
+    height: 0;
+    visibility: hidden;
+  }
+
+}
+
+@keyframes showFooter {
+  0% {
+    height: 0;
+    visibility: hidden;
+  }
+
+  100% {
+    height: 50px;
+    visibility: visible;
   }
 }
