@@ -98,67 +98,70 @@ class Sprint extends ApiPage {
   private createWordblock = async (): Promise<HTMLElement> => {
     this.keyboardControls();
     const generatedAnswer = await this.compareWords();
-    this.wordContainer.innerHTML = '';
-    const currentResult = createElement('h2', ['word-container__title']);
-    currentResult.textContent = `Current result is ${this.pointsCount}`;
-    const pointsPerWord = createElement('p', []);
-    pointsPerWord.textContent = `${this.pointsMultiplier}`;
-    const wordBlock = createElement('div', ['word-block']);
-    const englishWord = createElement('p', ['current-word']);
-    const translatedWord = createElement('p', ['answer-word']);
-    englishWord.innerHTML = `${generatedAnswer.currentWord.word}`;
-    translatedWord.innerHTML = `${generatedAnswer.answer}`;
-    const answerBtns = createElement('div', ['answer-btns']);
-    const rightBtn = createButtonElement('button', 'correct', 'btn', 'btn-right');
-    const wrongBtn = createButtonElement('button', 'wrong', 'btn', 'btn-wrong');
-    rightBtn.onclick = async () => {
-      // wrongBtn.disabled = true;
-      if (this.counter < this.gameWords.length - 1) {
-        this.counter += 1;
-        await this.checkAnswer(
-          generatedAnswer.currentWord.wordTranslate === generatedAnswer.answer,
-          generatedAnswer.currentWord
-        );
-      } else {
-        this.counter = 0;
-        const isWordsLoaded = await this.newWordsLoader();
-        await this.checkAnswer(
-          generatedAnswer.currentWord.wordTranslate === generatedAnswer.answer,
-          generatedAnswer.currentWord
-        ).then(async () => {
-          if (!isWordsLoaded) this.resultWindow();
-        });
-      }
-    };
-    wrongBtn.onclick = async () => {
-      // rightBtn.disabled = true;
-      if (this.counter < this.gameWords.length - 1) {
-        this.counter += 1;
-        await this.checkAnswer(
-          generatedAnswer.currentWord.wordTranslate !== generatedAnswer.answer,
-          generatedAnswer.currentWord
-        );
-      } else {
-        this.counter = 0;
-        const isWordsLoaded = await this.newWordsLoader();
-        await this.checkAnswer(
-          generatedAnswer.currentWord.wordTranslate !== generatedAnswer.answer,
-          generatedAnswer.currentWord
-        ).then(async () => {
-          if (!isWordsLoaded) this.resultWindow();
-        });
-      }
-    };
-    answerBtns.append(wrongBtn, rightBtn);
-    wordBlock.append(englishWord, translatedWord, answerBtns);
-    this.wordContainer.append(currentResult, pointsPerWord, wordBlock);
+    if (generatedAnswer) {
+      this.wordContainer.innerHTML = '';
+      const currentResult = createElement('h2', ['word-container__title']);
+      currentResult.textContent = `Current result is ${this.pointsCount}`;
+      const pointsPerWord = createElement('p', []);
+      pointsPerWord.textContent = `${this.pointsMultiplier}`;
+      const wordBlock = createElement('div', ['word-block']);
+      const englishWord = createElement('p', ['current-word']);
+      const translatedWord = createElement('p', ['answer-word']);
+      englishWord.innerHTML = `${generatedAnswer.currentWord.word}`;
+      translatedWord.innerHTML = `${generatedAnswer.answer}`;
+      const answerBtns = createElement('div', ['answer-btns']);
+      const rightBtn = createButtonElement('button', 'correct', 'btn', 'btn-right');
+      const wrongBtn = createButtonElement('button', 'wrong', 'btn', 'btn-wrong');
+      rightBtn.onclick = async () => {
+        // wrongBtn.disabled = true;
+        if (this.counter < this.gameWords.length - 1) {
+          this.counter += 1;
+          await this.checkAnswer(
+            generatedAnswer.currentWord.wordTranslate === generatedAnswer.answer,
+            generatedAnswer.currentWord
+          );
+        } else {
+          this.counter = 0;
+          const isWordsLoaded = await this.newWordsLoader();
+          await this.checkAnswer(
+            generatedAnswer.currentWord.wordTranslate === generatedAnswer.answer,
+            generatedAnswer.currentWord
+          ).then(async () => {
+            if (!isWordsLoaded) this.resultWindow();
+          });
+        }
+      };
+      wrongBtn.onclick = async () => {
+        // rightBtn.disabled = true;
+
+        if (this.counter < this.gameWords.length - 1) {
+          this.counter += 1;
+          await this.checkAnswer(
+            generatedAnswer.currentWord.wordTranslate !== generatedAnswer.answer,
+            generatedAnswer.currentWord
+          );
+        } else {
+          this.counter = 0;
+          const isWordsLoaded = await this.newWordsLoader();
+          await this.checkAnswer(
+            generatedAnswer.currentWord.wordTranslate !== generatedAnswer.answer,
+            generatedAnswer.currentWord
+          ).then(async () => {
+            if (!isWordsLoaded) this.resultWindow();
+          });
+        }
+      };
+      answerBtns.append(wrongBtn, rightBtn);
+      wordBlock.append(englishWord, translatedWord, answerBtns);
+      this.wordContainer.append(currentResult, pointsPerWord, wordBlock);
+    }
+
     return this.wordContainer;
   };
 
   private checkAnswer = async (condition: boolean, currentWord: IWord): Promise<void> => {
     // eslint-disable-next-line no-underscore-dangle
     const wordId = currentWord.id || currentWord._id;
-
     if (wordId) {
       sprintStatistics.newWords.add(wordId);
       const bonusChecker = document.querySelectorAll('.bonus-check');
@@ -217,8 +220,13 @@ class Sprint extends ApiPage {
     }
   };
 
-  private compareWords = async (): Promise<{ currentWord: IWord; answer: string }> => {
+  private compareWords = async (): Promise<{ currentWord: IWord; answer: string } | undefined> => {
     const currentWord = this.gameWords[this.counter];
+    if (!currentWord) {
+      this.resultWindow();
+      return undefined;
+    }
+
     const currentWordTranslate = currentWord.wordTranslate;
 
     if (this.gameWords.length === 1) {
@@ -244,7 +252,13 @@ class Sprint extends ApiPage {
       this.page -= 1;
       this.selectedUnit = this.selectedUnit || this.textbookGroup;
       this.gameWords = await this.getWordsItems(this.selectedUnit, this.page.toString());
-      this.shuffleGameWords();
+      // if (this.gameWords.length === 0) {
+      //   isWordsLoaded = false;
+      // } else {
+      //   isWordsLoaded = true;
+      //   this.shuffleGameWords();
+      // }
+      // this.shuffleGameWords();
     }
 
     return isWordsLoaded;
