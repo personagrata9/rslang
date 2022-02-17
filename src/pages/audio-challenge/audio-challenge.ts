@@ -1,4 +1,4 @@
-import { createElement, createSelect, playAudio, random } from '../../common/utils';
+import { createElement, createSelect, playAudio, random, shuffle } from '../../common/utils';
 import { NUMBER_OF_PAGES, WORDS_PER_PAGE, NUMBER_OF_GROUPS } from '../../common/constants';
 import { IWord } from '../../common/types';
 import svgAudio from './audio';
@@ -63,13 +63,17 @@ class AudioChallenge extends ApiPage {
     this.contentContainer.classList.add('preloader');
     const audioChallengePage = createElement('div', ['audio-challenge-container']);
     const structurePage = createElement('div', ['audio-challenge-structure']);
-    if (state) {
+    if (state || this.gameWords.length > 0) {
       structurePage.append(await this.createGamePage());
-      await playAudio(this.audioLink);
+      if (this.audioLink) {
+        await playAudio(this.audioLink);
+      }
       this.addKeyboardAnswers();
     } else if (this.level) {
       structurePage.append(await this.createGamePage(this.level));
-      await playAudio(this.audioLink);
+      if (this.audioLink) {
+        await playAudio(this.audioLink);
+      }
       this.addKeyboardAnswers();
     } else {
       structurePage.append(await this.createRulesPage());
@@ -80,42 +84,62 @@ class AudioChallenge extends ApiPage {
     this.onceClick = true;
   }
 
-  async createGamePage(state?: string): Promise<HTMLElement> {
-    if (this.gameWords.length === 0 && !this.page && state) {
+  async createGamePage(level?: string): Promise<HTMLElement> {
+    if (this.gameWords.length === 0 && !this.page && level) {
       this.page = random(NUMBER_OF_PAGES);
-      this.gameWords = await this.getWordsItems(state, String(this.page));
-    } else if (this.gameWords.length === 0 && !this.page && !state) {
+      this.gameWords = await this.getWordsItems(level, String(this.page));
+    } else if (this.gameWords.length === 0 && !this.page && !level) {
       this.page = Number(this.textbookPage);
       this.gameWords = await this.getWordsItems(this.textbookGroup, String(this.page));
+      if (this.gameWords.length < 20) {
+        await this.loaderWords();
+      }
+      this.gameWords = shuffle(this.gameWords);
+      localStorage.removeItem('isTextbook');
     }
     const gamePage = createElement('div', ['audio-game-container']);
-    if (typeof this.gameWords !== 'boolean') {
+    if (this.gameWords.length > 0) {
       this.audioLink = `http://localhost:3000/${this.gameWords[this.currentIndexWord].audio}`;
       this.currentWordRus = this.gameWords[this.currentIndexWord].wordTranslate;
       this.currentWordEn = this.gameWords[this.currentIndexWord].word;
       this.wordImage = this.gameWords[this.currentIndexWord].image;
+      const repeatButton = createElement('button', ['box-audio-button']);
+      repeatButton.innerHTML = `<img class="repeat-audio-button" src="https://www.svgrepo.com/show/210514/music-player-audio.svg">`;
+      repeatButton.onclick = async () => {
+        await playAudio(this.audioLink);
+      };
+      gamePage.append(repeatButton);
+      gamePage.append(await this.createAnswersBox(this.currentWordRus));
+      const buttonUnknowWord = createElement(
+        'button',
+        ['answer-button', 'button-unknow-word', 'btn', 'btn-outline-light', 'btn-sg', 'px-3'],
+        `Don't know`
+      );
+      buttonUnknowWord.setAttribute('key', 'Enter');
+      buttonUnknowWord.onclick = async () => {
+        this.inCorrectAnswers.push(this.currentIndexWord);
+        await playAudio(`../../static/audio/bad_answer.mp3`);
+        this.createCorrectAnswerPage();
+        this.answered(this.currentWordRus);
+        this.onceClick = false;
+      };
+      gamePage.append(buttonUnknowWord);
+    } else {
+      const title = createElement('h1', ['title-all-words-learned'], 'All words on the current page have been learned');
+      gamePage.append(title);
+      const closeButton = createElement('button', ['close-popup-button'], 'Сlose game');
+      closeButton.onclick = async () => {
+        localStorage.removeItem('isTextbook');
+        this.level = '';
+        this.currentIndexWord = 0;
+        this.correctAnswers = [];
+        this.inCorrectAnswers = [];
+        this.page = false;
+        this.gameWords = [];
+        await this.render();
+      };
+      gamePage.append(closeButton);
     }
-    const repeatButton = createElement('button', ['box-audio-button']);
-    repeatButton.innerHTML = `<img class="repeat-audio-button" src="https://www.svgrepo.com/show/210514/music-player-audio.svg">`;
-    repeatButton.onclick = async () => {
-      await playAudio(this.audioLink);
-    };
-    gamePage.append(repeatButton);
-    gamePage.append(await this.createAnswersBox(this.currentWordRus));
-    const buttonUnknowWord = createElement(
-      'button',
-      ['answer-button', 'button-unknow-word', 'btn', 'btn-outline-light', 'btn-sg', 'px-3'],
-      `Don't know`
-    );
-    buttonUnknowWord.setAttribute('key', 'Enter');
-    buttonUnknowWord.onclick = async () => {
-      this.inCorrectAnswers.push(this.currentIndexWord);
-      await playAudio(`../../static/audio/bad_answer.mp3`);
-      this.createCorrectAnswerPage();
-      this.answered(this.currentWordRus);
-      this.onceClick = false;
-    };
-    gamePage.append(buttonUnknowWord);
     return gamePage;
   }
 
@@ -207,9 +231,11 @@ class AudioChallenge extends ApiPage {
         if (answerButton.getAttribute('current-word') === currentWord) {
           await playAudio(`../../static/audio/correct-answer.mp3`);
           this.correctAnswers.push(this.currentIndexWord);
+          // await this.updateUserWord(this.gameWords[this.currentIndexWord], true);
         } else {
           await playAudio(`../../static/audio/bad_answer.mp3`);
           this.inCorrectAnswers.push(this.currentIndexWord);
+          // await this.updateUserWord(this.gameWords[this.currentIndexWord], false);
           answerButton.classList.add('incorect-answer');
         }
         this.createCorrectAnswerPage();
@@ -321,6 +347,70 @@ class AudioChallenge extends ApiPage {
       audioChallengeContainer.append(popupResults);
     }
   }
+
+  async loaderWords() {
+    if (this.page > 0 && typeof this.page === 'number') {
+      this.page -= 1;
+      const loadWords = await this.getWordsItems(this.textbookGroup, String(this.page));
+      this.gameWords = this.gameWords.concat(loadWords);
+      if (this.gameWords.length < 20) {
+        await this.loaderWords();
+      } else if (this.gameWords.length > 20) {
+        this.gameWords.splice(20);
+      }
+    }
+  }
+
+  // async updateUserWord(currentWord: IWord, currentAnswer: boolean) {
+  //   const userWords = this.userId ? await this.api.getUserWords(this.userId).then((result) => result) : [];
+  //   const currentId: currentWord._id || currentWord.id;
+  //   if (this.userId) {
+  //     if (userWords.find((word) => word.wordId === currentId) && currentId) {
+  //       const userWord = await this.api.getUserWordById({
+  //         userId: this.userId,
+  //         wordId: currentId,
+  //       });
+
+  //       const wordData = { difficulty: userWord.difficulty, optional: userWord.optional || {} };
+
+  //       if (currentAnswer) {
+  //         if (wordData.difficulty === 'easy') {
+  //           if (wordData.optional.repeat) {
+  //             wordData.optional.repeat += 1;
+  //           } else {
+  //             wordData.optional.repeat = 1;
+  //           }
+  //           if (wordData.optional.repeat > 2) {
+  //             wordData.optional.learned = true;
+  //           } else {
+  //             wordData.optional.learned = false;
+  //           }
+  //         } else if (wordData.difficulty === 'hard') {
+  //           if (wordData.optional.repeat) {
+  //             wordData.optional.repeat += 1;
+  //           } else {
+  //             wordData.optional.repeat = 1;
+  //           }
+  //           if (wordData.optional.repeat > 4) {
+  //             wordData.optional.learned = true;
+  //           } else {
+  //             wordData.optional.learned = false;
+  //           }
+  //         }
+  //       } else {
+  //         wordData.optional.learned = false;
+  //         wordData.optional.repeat = 0;
+  //       }
+  //       await this.api.updateUserWord({ userId: this.userId, wordId: currentId, wordData });
+  //     } else if (currentAnswer && currentId) {
+  //       const wordData = { difficulty: 'easy', optional: { learned: false, repeat: 1 } };
+  //       await this.api.createUserWord({ userId: this.userId, wordId: currentId, wordData });
+  //     } else if (!currentAnswer && currentId) {
+  //       const wordData = { difficulty: 'hard', optional: { learned: false, repeat: 0 } };
+  //       await this.api.createUserWord({ userId: this.userId, wordId: currentId, wordData });
+  //     }
+  //   }
+  // }
 }
 window.addEventListener('beforeunload', () => localStorage.removeItem('isTextbook'));
 export default AudioChallenge;
