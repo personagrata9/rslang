@@ -161,7 +161,7 @@ class WordCard {
           const wordData: IUserWordNewData = { difficulty: 'hard', optional };
           await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
         } else {
-          const wordData: IUserWordNewData = { difficulty: 'hard', optional: { learned: false } };
+          const wordData: IUserWordNewData = { difficulty: 'hard', optional: { learned: false, repeat: 0 } };
 
           await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
         }
@@ -202,26 +202,10 @@ class WordCard {
     this.container.style.backgroundColor = this.groupColor;
     this.container.style.color = Colors.White;
 
-    button.classList.add('active');
-
     button.setAttribute(
       'style',
       `background-color: ${this.groupColor}; border-color: ${Colors.GrayLight}; color: ${Colors.GrayLight}`
     );
-
-    button.addEventListener('mouseover', () => {
-      button.setAttribute(
-        'style',
-        `background-color: ${Colors.White}; border-color: ${Colors.White}; color: ${this.groupColor}`
-      );
-    });
-
-    button.addEventListener('mouseout', () => {
-      button.setAttribute(
-        'style',
-        `background-color: ${this.groupColor}; border-color: ${Colors.GrayLight}; color: ${Colors.GrayLight}`
-      );
-    });
   };
 
   private disableLearnedMode = (button: HTMLButtonElement): void => {
@@ -230,6 +214,7 @@ class WordCard {
     this.container.style.color = Colors.Black;
 
     button.classList.remove('active');
+    button.removeAttribute('disabled');
 
     button.setAttribute(
       'style',
@@ -273,6 +258,10 @@ class WordCard {
 
     button.onclick = async () => {
       if (this.userId) {
+        button.classList.add('active');
+        button.disabled = true;
+        this.enableLearnedMode(button);
+
         const userWords: IUserWordData[] = this.userId
           ? await this.api.getUserWords(this.userId).then((result) => result)
           : [];
@@ -284,14 +273,7 @@ class WordCard {
           });
 
           const wordData: IUserWordNewData = { difficulty: 'easy', optional: userWord.optional };
-
-          if (button.classList.contains('active')) {
-            wordData.optional.learned = false;
-            this.disableLearnedMode(button);
-          } else {
-            wordData.optional.learned = true;
-            this.enableLearnedMode(button);
-          }
+          wordData.optional.learned = true;
 
           await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
 
@@ -302,10 +284,9 @@ class WordCard {
             this.disableDifficultMode('difficult');
           }
         } else {
-          const wordData: IUserWordNewData = { difficulty: 'easy', optional: { learned: true } };
+          const wordData: IUserWordNewData = { difficulty: 'easy', optional: { learned: true, repeat: 0 } };
 
           await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
-          this.enableLearnedMode(button);
           this.disableDifficultMode('difficult');
         }
       }
