@@ -21,7 +21,7 @@ class Api {
 
   public token: string;
 
-  private refreshToken: string;
+  private refreshToken: string | null;
 
   constructor() {
     this.url = BASE_URL;
@@ -76,13 +76,18 @@ class Api {
     return res.json().then();
   };
 
-  getUser = async (id: string): Promise<IUser> => {
-    const res = await fetch(`${this.url}/users/${id}`, {
+  getUser = async (id: string): Promise<void> => {
+    await fetch(`${this.url}/users/${id}`, {
       headers: {
         Authorization: `Bearer ${this.token}`,
       },
-    });
-    return res.json().then();
+    })
+      .then(async (response: Response) => {
+        if (response.status === 401) {
+          await this.refreshUserToken(id);
+        }
+      })
+      .catch();
   };
 
   deleteUser = async (id: string): Promise<void> => {
@@ -94,17 +99,30 @@ class Api {
     });
   };
 
-  refreshUserToken = async (id: string): Promise<ISignUserData> => {
-    const res = await fetch(`${this.url}/users/${id}/tokens`, {
+  refreshUserToken = async (id: string): Promise<void> => {
+    await fetch(`${this.url}/users/${id}/tokens`, {
       headers: {
-        Authorization: `Bearer ${this.token}`,
+        Authorization: `Bearer ${<string>this.refreshToken}`,
         Accept: 'application/json',
       },
-    });
-    const data = await res.json().then((result: ISignUserData) => result);
-    localStorage.setItem('UserToken', data.token);
-    localStorage.setItem('UserRefreshToken', data.refreshToken);
-    return data;
+    })
+      .then(async (response: Response) => {
+        if (response.status === 401) {
+          localStorage.removeItem('UserName');
+          localStorage.removeItem('UserToken');
+          localStorage.removeItem('UserRefreshToken');
+          localStorage.removeItem('UserId');
+          window.location.reload();
+        } else {
+          await response.json().then((result: ISignUserData) => {
+            localStorage.setItem('UserToken', result.token);
+            localStorage.setItem('UserRefreshToken', result.refreshToken);
+            this.token = result.token;
+            this.refreshToken = result.refreshToken;
+          });
+        }
+      })
+      .catch();
   };
 
   getUserWords = async (userId: string): Promise<IUserWordData[]> => {

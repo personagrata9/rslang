@@ -41,6 +41,14 @@
 
       .modal-body {
         color: $turquoise-dark;
+        .login-form {
+          .container {
+            margin-top: 10px;
+          }
+          .error {
+            color: red;
+          }
+        }
       }
     }
   }
@@ -55,4 +63,44 @@
 .form-check-input:checked {
   background-color: $turquoise-dark;
   border-color: $turquoise-dark;
+}
+
+@keyframes popupOpen {
+  0% {
+    top: -100vh;
+  }
+  100% {
+    top: 0
+  }
+}
+
+@keyframes popupClose {
+  0% {
+    top: 0
+  }
+  100% {
+    top: -100vh;
+  }
+}
+
+@keyframes shadow {
+  0% {
+    background-color: rgba(0,0,0,0.0);
+    backdrop-filter: blur(0);
+  }
+  100% {
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(2px);
+  }
+}
+
+@keyframes unShadow {
+  0% {
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(2px);
+  }
+  100% {
+    background-color: rgba(0,0,0,0.0);
+    backdrop-filter: blur(0);
+  }
 }

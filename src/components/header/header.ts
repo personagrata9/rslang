@@ -21,6 +21,7 @@ class Header {
     logoutBtn.addEventListener('click', () => {
       localStorage.removeItem('UserName');
       localStorage.removeItem('UserToken');
+      localStorage.removeItem('UserRefreshToken');
       localStorage.removeItem('UserId');
       window.location.reload();
     });

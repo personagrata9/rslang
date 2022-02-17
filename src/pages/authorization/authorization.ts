@@ -57,6 +57,13 @@ class LoginPopup {
     modal.onmousedown = this.closeModal;
     modal.style.display = 'block';
     const modalDialog = createElement('div', ['modal-dialog']);
+    if (document.body.children.length !== 4) {
+      modal.style.animation = 'none';
+      modalDialog.style.animation = 'none';
+    } else {
+      modalDialog.style.animation = 'popupOpen 1s linear';
+      modal.style.animation = 'shadow 1s linear';
+    }
     modalDialog.onmousedown = (e) => e.stopPropagation();
     const modalContent = createElement('div', ['modal-content']);
     const modalHeader = createElement('div', ['modal-header']);
@@ -142,7 +149,11 @@ class LoginPopup {
   };
 
   private closeModal = (): void => {
-    this.container.remove();
+    const modalDialog = <HTMLElement>document.querySelector('.modal-dialog');
+    const fade = <HTMLElement>document.querySelector('.fade');
+    modalDialog.style.animation = 'popupClose 1s linear';
+    fade.style.animation = 'unShadow 1s linear';
+    setTimeout(() => this.container.remove(), 900);
   };
 
   private mailChecker = (e: Event): void => {
@@ -228,15 +239,26 @@ class LoginPopup {
       });
       await api.loginUser({ email: this.emailInput.value, password: this.passwordInput.value });
       this.closeModal();
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 900);
     } else {
       user = {
         email: this.emailInput.value,
         password: this.passwordInput.value,
       };
-      await api.loginUser(user);
-      this.closeModal();
-      window.location.reload();
+      await api
+        .loginUser(user)
+        .then(() => {
+          this.closeModal();
+          setTimeout(() => window.location.reload(), 900);
+        })
+        .catch((response: Response) => {
+          if (response) {
+            this.emailInput.style.border = 'red 2px solid';
+            this.passwordInput.style.border = 'red 2px solid';
+            const errorSpan = createElement('span', ['error'], 'Incorrect email or password');
+            this.loginForm.append(errorSpan);
+          }
+        });
     }
   };
 

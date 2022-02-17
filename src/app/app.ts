@@ -10,6 +10,7 @@ import Statistics from '../pages/statistics/statistics';
 import ApiPage from '../pages/api-page';
 import Sprint from '../pages/sprint/sprint';
 import AudioChallenge from '../pages/audio-challenge/audio-challenge';
+import Api from '../api/api';
 
 class App {
   private header: Header;
@@ -45,6 +46,10 @@ class App {
   };
 
   route = async (): Promise<void> => {
+    const api = new Api();
+    if (localStorage.getItem('UserId')) {
+      await api.getUser(<string>localStorage.getItem('UserId'));
+    }
     const main = new Main();
     const textbook = new Textbook();
     const sprint = new Sprint();
@@ -62,7 +67,6 @@ class App {
       '#textbook': textbook,
       '#statistics': statistics,
     };
-
     const contentContainer = document.querySelector('.content-container') as HTMLElement;
     const parsedURL = checkHash();
     const page = routes[parsedURL] || new Error404();

@@ -10,6 +10,7 @@
     top: 66px;
     background: $turquoise-dark;
     left: 0;
+    z-index: 1;
   }
   .with-footer {
     animation: withFooter 1s ease-in-out;
@@ -45,7 +46,9 @@
     background: $turquoise;
   }
   .minigames-aside {
+    position: relative;
     .minigames-links {
+      margin-left: 150px;
       display: none;
       position: absolute;
       background: $turquoise-dark;
@@ -58,6 +61,7 @@
   }
   .minigames-aside:hover {
     background: $turquoise;
+    padding-right: 10px;
     .minigames-links {
       width: 100%;
       display: block;
@@ -69,6 +73,15 @@
     width: 70px !important;
     .link-text {
       display: none;
+    }
+  }
+  .components {
+    .minigames-aside {
+      position: relative;
+
+      .minigames-links {
+        margin-left: 40px;
+      }
     }
   }
   li {
