@@ -86,7 +86,7 @@ class Sprint extends ApiPage {
     const gamePage = createElement('div', ['container', 'sprint-game-container']);
     gamePage.append(this.createTimer(), this.createCheckboxes(), await this.createWordblock());
     this.sprintGamePage.append(gamePage);
-    this.state.init();
+    this.state.initGameState();
     await this.timer();
   };
 
@@ -133,7 +133,7 @@ class Sprint extends ApiPage {
             generatedAnswer.currentWord
           ).then(async () => {
             if (!isWordsLoaded) await this.resultWindow();
-            console.log('right-btn-res');
+            // console.log('right-btn-res');
           });
         }
       };
@@ -155,7 +155,7 @@ class Sprint extends ApiPage {
             generatedAnswer.currentWord
           ).then(async () => {
             if (!isWordsLoaded) await this.resultWindow();
-            console.log('wrong-btn-res');
+            // console.log('wrong-btn-res');
           });
         }
       };
@@ -171,7 +171,7 @@ class Sprint extends ApiPage {
     // eslint-disable-next-line no-underscore-dangle
     const wordId = currentWord.id || currentWord._id;
     if (wordId) {
-      this.state.updateNewWords(wordId);
+      this.state.setGameWords(wordId);
       const bonusChecker = document.querySelectorAll('.bonus-check');
       if (condition) {
         this.pointsCount += this.pointsMultiplier;
@@ -200,7 +200,7 @@ class Sprint extends ApiPage {
           bonusChecker[2].removeAttribute('checked');
         }
         this.correctAnswers.push(currentWord);
-        this.state.updateCorrectWords(wordId);
+        this.state.setCorrectWords(wordId);
         // await playAudio(`../../static/audio/correct-answer.mp3`);
         await this.createWordblock();
       } else {
@@ -209,7 +209,7 @@ class Sprint extends ApiPage {
         this.pointsMultiplier = 10;
         this.borderMultiplier = 3;
         this.wrongAnswers.push(currentWord);
-        this.state.updateWrongWords(wordId);
+        this.state.setWrongWords(wordId);
         bonusChecker[0].removeAttribute('checked');
         bonusChecker[1].removeAttribute('checked');
         bonusChecker[2].removeAttribute('checked');
@@ -222,7 +222,7 @@ class Sprint extends ApiPage {
     const currentWord = this.gameWords[this.counter];
     if (!currentWord) {
       await this.resultWindow();
-      console.log('compare-res');
+      // console.log('compare-res');
       return undefined;
     }
 
@@ -319,14 +319,14 @@ class Sprint extends ApiPage {
 
     this.resultTimer = new Promise((resolve) => {
       const interval = setInterval(() => {
-        console.log('in-res-timer');
+        // console.log('in-res-timer');
         const timer = <HTMLElement>document.querySelector('.timer');
         if (!timer) {
-          console.log('stop-res-timer-1');
+          // console.log('stop-res-timer-1');
           clearInterval(interval);
         }
         if (timer && +timer.innerHTML < 0) {
-          console.log('stop-res-timer-2');
+          // console.log('stop-res-timer-2');
           resolve(this.resultWindow());
           clearInterval(interval);
         }
@@ -356,7 +356,7 @@ class Sprint extends ApiPage {
     const wordsBlock = createElement('div', ['words-block', 'hide']);
     blockWrapper.append(resultBlock, wordsBlock);
     resultBlock.append(this.createResultCircle());
-    this.state.updateMaxWinstreak(this.maxWinstreak);
+    this.state.setMaxWinstreak(this.maxWinstreak);
     const rightAnswerCount = createElement('span', ['right-answer-count']);
     const wrongAnswerCount = createElement('span', ['wrong-answer-count']);
     const correctAnswerBlock = createElement('div', ['correct-answer-block']);
@@ -381,10 +381,10 @@ class Sprint extends ApiPage {
     this.sprintGamePage.append(resultWrapper);
     localStorage.removeItem('isTextbook');
 
-    await this.state.update();
+    await this.state.updateGameState();
 
     this.restoreValues();
-    console.log('result');
+    // console.log('result');
   };
 
   private createResultCircle = (): HTMLElement => {
