@@ -119,7 +119,8 @@ export interface IAggregatedResult {
 }
 
 export interface IGameStatistics {
-  newWords: Set<string>;
+  gameWords: Set<string>;
+  new: Set<string>;
   correct: Map<string, number>;
   wrong: Map<string, number>;
   bestSeries: number;
@@ -127,6 +128,7 @@ export interface IGameStatistics {
 
 export interface IGameStatisticsTotal {
   date: string;
+  totalGameWords: Set<string>;
   totalNew: Set<string>;
   totalCorrect: Map<string, number>;
   totalWrong: Map<string, number>;
