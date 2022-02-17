@@ -43,7 +43,7 @@ export interface IUserWord {
   wordId: string;
 }
 
-export type DifficultyType = 'hard' | 'easy' | string;
+export type DifficultyType = 'hard' | 'easy';
 
 export interface IUserWordNewData {
   difficulty: DifficultyType;
