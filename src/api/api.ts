@@ -21,9 +21,12 @@ class Api {
 
   public token: string;
 
+  private refreshToken: string;
+
   constructor() {
     this.url = BASE_URL;
     this.token = localStorage.getItem('UserToken') || '';
+    this.refreshToken = localStorage.getItem('UserRefreshToken') || '';
   }
 
   getWords = async (group: string, page: string): Promise<IWord[]> => {
@@ -98,7 +101,10 @@ class Api {
         Accept: 'application/json',
       },
     });
-    return res.json().then();
+    const data = await res.json().then((result: ISignUserData) => result);
+    localStorage.setItem('UserToken', data.token);
+    localStorage.setItem('UserRefreshToken', data.refreshToken);
+    return data;
   };
 
   getUserWords = async (userId: string): Promise<IUserWordData[]> => {
