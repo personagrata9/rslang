@@ -12,9 +12,10 @@
     margin-top: 100px;
   }
   .main-icon {
-    width: 50px;
-    height: 50px;
-    fill: $turquoise-dark;
+    width: 40px;
+    height: 40px;
+    fill: white;
+
   }
   .main-quote {
     font-size: 20px;
@@ -27,20 +28,22 @@
   .slider-container {
     width: 100%;
     display: flex;
-    // flex-wrap: wrap-reverse;
     flex-wrap: wrap;
-    // justify-content: space-between;
+    justify-content: center;
   }
   .info-main-container {
-    width: 250px;
-    height: 250px;
-    padding: 25px;
-    box-shadow: 0px 0px 10px 5px gainsboro;
+    width: 200px;
+    height: 200px;
+    padding: 15px;
+    box-shadow: 0px 0px 10px 5px gray;
     text-align: center;
-    margin: 20px auto;
+    margin: 10px 3px;
+    background: linear-gradient(45deg, $turquoise-dark 10%, $turquoise 90%);
   }
   .main-text {
+    font-size: 12px;
     margin-top: 10px;
+    color: white;
   }
   .main-posibilities {
     text-align: center;
@@ -80,6 +83,9 @@
     width: 30px;
     height: 30px;
   }
+  .git-link {
+    text-decoration: none;
+  }
   .avatar-persona {
     background: url('../static/persona.jpg') no-repeat center;
     background-size: cover;
@@ -91,5 +97,24 @@
   .avatar-anterebol {
     background: url('../static/anterebol.jpg') no-repeat center;
     background-size: cover;
+  }
+}
+@media (max-width: 900px) {
+  .main-container {
+    max-width: 600px;
+  }
+  .slider-container {
+    padding: 0;
+    margin: 0;
+  }
+  .video-container {
+    margin: 0 auto;
+    height:  225px !important;
+    width: 400px !important;
+  }
+  .iframe-main {
+    margin: 0 auto;
+    height:  225px !important;
+    width: 400px !important;
   }
 }

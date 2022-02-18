@@ -88,7 +88,7 @@ class Main {
     const posibilities = createElement('h2', ['main-posibilities'], 'All posibilities');
     main.append(posibilities);
     const video = createElement('div', ['video-container']);
-    video.innerHTML = `<iframe width="560" height="315" src="https://www.youtube.com/embed/kTpIBAmKPwo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    video.innerHTML = `<iframe class='iframe-main' width="560" height="315" src="https://www.youtube.com/embed/kTpIBAmKPwo" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
     main.append(video);
     const team = createElement('h2', ['main-posibilities'], 'Our team');
     main.append(team);
@@ -143,7 +143,7 @@ class Main {
     const contributionAnterebol = createElement(
       'p',
       ['contribution'],
-      'Create "Audio-challenge" minigame, create main page,'
+      'Create "Audio-challenge" minigame, create main page. Lorem ipsum///'
     );
     infoAnterebol.append(contributionAnterebol);
     const gitLinkAnterebol = createElement('a', ['git-link']);
