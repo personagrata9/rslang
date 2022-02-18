@@ -14,16 +14,6 @@ class Textbook extends ApiPage {
     this.color = GROUP_COLORS[+this.textbookGroup];
   }
 
-  protected getTextbookWordsItems = async (): Promise<IWord[]> => {
-    const words: IWord[] = [];
-
-    await this.api
-      .getWords(this.textbookGroup, this.textbookPage)
-      .then((results) => results.forEach((result: IWord) => words.push(result)));
-
-    return words;
-  };
-
   private createNavigationBar = (): HTMLElement => {
     const navElement: HTMLElement = createElement('nav', [
       `${this.name}-group-navigation`,
@@ -217,7 +207,7 @@ class Textbook extends ApiPage {
       'rounded-3',
     ]);
 
-    let words: IWord[] = await this.getTextbookWordsItems();
+    let words: IWord[] = await this.getWordsItems(this.textbookGroup, this.textbookPage);
     const userWords: IUserWordData[] = this.userId
       ? await this.api.getUserWords(this.userId).then((result) => result)
       : [];
@@ -237,7 +227,7 @@ class Textbook extends ApiPage {
       const Difficulty: DifficultyType | undefined = userWords?.find((data) => data.wordId === word.id)?.difficulty;
       const isLearned: boolean | undefined = userWords?.find((data) => data.wordId === word.id)?.optional?.learned;
 
-      const wordCard: WordCard = new WordCard(word, this.color, Difficulty, isLearned);
+      const wordCard: WordCard = new WordCard(userWords, word, this.color, Difficulty, isLearned);
       listContainerElement.append(wordCard.render());
     });
 

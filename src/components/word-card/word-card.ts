@@ -17,6 +17,7 @@ class WordCard {
   private groupDifficult = localStorage.getItem('group') === '6';
 
   constructor(
+    private userWords: IUserWordData[],
     private word: IWord,
     private color: string,
     private Difficulty: DifficultyType | undefined,
@@ -24,6 +25,7 @@ class WordCard {
   ) {
     this.name = 'word-card';
     this.container = createElement('div', ['container', `${this.name}-container`, 'd-flex', 'shadow', 'rounded-3']);
+    this.userWords = userWords;
     this.word = word;
     this.color = color;
     this.Difficulty = Difficulty;
@@ -147,9 +149,7 @@ class WordCard {
         );
         this.disableLearnedMode(learnedWordButton);
 
-        const userWords: IUserWordData[] = await this.api.getUserWords(this.userId).then((result) => result);
-
-        if (userWords.find((word) => word.wordId === this.word.id)) {
+        if (this.Difficulty === 'hard') {
           const userWord: IUserWordNewData = await this.api.getUserWordById({
             userId: this.userId,
             wordId: this.word.id,
@@ -262,11 +262,7 @@ class WordCard {
         button.disabled = true;
         this.enableLearnedMode(button);
 
-        const userWords: IUserWordData[] = this.userId
-          ? await this.api.getUserWords(this.userId).then((result) => result)
-          : [];
-
-        if (userWords.find((word) => word.wordId === this.word.id)) {
+        if (this.userWords.find((word) => word.wordId === this.word.id)) {
           const userWord: IUserWordNewData = await this.api.getUserWordById({
             userId: this.userId,
             wordId: this.word.id,
@@ -277,7 +273,7 @@ class WordCard {
 
           await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
 
-          if (localStorage.getItem('group') === '6') {
+          if (this.groupDifficult) {
             this.disableDifficultMode('easy');
             this.remove();
           } else {
