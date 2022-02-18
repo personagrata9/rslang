@@ -83,7 +83,9 @@ class App {
       aside.classList.remove('without-footer');
       aside.classList.add('with-footer');
     }
-    contentContainer.innerHTML = '';
+    while (contentContainer.firstChild) {
+      contentContainer.removeChild(contentContainer.firstChild);
+    }
     contentContainer.classList.add('preloader');
     if (page instanceof ApiPage) {
       await page.render();

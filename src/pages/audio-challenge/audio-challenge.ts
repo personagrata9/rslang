@@ -45,6 +45,10 @@ class AudioChallenge extends ApiPage {
 
   private onceClick: boolean;
 
+  private maxWinstreak: number;
+
+  private winstreak: number;
+
   constructor() {
     super('audio-challenge');
     this.currentIndexWord = 0;
@@ -58,6 +62,8 @@ class AudioChallenge extends ApiPage {
     this.correctAnswers = [];
     this.inCorrectAnswers = [];
     this.onceClick = true;
+    this.winstreak = 0;
+    this.maxWinstreak = 0;
   }
 
   async render(): Promise<void> {
@@ -120,6 +126,7 @@ class AudioChallenge extends ApiPage {
       );
       buttonUnknowWord.setAttribute('key', 'Enter');
       buttonUnknowWord.onclick = async () => {
+        this.winstreak = 0;
         this.inCorrectAnswers.push(this.currentIndexWord);
         await playAudio(`../../static/audio/bad_answer.mp3`);
         this.createCorrectAnswerPage();
@@ -184,12 +191,11 @@ class AudioChallenge extends ApiPage {
     return rulesPage;
   }
 
-  createRandomWord = async (): Promise<string> => {
+  createRandomWords = async (): Promise<IWord[]> => {
     const randomPage = `${random(NUMBER_OF_PAGES)}`;
     const randomGroup = `${random(NUMBER_OF_GROUPS - 1)}`;
-    const randomIndexWord = random(WORDS_PER_PAGE);
     const randomWord = await this.getWordsItems(randomGroup, randomPage);
-    return randomWord[randomIndexWord].wordTranslate;
+    return randomWord;
   };
 
   answered(currentWord: string) {
@@ -213,14 +219,16 @@ class AudioChallenge extends ApiPage {
     const answersBox = createElement('div', ['answers-box']);
     const indexCurrentPlace = random(5);
     const answers: Array<string> = [];
+    const randomWords = await this.createRandomWords();
     for (let i = 0; i < 5; i += 1) {
+      const randomIndexWord = random(WORDS_PER_PAGE);
+      const word = randomWords[randomIndexWord].wordTranslate;
       if (indexCurrentPlace === i) {
         answers.push(currentWord);
       } else {
-        // eslint-disable-next-line no-await-in-loop
-        const randomWord = await this.createRandomWord();
-        if (answers.indexOf(randomWord) === -1) {
-          answers.push(randomWord);
+        // eslint-disable-next-line no-lonely-if
+        if (answers.indexOf(word) === -1) {
+          answers.push(word);
         } else {
           i -= 1;
         }
@@ -232,9 +240,14 @@ class AudioChallenge extends ApiPage {
       answerButton.setAttribute('current-word', answer);
       answerButton.onclick = async () => {
         if (answerButton.getAttribute('current-word') === currentWord) {
+          this.winstreak += 1;
+          if (this.winstreak > this.maxWinstreak) {
+            this.maxWinstreak = this.winstreak;
+          }
           await playAudio(`../../static/audio/correct-answer.mp3`);
           this.correctAnswers.push(this.currentIndexWord);
         } else {
+          this.winstreak = 0;
           await playAudio(`../../static/audio/bad_answer.mp3`);
           this.inCorrectAnswers.push(this.currentIndexWord);
           answerButton.classList.add('incorect-answer');
@@ -309,8 +322,10 @@ class AudioChallenge extends ApiPage {
   }
 
   async openResultPage() {
+    await this.state.updateStatistics();
     const audioChallengeContainer = document.querySelector('.audio-challenge-container');
     if (audioChallengeContainer) {
+      this.state.setMaxWinstreak(this.maxWinstreak);
       this.state.initStatistics();
       this.gameWords.forEach((word) => {
         const wordId = word.id || word._id;
@@ -355,7 +370,6 @@ class AudioChallenge extends ApiPage {
       };
       popupResults.append(closeButton);
       audioChallengeContainer.append(popupResults);
-      await this.state.updateStatistics();
     }
   }
 
