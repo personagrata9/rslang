@@ -98,7 +98,7 @@ class AudioChallenge extends ApiPage {
         await this.loaderWords();
       }
       this.gameWords = shuffle(this.gameWords);
-      // localStorage.removeItem('isTextbook');
+      localStorage.removeItem('isTextbook');
     }
     const gamePage = createElement('div', ['audio-game-container']);
     if (this.gameWords.length > 0) {
@@ -189,7 +189,6 @@ class AudioChallenge extends ApiPage {
     const randomGroup = `${random(NUMBER_OF_GROUPS - 1)}`;
     const randomIndexWord = random(WORDS_PER_PAGE);
     const randomWord = await this.getWordsItems(randomGroup, randomPage);
-    console.log('r-w', randomWord);
     return randomWord[randomIndexWord].wordTranslate;
   };
 
@@ -365,7 +364,6 @@ class AudioChallenge extends ApiPage {
       this.page -= 1;
       const loadWords = await this.getWordsItems(this.textbookGroup, String(this.page));
       this.gameWords = this.gameWords.concat(loadWords);
-      console.log(this.gameWords);
       if (this.gameWords.length < 20) {
         await this.loaderWords();
       } else if (this.gameWords.length > 20) {
