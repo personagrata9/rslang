@@ -1,8 +1,11 @@
+/* eslint-disable no-underscore-dangle */
 import { createElement, createSelect, playAudio, random, shuffle } from '../../common/utils';
 import { NUMBER_OF_PAGES, WORDS_PER_PAGE, NUMBER_OF_GROUPS } from '../../common/constants';
 import { IWord } from '../../common/types';
 import svgAudio from './audio';
 import ApiPage from '../api-page';
+
+// this.state.setMaxWinstreak(this.maxWinstreak);
 
 function addBoxResults(word: string, translate: string, audioLink: string) {
   const boxWordInfo = createElement('div', ['box-word-info']);
@@ -231,11 +234,9 @@ class AudioChallenge extends ApiPage {
         if (answerButton.getAttribute('current-word') === currentWord) {
           await playAudio(`../../static/audio/correct-answer.mp3`);
           this.correctAnswers.push(this.currentIndexWord);
-          // await this.updateUserWord(this.gameWords[this.currentIndexWord], true);
         } else {
           await playAudio(`../../static/audio/bad_answer.mp3`);
           this.inCorrectAnswers.push(this.currentIndexWord);
-          // await this.updateUserWord(this.gameWords[this.currentIndexWord], false);
           answerButton.classList.add('incorect-answer');
         }
         this.createCorrectAnswerPage();
@@ -278,7 +279,7 @@ class AudioChallenge extends ApiPage {
           audioChallengePage.innerHTML = '';
           await this.render();
         } else {
-          this.openResultPage();
+          await this.openResultPage();
         }
       };
       audioChallengePage?.append(buttonNextWord);
@@ -307,9 +308,14 @@ class AudioChallenge extends ApiPage {
     );
   }
 
-  openResultPage() {
+  async openResultPage() {
     const audioChallengeContainer = document.querySelector('.audio-challenge-container');
     if (audioChallengeContainer) {
+      this.state.initStatistics();
+      this.gameWords.forEach((word) => {
+        const wordId = word.id || word._id;
+        if (wordId) this.state.setNewWords(wordId);
+      });
       audioChallengeContainer.innerHTML = '';
       const popupResults = createElement('div', ['popup-results']);
       const countIncorectAnswers = `<span class="incorrect-counter">${this.inCorrectAnswers.length}</span>`;
@@ -320,6 +326,8 @@ class AudioChallenge extends ApiPage {
         const currentWordEn = this.gameWords[el].word;
         const currentAudio = this.gameWords[el].audio;
         const currentWordRu = this.gameWords[el].wordTranslate;
+        const currentWordId = this.gameWords[el].id || this.gameWords[el]._id;
+        if (currentWordId) this.state.setWrongWords(currentWordId);
         popupResults.append(addBoxResults(currentWordEn, currentWordRu, currentAudio));
       });
       const correctAnswers = createElement('p', ['popup-correct']);
@@ -330,6 +338,8 @@ class AudioChallenge extends ApiPage {
         const currentWordEn = this.gameWords[el].word;
         const currentAudio = this.gameWords[el].audio;
         const currentWordRu = this.gameWords[el].wordTranslate;
+        const currentWordId = this.gameWords[el].id || this.gameWords[el]._id;
+        if (currentWordId) this.state.setCorrectWords(currentWordId);
         popupResults.append(addBoxResults(currentWordEn, currentWordRu, currentAudio));
       });
       const closeButton = createElement('button', ['close-popup-button'], 'Сlose game');
@@ -345,6 +355,7 @@ class AudioChallenge extends ApiPage {
       };
       popupResults.append(closeButton);
       audioChallengeContainer.append(popupResults);
+      await this.state.updateStatistics();
     }
   }
 
@@ -360,57 +371,6 @@ class AudioChallenge extends ApiPage {
       }
     }
   }
-
-  // async updateUserWord(currentWord: IWord, currentAnswer: boolean) {
-  //   const userWords = this.userId ? await this.api.getUserWords(this.userId).then((result) => result) : [];
-  //   const currentId: currentWord._id || currentWord.id;
-  //   if (this.userId) {
-  //     if (userWords.find((word) => word.wordId === currentId) && currentId) {
-  //       const userWord = await this.api.getUserWordById({
-  //         userId: this.userId,
-  //         wordId: currentId,
-  //       });
-
-  //       const wordData = { difficulty: userWord.difficulty, optional: userWord.optional || {} };
-
-  //       if (currentAnswer) {
-  //         if (wordData.difficulty === 'easy') {
-  //           if (wordData.optional.repeat) {
-  //             wordData.optional.repeat += 1;
-  //           } else {
-  //             wordData.optional.repeat = 1;
-  //           }
-  //           if (wordData.optional.repeat > 2) {
-  //             wordData.optional.learned = true;
-  //           } else {
-  //             wordData.optional.learned = false;
-  //           }
-  //         } else if (wordData.difficulty === 'hard') {
-  //           if (wordData.optional.repeat) {
-  //             wordData.optional.repeat += 1;
-  //           } else {
-  //             wordData.optional.repeat = 1;
-  //           }
-  //           if (wordData.optional.repeat > 4) {
-  //             wordData.optional.learned = true;
-  //           } else {
-  //             wordData.optional.learned = false;
-  //           }
-  //         }
-  //       } else {
-  //         wordData.optional.learned = false;
-  //         wordData.optional.repeat = 0;
-  //       }
-  //       await this.api.updateUserWord({ userId: this.userId, wordId: currentId, wordData });
-  //     } else if (currentAnswer && currentId) {
-  //       const wordData = { difficulty: 'easy', optional: { learned: false, repeat: 1 } };
-  //       await this.api.createUserWord({ userId: this.userId, wordId: currentId, wordData });
-  //     } else if (!currentAnswer && currentId) {
-  //       const wordData = { difficulty: 'hard', optional: { learned: false, repeat: 0 } };
-  //       await this.api.createUserWord({ userId: this.userId, wordId: currentId, wordData });
-  //     }
-  //   }
-  // }
 }
-window.addEventListener('beforeunload', () => localStorage.removeItem('isTextbook'));
+// window.addEventListener('beforeunload', () => localStorage.removeItem('isTextbook'));
 export default AudioChallenge;

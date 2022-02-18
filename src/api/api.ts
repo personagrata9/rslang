@@ -233,6 +233,12 @@ class Api {
     });
     return res.json().then();
   };
+
+  getDifficultUserWords = async (userId: string): Promise<IWord[]> => {
+    const userWords: IUserWordData[] = await this.getUserWords(userId).then((result) => result);
+    const difficultWordsData: IUserWordData[] = userWords.filter((data) => data.difficulty === 'hard');
+    return Promise.all(difficultWordsData.map((data: IUserWordData): Promise<IWord> => this.getWordById(data.wordId)));
+  };
 }
 
 export default Api;

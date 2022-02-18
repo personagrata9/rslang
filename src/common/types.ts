@@ -117,3 +117,37 @@ export interface IAggregatedResult {
   paginatedResults: IWord[];
   totalCount: TotalCountType[];
 }
+
+export interface IGameStatistics {
+  new: Set<string>;
+  correct: StringObjectType;
+  wrong: StringObjectType;
+  bestSeries: number;
+}
+
+export interface IGameStatisticsTotal {
+  date: string;
+  totalGameWords: Set<string>;
+  totalNew: Set<string>;
+  totalCorrect: StringObjectType;
+  totalWrong: StringObjectType;
+  totalLearned: Set<string>;
+  totalRepeats: StringObjectType;
+  audioChallenge: IGameStatistics;
+  sprint: IGameStatistics;
+}
+
+export type StringObjectType = {
+  [key: string]: string;
+};
+
+export interface IDayStatistics {
+  new: number;
+  correct: number;
+  wrong: number;
+  learned: number;
+}
+
+export interface ILongTermStatistics {
+  [key: string]: IDayStatistics;
+}
