@@ -1,4 +1,4 @@
-const audio = `<svg class="link-icon" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="white" class="bi bi-music-note-list" viewBox="0 0 16 16">
+const audio = `<svg class="link-icon" xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="#005365" class="bi bi-music-note-list" viewBox="0 0 16 16">
 <path d="M12 13c0 1.105-1.12 2-2.5 2S7 14.105 7 13s1.12-2 2.5-2 2.5.895 2.5 2z"/>
 <path fill-rule="evenodd" d="M12 3v10h-1V3h1z"/>
 <path d="M11 2.82a1 1 0 0 1 .804-.98l3-.6A1 1 0 0 1 16 2.22V4l-5 1V2.82z"/>
