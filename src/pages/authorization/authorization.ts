@@ -162,7 +162,6 @@ class LoginPopup {
     if (target.value.match(regexEmail) == null) {
       target.classList.add('is-invalid');
       target.classList.remove('is-valid');
-      target.setCustomValidity('Invalid email(example username@example.com)');
     } else {
       target.classList.remove('is-invalid');
       target.classList.add('is-valid');
@@ -175,7 +174,6 @@ class LoginPopup {
     if (target.value.match(regexName) == null) {
       target.classList.add('is-invalid');
       target.classList.remove('is-valid');
-      target.setCustomValidity('Invalid name(letters only)');
     } else {
       target.classList.remove('is-invalid');
       target.classList.add('is-valid');
@@ -255,8 +253,10 @@ class LoginPopup {
           if (response) {
             this.emailInput.style.border = 'red 2px solid';
             this.passwordInput.style.border = 'red 2px solid';
-            const errorSpan = createElement('span', ['error'], 'Incorrect email or password');
-            this.loginForm.append(errorSpan);
+            if (!this.loginForm.querySelector('.error')) {
+              const errorSpan = createElement('span', ['error'], 'Incorrect email or password');
+              this.loginForm.append(errorSpan);
+            }
           }
         });
     }
