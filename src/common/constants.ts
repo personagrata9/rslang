@@ -1,7 +1,7 @@
 import { Colors } from './types';
 
 export const BODY = <HTMLBodyElement>document.querySelector('body');
-export const BASE_URL = 'http://localhost:3000';
+export const BASE_URL = 'https://rs-lang-personagrata9.herokuapp.com';
 export const NUMBER_OF_GROUPS = 7;
 export const NUMBER_OF_PAGES = 30;
 export const WORDS_PER_PAGE = 20;

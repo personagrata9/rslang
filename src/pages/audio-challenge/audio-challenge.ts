@@ -1,27 +1,19 @@
 /* eslint-disable no-underscore-dangle */
-import { createElement, createSelect, playAudio, random, shuffle } from '../../common/utils';
-import { NUMBER_OF_PAGES, WORDS_PER_PAGE, NUMBER_OF_GROUPS } from '../../common/constants';
+import {
+  createAnchorElement,
+  createButtonElement,
+  createElement,
+  createInputElement,
+  createSelect,
+  playAudio,
+  random,
+  shuffle,
+} from '../../common/utils';
+import { NUMBER_OF_PAGES, WORDS_PER_PAGE, NUMBER_OF_GROUPS, BASE_URL } from '../../common/constants';
 import { IWord } from '../../common/types';
 import svgAudio from './audio';
 import ApiPage from '../api-page';
 
-// this.state.setMaxWinstreak(this.maxWinstreak);
-
-function addBoxResults(word: string, translate: string, audioLink: string) {
-  const boxWordInfo = createElement('div', ['box-word-info']);
-  const repeatButton = createElement('button', ['popup-button-repeat']);
-  repeatButton.innerHTML = svgAudio;
-  const fullAudioLink = `http://localhost:3000/${audioLink}`;
-  repeatButton.onclick = () => playAudio(fullAudioLink);
-  boxWordInfo.append(repeatButton);
-  const wordEn = createElement('span', ['popup-english-word']);
-  wordEn.innerHTML = `&#160 ${word} &#160`;
-  const wordRu = createElement('span', ['popup-russian-word']);
-  wordRu.innerHTML = `— &#160 ${translate}`;
-  boxWordInfo.append(wordEn);
-  boxWordInfo.append(wordRu);
-  return boxWordInfo;
-}
 class AudioChallenge extends ApiPage {
   private currentIndexWord: number;
 
@@ -108,7 +100,7 @@ class AudioChallenge extends ApiPage {
     }
     const gamePage = createElement('div', ['audio-game-container']);
     if (this.gameWords.length > 0) {
-      this.audioLink = `http://localhost:3000/${this.gameWords[this.currentIndexWord].audio}`;
+      this.audioLink = `${BASE_URL}/${this.gameWords[this.currentIndexWord].audio}`;
       this.currentWordRus = this.gameWords[this.currentIndexWord].wordTranslate;
       this.currentWordEn = this.gameWords[this.currentIndexWord].word;
       this.wordImage = this.gameWords[this.currentIndexWord].image;
@@ -236,7 +228,7 @@ class AudioChallenge extends ApiPage {
     }
     answers.forEach((answer, i) => {
       const answerButton = createElement('button', ['answer-button']);
-      answerButton.innerHTML = `<p class="word-text">${answer}</p>`;
+      answerButton.innerHTML = `<p class="word-text"><span>${i + 1}.</span> ${answer}</p>`;
       answerButton.setAttribute('current-word', answer);
       answerButton.onclick = async () => {
         if (answerButton.getAttribute('current-word') === currentWord) {
@@ -271,7 +263,7 @@ class AudioChallenge extends ApiPage {
       const answersBox = document.querySelector('.answers-box') as HTMLElement;
       const exampleImage = createElement('div', ['example-image']);
       exampleImage.style.backgroundSize = `cover`;
-      exampleImage.style.background = `url(http://localhost:3000/${this.wordImage}) no-repeat center`;
+      exampleImage.style.background = `url(${BASE_URL}/${this.wordImage}) no-repeat center`;
       audioChallengePage?.append(exampleImage);
       const containerInfo = createElement('div', ['container-info-correct-word']);
       const repeatButton = createElement('div', ['box-audio-button-small']);
@@ -292,7 +284,7 @@ class AudioChallenge extends ApiPage {
           audioChallengePage.innerHTML = '';
           await this.render();
         } else {
-          await this.openResultPage();
+          await this.resultWindow();
         }
       };
       audioChallengePage?.append(buttonNextWord);
@@ -321,57 +313,122 @@ class AudioChallenge extends ApiPage {
     );
   }
 
-  async openResultPage() {
+  private resultWindow = async (): Promise<void> => {
+    this.state.initStatistics();
+    this.state.setMaxWinstreak(this.maxWinstreak);
+    this.gameWords.forEach((word) => {
+      const wordId = word.id || word._id;
+      if (wordId) this.state.setNewWords(wordId);
+    });
+    const audioChallengePage = document.querySelector('.audio-challenge-container') as HTMLElement;
+    audioChallengePage.innerHTML = '';
+    const resultWrapper = createElement('div', ['container', 'result-wrapper']);
+    const resultHeader = createElement('div', ['result-header']);
+    const switchBlock = createInputElement('checkbox', 'switch', '', 'switch-block');
+    const switchBlockLabel = createElement('label', ['switch-block-label']);
+    switchBlockLabel.innerHTML = `Results Words`;
+    switchBlockLabel.setAttribute('for', 'switch');
+    switchBlockLabel.onclick = this.resultToggle;
+    resultHeader.append(switchBlock, switchBlockLabel);
+    const blockWrapper = createElement('div', ['block-wrapper']);
+    const resultBlock = createElement('div', ['result-block']);
+    const wordsBlock = createElement('div', ['words-block', 'hide']);
+    blockWrapper.append(resultBlock, wordsBlock);
+    resultBlock.append(this.createResultCircle());
+    const rightAnswerCount = createElement('span', ['right-answer-count']);
+    const wrongAnswerCount = createElement('span', ['wrong-answer-count']);
+    const correctAnswerBlock = createElement('div', ['correct-answer-block']);
+    const inCorrectAnswerBlock = createElement('div', ['correct-answer-block']);
+    rightAnswerCount.innerHTML = `Right answers: <span>${this.correctAnswers.length}</span>`;
+    wrongAnswerCount.innerHTML = `Wrong answers: <span>${this.inCorrectAnswers.length}</span>`;
+    correctAnswerBlock.append(rightAnswerCount);
+    inCorrectAnswerBlock.append(wrongAnswerCount);
+    this.correctAnswers.forEach((e) => {
+      const word = this.gameWords[e];
+      correctAnswerBlock.append(this.addBoxResults(word));
+      const currentWordId = word.id || word._id;
+      if (currentWordId) this.state.setCorrectWords(currentWordId);
+    });
+    this.inCorrectAnswers.forEach((e) => {
+      const word = this.gameWords[e];
+      inCorrectAnswerBlock.append(this.addBoxResults(word));
+      const currentWordId = word.id || word._id;
+      if (currentWordId) this.state.setWrongWords(currentWordId);
+    });
+    const footerBtns = createElement('div', ['footer-btns']);
+    const rulesBtn = createButtonElement('button', 'to start', 'btn', 'to-rules-btn');
+    const textbookBtn = createAnchorElement('#textbook', 'to textbook', 'btn', 'to-textbook-btn');
+    footerBtns.append(rulesBtn, textbookBtn);
+    rulesBtn.onclick = async () => {
+      localStorage.removeItem('isTextbook');
+      this.level = '';
+      this.currentIndexWord = 0;
+      this.correctAnswers = [];
+      this.inCorrectAnswers = [];
+      this.page = false;
+      this.gameWords = [];
+      await this.render();
+    };
+    wordsBlock.append(correctAnswerBlock, inCorrectAnswerBlock);
+    resultWrapper.append(resultHeader, blockWrapper, footerBtns);
+    audioChallengePage.append(resultWrapper);
+    localStorage.removeItem('isTextbook');
     await this.state.updateStatistics();
-    const audioChallengeContainer = document.querySelector('.audio-challenge-container');
-    if (audioChallengeContainer) {
-      this.state.setMaxWinstreak(this.maxWinstreak);
-      this.state.initStatistics();
-      this.gameWords.forEach((word) => {
-        const wordId = word.id || word._id;
-        if (wordId) this.state.setNewWords(wordId);
-      });
-      audioChallengeContainer.innerHTML = '';
-      const popupResults = createElement('div', ['popup-results']);
-      const countIncorectAnswers = `<span class="incorrect-counter">${this.inCorrectAnswers.length}</span>`;
-      const incorectAnswers = createElement('p', ['popup-incorrect']);
-      incorectAnswers.innerHTML = `Errors ${countIncorectAnswers}`;
-      popupResults.append(incorectAnswers);
-      this.inCorrectAnswers.forEach((el) => {
-        const currentWordEn = this.gameWords[el].word;
-        const currentAudio = this.gameWords[el].audio;
-        const currentWordRu = this.gameWords[el].wordTranslate;
-        const currentWordId = this.gameWords[el].id || this.gameWords[el]._id;
-        if (currentWordId) this.state.setWrongWords(currentWordId);
-        popupResults.append(addBoxResults(currentWordEn, currentWordRu, currentAudio));
-      });
-      const correctAnswers = createElement('p', ['popup-correct']);
-      const countCorrectAnswers = `<span class="correct-counter">${this.correctAnswers.length}</span>`;
-      correctAnswers.innerHTML = `Know ${countCorrectAnswers}`;
-      popupResults.append(correctAnswers);
-      this.correctAnswers.forEach((el) => {
-        const currentWordEn = this.gameWords[el].word;
-        const currentAudio = this.gameWords[el].audio;
-        const currentWordRu = this.gameWords[el].wordTranslate;
-        const currentWordId = this.gameWords[el].id || this.gameWords[el]._id;
-        if (currentWordId) this.state.setCorrectWords(currentWordId);
-        popupResults.append(addBoxResults(currentWordEn, currentWordRu, currentAudio));
-      });
-      const closeButton = createElement('button', ['close-popup-button'], 'Сlose game');
-      closeButton.onclick = async () => {
-        localStorage.removeItem('isTextbook');
-        this.level = '';
-        this.currentIndexWord = 0;
-        this.correctAnswers = [];
-        this.inCorrectAnswers = [];
-        this.page = false;
-        this.gameWords = [];
-        await this.render();
-      };
-      popupResults.append(closeButton);
-      audioChallengeContainer.append(popupResults);
+  };
+
+  private createResultCircle = (): HTMLElement => {
+    const circleWrapper = createElement('div', ['circle-wrapper']);
+    const circleContainer = createElement('div', ['circle-container']);
+    const circleBody = createElement('div', ['circle-body']);
+    const circleCounter = createElement('div', ['circle-counter']);
+    const bestStreak = createElement('span', []);
+    const winrate = createElement('span', []);
+    const winrateNum =
+      Math.ceil((this.correctAnswers.length / (this.inCorrectAnswers.length + this.correctAnswers.length)) * 100) || 0;
+    const root = <HTMLElement>document.querySelector(':root');
+    root.style.setProperty('--height', `${winrateNum}%`);
+    winrate.innerHTML = `Winrate: ${winrateNum}%`;
+    bestStreak.innerHTML = `Best winstreak: ${this.maxWinstreak}`;
+    circleCounter.append(bestStreak, winrate);
+    circleBody.append(circleCounter);
+    circleContainer.append(circleBody);
+    circleWrapper.append(circleContainer);
+    return circleWrapper;
+  };
+
+  private addBoxResults = (word: IWord): HTMLElement => {
+    const boxWordInfo = createElement('div', ['box-word-info']);
+    const repeatButton = createElement('button', ['popup-button-repeat']);
+    repeatButton.innerHTML = svgAudio;
+    const fullAudioLink = `${BASE_URL}/${word.audio}`;
+    repeatButton.onclick = async () => {
+      await playAudio(fullAudioLink);
+    };
+    boxWordInfo.append(repeatButton);
+    const wordEn = createElement('span', ['popup-english-word']);
+    wordEn.innerHTML = `&#160 ${word.word} &#160`;
+    const wordRu = createElement('span', ['popup-russian-word']);
+    wordRu.innerHTML = `— &#160 ${word.wordTranslate}`;
+    boxWordInfo.append(wordEn);
+    boxWordInfo.append(wordRu);
+    return boxWordInfo;
+  };
+
+  private resultToggle = (): void => {
+    const resultBlock = <HTMLElement>document.querySelector('.result-block');
+    const wordsBlock = <HTMLElement>document.querySelector('.words-block');
+    if (resultBlock.classList.contains('hide')) {
+      resultBlock.classList.remove('hide');
+      resultBlock.classList.add('visible');
+      wordsBlock.classList.remove('visible');
+      wordsBlock.classList.add('hide');
+    } else {
+      wordsBlock.classList.remove('hide');
+      wordsBlock.classList.add('visible');
+      resultBlock.classList.remove('visible');
+      resultBlock.classList.add('hide');
     }
-  }
+  };
 
   async loaderWords() {
     if (this.page > 0 && typeof this.page === 'number') {
