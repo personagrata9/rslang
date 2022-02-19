@@ -2,83 +2,174 @@
 
 .statistic-container {
   display: flex;
-  padding: 20px;
+  padding: 20px 20px 70px;
   flex-direction: column;
+  .short-statistic {
+    font-size: 35px;
+    color: $turquoise;
+    margin: 0 auto;
+    .short-statistic-container {
+      font-size: 22px;
+      display: flex;
+      flex-direction: row;
+      column-gap: 45px;
+      .total-statistic {
+        display: flex;
+        flex-direction: column;
+        row-gap: 15px;
+      }
+      .container {
+        background-color: $turquoise-light;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 8px 6px rgba(1, 82, 105, 0.37);
+      }
+
+      .sprint-statistic {
+        width: 245px;
+        height: 330px;
+        .sprint-pic {
+          width: 225px;
+          height: 170px;
+          border-radius: 10px;
+          background:center no-repeat url('https://best-of-netflix.com/static/uploads/sites/4/2021/11/Squid-Game-doll.jpg');
+          background-size: cover;
+        }
+      }
+
+      .audio-statistic {
+        width: 245px;
+        height: 330px;
+        .audio-pic {
+          width: 225px;
+          height: 170px;
+          border-radius: 10px;
+          background:center no-repeat url('https://images.unsplash.com/photo-1575975243243-5462a2054ed2?fit=max&fm=jpg&ixid=MXwzNTY3MHwwfDF8YWxsfHx8fHx8fHw&ixlib=rb-1.2.1&q=75&w=720&utm_medium=referral&utm_source=vocal.media');
+          background-size: cover;
+        }
+      }
+
+      .new-words-container {
+        display: flex;
+        font-size: 24px;
+        flex-direction: row;
+        align-items: center;
+        width: 230px;
+        height: 100px;
+      }
+      .learned-words-container {
+        display: flex;
+        font-size: 26px;
+        flex-direction: row;
+        align-items: center;
+        text-align: center;
+        width: 230px;
+        height: 100px;
+      }
+      .winrate-container {
+        display: flex;
+        flex-direction: row;
+        font-size: 30px;
+        width: 230px;
+        height: 100px;
+        align-items: center;
+      }
+    }
+  }
     .long-statistic {
       font-size: 35px;
       color: $turquoise;
       margin: 0 auto;
+      width: 810px;
       .long-statistic-container {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
+        row-gap: 25px;
+        .container {
+          padding: 10px;
+          border-radius: 10px;
+          box-shadow: 0px 0px 8px 6px rgba(1, 82, 105, 0.37);
+        }
       .total-winrate {
+        display: flex;
+        padding: 20px 55px;
+
         .winrate-chart {
-          width: 350px !important;
-          height: 350px !important;
+          width: 700px !important;
+          height: 700px!important;
+        }
+        .winrate-percent {
+          margin-left: 280px;
+          margin-top: 290px;
+          font-size: 85px;
+          font-weight: bold;
+          position: absolute;
+          color: $turquoise-dark;
+        }
+        .winrate-text {
+          margin-left: 290px;
+          margin-top: 390px;
+          position: absolute;
+          color: $turquoise;
         }
       }
       .total-words {
+        display: flex;
+        align-items: center;
+        width: 810px !important;
+        height: 450px !important;
         .words-chart {
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 1050px) {
+  .statistic-container {
+    .long-statistic {
+      width: auto;
+
+      .long-statistic-container {
+        flex-direction: column;
+
+        .total-winrate {
+          display: flex;
+          width: 350px !important;
+          height: 350px !important;
+
+          .winrate-percent {
+            margin-left: 150px;
+            margin-top: 145px;
+            position: absolute;
+          }
+
+          .winrate-text {
+            margin-left: 120px;
+            margin-top: 180px;
+            position: absolute;
+          }
+        }
+
+        .total-words {
+          display: flex;
+          align-items: center;
           width: 350px !important;
           height: 350px !important;
         }
       }
     }
-  }
-
-    .short-statistic {
-      font-size: 35px;
-      color: $turquoise;
-      margin: 0 auto;
-      .short-statistic-container {
-        display: flex;
-        flex-direction: row;
-        column-gap: 25px;
-        .total-statistic {
-          display: flex;
+      .short-statistic {
+        .short-statistic-container {
           flex-direction: column;
+          column-gap: 0px;
           row-gap: 25px;
-        }
-        .container {
-          background-color: $turquoise-light;
-          padding: 10px;
-          border-radius: 10px;
-          box-shadow: 0px 0px 13px 6px rgba(1, 82, 105, 0.37);
-        }
 
-        .sprint-statistic {
-          width: 325px;
-          height: 325px;
-          .sprint-pic {
-            width: 100px;
-            height: 100px;
-            border-radius: 10px;
-            background:center no-repeat url('https://best-of-netflix.com/static/uploads/sites/4/2021/11/Squid-Game-doll.jpg');
-            background-size: cover;
+          .total-statistic {
+            flex-direction: row;
+            column-gap: 25px;
           }
         }
-
-        .audio-statistic {
-          width: 325px;
-          height: 325px;
-          .audio-pic {
-            width: 100px;
-            height: 100px;
-            border-radius: 10px;
-            background:center no-repeat url('https://images.unsplash.com/photo-1575975243243-5462a2054ed2?fit=max&fm=jpg&ixid=MXwzNTY3MHwwfDF8YWxsfHx8fHx8fHw&ixlib=rb-1.2.1&q=75&w=720&utm_medium=referral&utm_source=vocal.media');
-            background-size: cover;
-          }
-        }
-
-        .new-words-container {
-          width: 150px;
-          height: 150px;
-        }
-
-        .winrate-container {
-          width: 150px;
-          height: 150px;
-        }
-      }
     }
   }
+}
