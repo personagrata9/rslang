@@ -1,4 +1,4 @@
-@import '../../components/word-card/word-card.scss';
+@import './word-card/word-card.scss';
 
 .textbook-group-navigation {
   background-color: $gray-light;
@@ -18,11 +18,6 @@
     cursor: pointer;
     user-select: none;
 
-    &.learned {
-      margin-top: -0.5rem;
-      margin-bottom: -0.5rem;
-      padding-top: 1.25rem;
-    }
     &.active {
       opacity: 1;
       transform: translateY(25%);
