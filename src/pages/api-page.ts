@@ -1,5 +1,5 @@
 import { IWord, ApiPageNameType, IFilter } from '../common/types';
-import { WORDS_PER_PAGE } from '../common/constants';
+import { NUMBER_OF_WORDS_API } from '../common/constants';
 import State from '../state/state';
 import Api from '../api/api';
 
@@ -36,13 +36,7 @@ abstract class ApiPage {
           $or: [{ userWord: null }, { 'userWord.optional': null }, { 'userWord.optional.learned': false }],
         };
         await this.api
-          .getUserAggregatedWords(
-            this.userId,
-            this.textbookGroup,
-            '0',
-            String((+page + 1) * (WORDS_PER_PAGE * 2)),
-            filter
-          )
+          .getUserAggregatedWords(this.userId, this.textbookGroup, '0', String(NUMBER_OF_WORDS_API), filter)
           .then((results) => results[0].paginatedResults.forEach((result: IWord) => words.push(result)));
         words = words.filter((e) => e.page === +page);
       }
