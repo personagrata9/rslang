@@ -1,17 +1,32 @@
-import { GROUP_COLORS, ICON_SIZE, NUMBER_OF_GROUPS, NUMBER_OF_PAGES } from '../../common/constants';
+import { BASE_URL, GROUP_COLORS, ICON_SIZE, NUMBER_OF_GROUPS, NUMBER_OF_PAGES } from '../../common/constants';
 import { Colors, DifficultyType, IUserWordData, IWord } from '../../common/types';
 import { createAnchorElement, createElement } from '../../common/utils';
-import WordCard from '../../components/word-card/word-card';
+import WordCard from './word-card/word-card';
 import ApiPage from '../api-page';
 
 class Textbook extends ApiPage {
-  private color: string;
+  private color: Colors;
 
   private readonly numberOfPagesInPaginationBar = 9;
+
+  private isPlaying: boolean;
+
+  private playingWordId: string | null;
+
+  private audio: HTMLAudioElement;
+
+  private audioMeaning: HTMLAudioElement;
+
+  private audioExample: HTMLAudioElement;
 
   constructor() {
     super('textbook');
     this.color = GROUP_COLORS[+this.textbookGroup];
+    this.isPlaying = false;
+    this.playingWordId = null;
+    this.audio = new Audio();
+    this.audioMeaning = new Audio();
+    this.audioExample = new Audio();
   }
 
   protected getTextbookWordsItems = async (): Promise<IWord[]> => {
@@ -241,6 +256,8 @@ class Textbook extends ApiPage {
       listContainerElement.append(wordCard.render());
     });
 
+    this.playingWordId = words[0].id;
+
     if (!this.userId && this.textbookGroup === '6') {
       listContainerElement.innerHTML =
         'Only authorized users are able to see unit with difficult words. Please Sign in!';
@@ -248,6 +265,10 @@ class Textbook extends ApiPage {
     } else {
       listContainerElement.classList.remove('authorized');
     }
+
+    listContainerElement.onclick = async (event: MouseEvent): Promise<void> => {
+      await this.playItem(event);
+    };
 
     return listContainerElement;
   };
@@ -293,7 +314,71 @@ class Textbook extends ApiPage {
     const newMinigamesLinks: HTMLElement = this.createMinigamesLinks();
     minigamesLinks.replaceWith(newMinigamesLinks);
     this.toggleMinigamesLinks();
+
+    this.audio.pause();
+    this.audioMeaning.pause();
+    this.audioExample.pause();
   };
+
+  private playAudio = async (): Promise<void> => {
+    if (this.playingWordId) {
+      const wordCard = <HTMLDivElement>document.querySelector(`div[data-word-id = "${this.playingWordId}"]`);
+      const audioIcon = <HTMLDivElement>wordCard.querySelector('.word-card-audio-icon');
+      if (wordCard.classList.contains('learned')) {
+        audioIcon.setAttribute('style', `background-color: ${Colors.White}`);
+      } else {
+        audioIcon.setAttribute('style', `background-color: ${this.color}`);
+      }
+
+      const word: IWord = await this.api.getWordById(this.playingWordId);
+      if (!this.isPlaying) {
+        this.isPlaying = true;
+        this.audio.src = `${BASE_URL}/${word.audio}`;
+        this.audioMeaning.src = `${BASE_URL}/${word.audioMeaning}`;
+        this.audioExample.src = `${BASE_URL}/${word.audioExample}`;
+
+        await this.audio.play();
+        this.audio.onended = async () => {
+          await this.audioMeaning.play();
+        };
+        this.audioMeaning.onended = async () => {
+          await this.audioExample.play();
+        };
+        this.audioExample.onended = async () => {
+          this.isPlaying = false;
+          audioIcon.removeAttribute('style');
+        };
+      } else {
+        this.audio.pause();
+        this.audioMeaning.pause();
+        this.audioExample.pause();
+        this.isPlaying = false;
+      }
+    }
+  };
+
+  private async playItem(event: MouseEvent) {
+    const { target } = event;
+    if (target && (target as HTMLElement).classList.contains('word-card-audio-icon')) {
+      const wordContainer = <HTMLDivElement>(target as HTMLDivElement).closest('.word-card-container');
+      const { wordId } = wordContainer.dataset;
+      if (wordId) {
+        if (wordId === this.playingWordId) {
+          this.isPlaying = false;
+          await this.playAudio();
+        } else {
+          const audioIcons: NodeListOf<HTMLElement> = document.querySelectorAll('.word-card-audio-icon');
+          audioIcons.forEach((icon) => icon.removeAttribute('style'));
+          this.isPlaying = false;
+          this.playingWordId = wordId;
+          this.audio.currentTime = 0;
+          this.audioMeaning.currentTime = 0;
+          this.audioExample.currentTime = 0;
+          await this.playAudio();
+        }
+      }
+    }
+  }
 
   render = async (): Promise<void> => {
     const container: HTMLElement = createElement('div', [

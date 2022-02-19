@@ -1,7 +1,7 @@
-import Api from '../../api/api';
-import { BASE_URL, GROUP_COLORS } from '../../common/constants';
-import { Colors, DifficultyType, IUserWordNewData, IUserWordData, IWord } from '../../common/types';
-import { createElement, createButtonElement } from '../../common/utils';
+import Api from '../../../api/api';
+import { BASE_URL, GROUP_COLORS } from '../../../common/constants';
+import { Colors, DifficultyType, IUserWordNewData, IUserWordData, IWord } from '../../../common/types';
+import { createElement, createButtonElement } from '../../../common/utils';
 
 class WordCard {
   private name: string;
@@ -18,7 +18,7 @@ class WordCard {
 
   constructor(
     private word: IWord,
-    private color: string,
+    private color: Colors,
     private Difficulty: DifficultyType | undefined,
     private isLearned: boolean | undefined
   ) {
@@ -52,7 +52,13 @@ class WordCard {
   };
 
   private createWordElement = (): HTMLElement => {
-    const wordElement: HTMLElement = createElement('div', [`${this.name}-item`, 'd-flex', 'flex-wrap', 'mb-3']);
+    const wordElement: HTMLElement = createElement('div', [
+      `${this.name}-item`,
+      'd-flex',
+      'flex-wrap',
+      'align-items-center',
+      'mb-3',
+    ]);
 
     const word: HTMLElement = createElement('h3', [`${this.name}-word`, 'text-capitalize'], this.word.word);
     const transcription: HTMLElement = createElement(
@@ -66,9 +72,19 @@ class WordCard {
       this.word.wordTranslate.toLowerCase()
     );
 
-    wordElement.append(word, transcription, wordTranslate);
+    wordElement.append(word, transcription, this.createAudioIcon(), wordTranslate);
 
     return wordElement;
+  };
+
+  private createAudioIcon = (): HTMLElement => {
+    const audioIcon = createElement('div', [
+      `${this.name}-audio-icon`,
+      'd-flex',
+      'justify-content-center',
+      'align-items-center',
+    ]);
+    return audioIcon;
   };
 
   private createTextMeaningElement = (): HTMLElement => {
@@ -109,20 +125,6 @@ class WordCard {
     descriptionElement.append(this.createWordElement(), this.createTextMeaningElement(), this.textExampleElement());
 
     return descriptionElement;
-  };
-
-  private createAudioIcon = (): HTMLElement => {
-    const audioIcon = createElement('div', [
-      `${this.name}-audio-icon`,
-      'd-flex',
-      'justify-content-center',
-      'align-items-center',
-      'shadow',
-    ]);
-    audioIcon.innerHTML =
-      '<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-volume-mute-fill" viewBox="0 0 16 16"><path d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06zm7.137 2.096a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0z"/></svg>';
-
-    return audioIcon;
   };
 
   private createDifficultWordButton = (): HTMLButtonElement => {
@@ -325,12 +327,7 @@ class WordCard {
 
   render = (): HTMLElement => {
     this.container.setAttribute('data-word-id', this.word.id);
-    this.container.append(
-      this.createImage(),
-      this.createMarkerElement(),
-      this.createWordDescriptionElement(),
-      this.createAudioIcon()
-    );
+    this.container.append(this.createImage(), this.createMarkerElement(), this.createWordDescriptionElement());
     if (this.userId) {
       this.container.append(this.createButtons());
     }
@@ -340,7 +337,3 @@ class WordCard {
 }
 
 export default WordCard;
-
-// audio: 'string';
-// audioMeaning: 'string';
-// audioExample: 'string';
