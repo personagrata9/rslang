@@ -244,6 +244,9 @@ class Sprint extends ApiPage {
       this.selectedUnit = this.selectedUnit || this.textbookGroup;
       this.gameWords = await this.getWordsItems(this.selectedUnit, this.page.toString());
       this.shuffleGameWords();
+      if (this.gameWords.length === 0) {
+        await this.newWordsLoader();
+      }
     }
 
     return isWordsLoaded;

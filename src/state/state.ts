@@ -26,6 +26,8 @@ class State {
 
   private difficultWords: IWord[];
 
+  private currentWords: Set<string>;
+
   constructor(private readonly name: ApiPageNameType) {
     this.name = name;
     this.userId = localStorage.getItem('UserId');
@@ -55,6 +57,7 @@ class State {
     this.learnedWords = '0';
     this.userWords = [];
     this.difficultWords = [];
+    this.currentWords = new Set([]);
   }
 
   private setStatisticsToLS = (): void => {
@@ -90,6 +93,7 @@ class State {
   };
 
   initStatistics = async (): Promise<void> => {
+    this.currentWords = new Set([]);
     const statisticsStorage: string | null = this.userId
       ? localStorage.getItem(`statistics${this.userId}`)
       : localStorage.getItem('statistics');
@@ -102,7 +106,6 @@ class State {
       this.difficultWords = await this.api.getDifficultUserWords(this.userId);
       const gameWords = this.userWords.filter((word) => word.optional.game === true).map((word) => word.wordId);
       this.statistics.totalGameWords = new Set(gameWords);
-
       const corrects = this.userWords.filter((word) => word.optional.correct);
       corrects.forEach((word) => {
         const { wordId } = word;
@@ -126,9 +129,11 @@ class State {
 
       await this.api
         .getStatistics(this.userId)
-        .then((result) => {
-          this.learnedWords = result.learnedWords;
-          this.longTermStatistics = result.optional.longTerm;
+        .then((result: IUserStatistics) => {
+          if (result) {
+            this.learnedWords = result.learnedWords;
+            this.longTermStatistics = result.optional.longTerm;
+          }
         })
         .catch((response: Response) => {
           if (response) {
@@ -148,6 +153,7 @@ class State {
   };
 
   setNewWords = (wordId: string): void => {
+    this.currentWords.add(wordId);
     if (this.name === 'audio-challenge') {
       if (!this.statistics.totalGameWords.has(wordId)) {
         this.statistics.audioChallenge.new.add(wordId);
@@ -167,6 +173,7 @@ class State {
   setCorrectWords = (wordId: string): void => {
     if (this.statistics.totalCorrect[wordId]) {
       this.statistics.totalCorrect[wordId] = `${+this.statistics.totalCorrect[wordId] + 1}`;
+      console.log(this.statistics.totalCorrect[wordId]);
       if (this.name === 'audio-challenge') {
         const value = this.statistics.audioChallenge.correct[wordId];
         this.statistics.audioChallenge.correct[wordId] = value ? `${+value + 1}` : '1';
@@ -187,6 +194,7 @@ class State {
     const prevRepeat = this.statistics.totalRepeats[wordId];
     const repeat = prevRepeat ? `${+prevRepeat + 1}` : '1';
     this.statistics.totalRepeats[wordId] = repeat;
+    console.log('repeat', repeat);
   };
 
   setWrongWords = (wordId: string): void => {
@@ -225,7 +233,11 @@ class State {
 
   private updateGameWords = async (): Promise<void> => {
     if (this.userId) {
-      const entriesGameWords = Array.from(this.statistics.totalGameWords);
+      console.log('b', this.statistics.totalGameWords);
+      const entriesGameWords = Array.from(this.statistics.totalGameWords).filter((entry) =>
+        this.currentWords.has(entry)
+      );
+      console.log('a', entriesGameWords);
       entriesGameWords.map(async (wordId) => {
         if (this.userId) {
           if (this.userWords.find((word) => word.wordId === wordId)) {
@@ -255,7 +267,9 @@ class State {
   };
 
   private updateCorrectWords = async (): Promise<void> => {
-    const entriesCorrect = Object.entries(this.statistics.totalCorrect);
+    const entriesCorrect = Object.entries(this.statistics.totalCorrect).filter((entry) =>
+      this.currentWords.has(entry[0])
+    );
     entriesCorrect.map(async (entry: [string, string]) => {
       const wordId: string = entry[0];
       const correctNum: string = entry[1];
@@ -279,7 +293,7 @@ class State {
   };
 
   private updateWrongWords = async (): Promise<void> => {
-    const entriesWrong = Object.entries(this.statistics.totalWrong);
+    const entriesWrong = Object.entries(this.statistics.totalWrong).filter((entry) => this.currentWords.has(entry[0]));
     entriesWrong.map(async (entry: [string, string]) => {
       const wordId: string = entry[0];
       const wrongNum: string = entry[1];
@@ -303,7 +317,10 @@ class State {
   };
 
   private updateRepeates = async (): Promise<void> => {
-    const entriesRepeat = Object.entries(this.statistics.totalRepeats);
+    const entriesRepeat = Object.entries(this.statistics.totalRepeats).filter((entry) =>
+      this.currentWords.has(entry[0])
+    );
+    console.log(entriesRepeat);
     if (this.userId) {
       entriesRepeat.map(async (entry: [string, string]) => {
         const wordId: string = entry[0];
@@ -356,10 +373,6 @@ class State {
   };
 
   private updateCurrentStatistics = async (): Promise<void> => {
-    if (this.userId) {
-      this.userWords = await this.api.getUserWords(this.userId);
-      this.difficultWords = await this.api.getDifficultUserWords(this.userId);
-    }
     await this.updateGameWords();
     await this.updateCorrectWords();
     await this.updateWrongWords();
