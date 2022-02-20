@@ -1,4 +1,4 @@
-import { IWord, Methods } from './types';
+import { IGameStatistics, IGameStatisticsTotal, IWord, Methods, StringObjectType } from './types';
 
 export const createElement = (teg: string, classNames: string[], innerText?: string): HTMLElement => {
   const element = document.createElement(teg);
@@ -139,3 +139,30 @@ export const convertDate = (date: Date): string =>
     .getDate()
     .toString()
     .padStart(2, '0')}`;
+
+const parseGameStatistics = (storage: string): IGameStatistics => {
+  const parsedStorage = JSON.parse(storage) as StringObjectType;
+
+  return {
+    new: setFromString(parsedStorage.new),
+    correct: JSON.parse(parsedStorage.correct) as StringObjectType,
+    wrong: JSON.parse(parsedStorage.wrong) as StringObjectType,
+    bestSeries: +parsedStorage.bestSeries,
+  };
+};
+
+export const parseTotalStatistics = (storage: string): IGameStatisticsTotal => {
+  const parsedStorage = JSON.parse(storage) as StringObjectType;
+
+  return {
+    date: parsedStorage.date,
+    totalGameWords: setFromString(parsedStorage.totalGameWords),
+    totalNew: setFromString(parsedStorage.totalNew),
+    totalCorrect: JSON.parse(parsedStorage.totalCorrect) as StringObjectType,
+    totalWrong: JSON.parse(parsedStorage.totalWrong) as StringObjectType,
+    totalLearned: setFromString(parsedStorage.totalLearned),
+    totalRepeats: JSON.parse(parsedStorage.totalRepeats) as StringObjectType,
+    audioChallenge: parseGameStatistics(parsedStorage.audioChallenge),
+    sprint: parseGameStatistics(parsedStorage.sprint),
+  };
+};
