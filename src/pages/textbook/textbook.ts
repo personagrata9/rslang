@@ -380,6 +380,16 @@ class Textbook extends ApiPage {
     }
   }
 
+  createButtonTop(): HTMLElement {
+    const button = document.createElement('button');
+    button.id = 'button';
+    button?.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo(0, 0);
+    });
+    return button;
+  }
+
   render = async (): Promise<void> => {
     const container: HTMLElement = createElement('div', [
       'container',
@@ -393,7 +403,8 @@ class Textbook extends ApiPage {
       this.createNavigationBar(),
       this.createPaginationBar(),
       this.createMinigamesLinks(),
-      await this.createWordsCardsList()
+      await this.createWordsCardsList(),
+      this.createButtonTop()
     );
 
     this.contentContainer.append(container);
@@ -404,5 +415,14 @@ class Textbook extends ApiPage {
     this.toggleMinigamesLinks();
   };
 }
+
+window.addEventListener('scroll', () => {
+  const btn = document.querySelector('#button');
+  if (window.scrollY > 300) {
+    btn?.classList.add('show');
+  } else {
+    btn?.classList.remove('show');
+  }
+});
 
 export default Textbook;
