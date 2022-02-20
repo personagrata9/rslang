@@ -443,17 +443,17 @@ class Sprint extends ApiPage {
     const event = new KeyboardEvent('click');
     if (!document.querySelector('.result-wrapper')) {
       window.addEventListener(
-        'keydown',
+        'keyup',
         (e) => {
           const evCode = e.code;
           switch (evCode) {
-            case 'KeyZ':
+            case 'ArrowLeft':
               if (<HTMLButtonElement>document.querySelector('.btn-wrong')) {
                 (<HTMLButtonElement>document.querySelector('.btn-wrong')).dispatchEvent(event);
               }
 
               break;
-            case 'KeyX':
+            case 'ArrowRight':
               if (<HTMLButtonElement>document.querySelector('.btn-right')) {
                 (<HTMLButtonElement>document.querySelector('.btn-right')).dispatchEvent(event);
               }
