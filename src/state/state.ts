@@ -9,6 +9,7 @@ import {
   IUserWordNewData,
   IWord,
 } from '../common/types';
+import { sumOfObjectValues } from '../common/utils';
 import { convertDate, parseTotalStatistics, stringifyTotalStatistics } from './helpers';
 
 class State {
@@ -173,7 +174,6 @@ class State {
   setCorrectWords = (wordId: string): void => {
     if (this.statistics.totalCorrect[wordId]) {
       this.statistics.totalCorrect[wordId] = `${+this.statistics.totalCorrect[wordId] + 1}`;
-      console.log(this.statistics.totalCorrect[wordId]);
       if (this.name === 'audio-challenge') {
         const value = this.statistics.audioChallenge.correct[wordId];
         this.statistics.audioChallenge.correct[wordId] = value ? `${+value + 1}` : '1';
@@ -194,7 +194,6 @@ class State {
     const prevRepeat = this.statistics.totalRepeats[wordId];
     const repeat = prevRepeat ? `${+prevRepeat + 1}` : '1';
     this.statistics.totalRepeats[wordId] = repeat;
-    console.log('repeat', repeat);
   };
 
   setWrongWords = (wordId: string): void => {
@@ -233,11 +232,9 @@ class State {
 
   private updateGameWords = async (): Promise<void> => {
     if (this.userId) {
-      console.log('b', this.statistics.totalGameWords);
       const entriesGameWords = Array.from(this.statistics.totalGameWords).filter((entry) =>
         this.currentWords.has(entry)
       );
-      console.log('a', entriesGameWords);
       entriesGameWords.map(async (wordId) => {
         if (this.userId) {
           if (this.userWords.find((word) => word.wordId === wordId)) {
@@ -320,7 +317,6 @@ class State {
     const entriesRepeat = Object.entries(this.statistics.totalRepeats).filter((entry) =>
       this.currentWords.has(entry[0])
     );
-    console.log(entriesRepeat);
     if (this.userId) {
       entriesRepeat.map(async (entry: [string, string]) => {
         const wordId: string = entry[0];
@@ -383,19 +379,8 @@ class State {
     const currentItem: IDayStatistics = {
       new: this.statistics.totalNew.size,
       correct:
-        Object.values(this.statistics.audioChallenge.correct)
-          .map(Number)
-          .reduce((a, b) => a + b, 0) +
-        Object.values(this.statistics.sprint.correct)
-          .map(Number)
-          .reduce((a, b) => a + b, 0),
-      wrong:
-        Object.values(this.statistics.audioChallenge.wrong)
-          .map(Number)
-          .reduce((a, b) => a + b, 0) +
-        Object.values(this.statistics.sprint.wrong)
-          .map(Number)
-          .reduce((a, b) => a + b, 0),
+        sumOfObjectValues(this.statistics.audioChallenge.correct) + sumOfObjectValues(this.statistics.sprint.correct),
+      wrong: sumOfObjectValues(this.statistics.audioChallenge.wrong) + sumOfObjectValues(this.statistics.sprint.wrong),
       learned: this.statistics.totalLearned.size,
     };
 
@@ -413,6 +398,18 @@ class State {
             learnedWords: this.learnedWords,
             optional: {
               longTerm: this.longTermStatistics,
+              audioChallenge: {
+                new: this.statistics.audioChallenge.new.size,
+                correct: sumOfObjectValues(this.statistics.audioChallenge.correct),
+                wrong: sumOfObjectValues(this.statistics.audioChallenge.wrong),
+                bestSeries: this.statistics.audioChallenge.bestSeries,
+              },
+              sprint: {
+                new: this.statistics.sprint.new.size,
+                correct: sumOfObjectValues(this.statistics.sprint.correct),
+                wrong: sumOfObjectValues(this.statistics.sprint.wrong),
+                bestSeries: this.statistics.sprint.bestSeries,
+              },
             },
           };
           await this.api.updateStatistics(this.userId, userStatistics);
