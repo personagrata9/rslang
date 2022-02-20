@@ -314,7 +314,7 @@ class AudioChallenge extends ApiPage {
   }
 
   private resultWindow = async (): Promise<void> => {
-    this.state.initStatistics();
+    await this.state.initStatistics();
     this.state.setMaxWinstreak(this.maxWinstreak);
     this.gameWords.forEach((word) => {
       const wordId = word.id || word._id;

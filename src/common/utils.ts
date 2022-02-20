@@ -125,17 +125,3 @@ export const shuffle = (array: IWord[]): IWord[] => {
   array.sort(() => Math.random() - 0.5);
   return array;
 };
-
-export const setFromString = (value: string): Set<string> => {
-  if (value.length) {
-    const arr = value.split(',');
-    return new Set(arr);
-  }
-  return new Set([]);
-};
-
-export const convertDate = (date: Date): string =>
-  `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date
-    .getDate()
-    .toString()
-    .padStart(2, '0')}`;

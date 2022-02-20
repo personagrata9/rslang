@@ -6,7 +6,6 @@ import {
   IUserWordNewData,
   ISignUser,
   ISignUserData,
-  IStatistics,
   IUser,
   IUserWord,
   IUserWordData,
@@ -14,6 +13,7 @@ import {
   Methods,
   IAggregatedResult,
   IAggregatedFilter,
+  IUserStatistics,
 } from '../common/types';
 
 class Api {
@@ -179,7 +179,7 @@ class Api {
     });
   };
 
-  getStatistics = async (userId: string): Promise<IStatistics> => {
+  getStatistics = async (userId: string): Promise<IUserStatistics> => {
     const res = await fetch(`${this.url}/users/${userId}/statistics`, {
       headers: {
         Authorization: `Bearer ${this.token}`,
@@ -189,7 +189,7 @@ class Api {
     return res.json().then();
   };
 
-  updateStatistics = async (userId: string, options: IStatistics): Promise<void> => {
+  updateStatistics = async (userId: string, options: IUserStatistics): Promise<void> => {
     await fetch(`${this.url}/users/${userId}/statistics`, {
       method: Methods.Put,
       headers: {

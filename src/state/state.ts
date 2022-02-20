@@ -1,15 +1,15 @@
 import Api from '../api/api';
 import {
   ApiPageNameType,
-  IGameStatistics,
   IGameStatisticsTotal,
   ILongTermStatistics,
   IDayStatistics,
   IUserWordData,
+  IUserStatistics,
   IUserWordNewData,
-  StringObjectType,
+  IWord,
 } from '../common/types';
-import { convertDate, setFromString } from '../common/utils';
+import { convertDate, parseTotalStatistics, stringifyTotalStatistics } from './helpers';
 
 class State {
   private api: Api;
@@ -20,7 +20,11 @@ class State {
 
   private longTermStatistics: ILongTermStatistics;
 
-  private initialLongTermStatistics: ILongTermStatistics = {};
+  private learnedWords: string;
+
+  private userWords: IUserWordData[];
+
+  private difficultWords: IWord[];
 
   constructor(private readonly name: ApiPageNameType) {
     this.name = name;
@@ -48,74 +52,23 @@ class State {
       },
     };
     this.longTermStatistics = {};
+    this.learnedWords = '0';
+    this.userWords = [];
+    this.difficultWords = [];
   }
 
-  private stringifyGameStatistics = (obj: IGameStatistics): string => {
-    const stringifiedValues: StringObjectType = {
-      new: Array.from(obj.new).toString(),
-      correct: JSON.stringify(obj.correct),
-      wrong: JSON.stringify(obj.wrong),
-      bestSeries: obj.bestSeries.toString(),
-    };
-    return JSON.stringify(stringifiedValues);
-  };
-
-  private stringifyTotalStatistics = (obj: IGameStatisticsTotal): string => {
-    const stringifiedValues: StringObjectType = {
-      date: obj.date.toString(),
-      totalGameWords: Array.from(obj.totalGameWords).toString(),
-      totalNew: Array.from(obj.totalNew).toString(),
-      totalCorrect: JSON.stringify(obj.totalCorrect),
-      totalWrong: JSON.stringify(obj.totalWrong),
-      totalLearned: Array.from(obj.totalLearned).toString(),
-      totalRepeats: JSON.stringify(obj.totalRepeats),
-      audioChallenge: this.stringifyGameStatistics(obj.audioChallenge),
-      sprint: this.stringifyGameStatistics(obj.sprint),
-    };
-    return JSON.stringify(stringifiedValues);
-  };
-
-  private parseGameStatistics = (storage: string): IGameStatistics => {
-    const parsedStorage = JSON.parse(storage) as StringObjectType;
-
-    return {
-      new: setFromString(parsedStorage.new),
-      correct: JSON.parse(parsedStorage.correct) as StringObjectType,
-      wrong: JSON.parse(parsedStorage.wrong) as StringObjectType,
-      bestSeries: +parsedStorage.bestSeries,
-    };
-  };
-
-  private parseTotalStatistics = (storage: string): IGameStatisticsTotal => {
-    const parsedStorage = JSON.parse(storage) as StringObjectType;
-
-    return {
-      date: parsedStorage.date,
-      totalGameWords: setFromString(parsedStorage.totalGameWords),
-      totalNew: setFromString(parsedStorage.totalNew),
-      totalCorrect: JSON.parse(parsedStorage.totalCorrect) as StringObjectType,
-      totalWrong: JSON.parse(parsedStorage.totalWrong) as StringObjectType,
-      totalLearned: setFromString(parsedStorage.totalLearned),
-      totalRepeats: JSON.parse(parsedStorage.totalRepeats) as StringObjectType,
-      audioChallenge: this.parseGameStatistics(parsedStorage.audioChallenge),
-      sprint: this.parseGameStatistics(parsedStorage.sprint),
-    };
-  };
-
-  private setStatistics = (): void => {
-    localStorage.setItem('statistics', this.stringifyTotalStatistics(this.statistics));
-    localStorage.setItem('longTermStatistics', JSON.stringify(this.longTermStatistics));
-  };
-
-  private initCurrentStatistics = (): void => {
-    const storage: string | null = localStorage.getItem('statistics');
-    if (storage) {
-      this.statistics = this.parseTotalStatistics(storage);
+  private setStatisticsToLS = (): void => {
+    if (this.userId) {
+      localStorage.setItem(`statistics${this.userId}`, stringifyTotalStatistics(this.statistics));
+    } else {
+      localStorage.setItem('statistics', stringifyTotalStatistics(this.statistics));
+      localStorage.setItem('longTermStatistics', JSON.stringify(this.longTermStatistics));
     }
+  };
 
+  private checkDate = (): void => {
     const stateDate = this.statistics.date;
     const todayDate = convertDate(new Date());
-    console.log('dates', stateDate === todayDate);
 
     if (stateDate !== todayDate) {
       this.statistics.date = todayDate;
@@ -136,18 +89,62 @@ class State {
     }
   };
 
-  private initLongTermStatistics = (): void => {
-    const storage: string | null = localStorage.getItem('longTermStatistics');
-    if (storage) {
-      this.longTermStatistics = JSON.parse(storage) as ILongTermStatistics;
+  initStatistics = async (): Promise<void> => {
+    const statisticsStorage: string | null = this.userId
+      ? localStorage.getItem(`statistics${this.userId}`)
+      : localStorage.getItem('statistics');
+    if (statisticsStorage) {
+      this.statistics = parseTotalStatistics(statisticsStorage);
     }
-  };
 
-  initStatistics = (): void => {
-    this.initCurrentStatistics();
-    this.initLongTermStatistics();
-    this.setStatistics();
-    console.log('init', this.statistics, this.longTermStatistics);
+    if (this.userId) {
+      this.userWords = await this.api.getUserWords(this.userId);
+      this.difficultWords = await this.api.getDifficultUserWords(this.userId);
+      const gameWords = this.userWords.filter((word) => word.optional.game === true).map((word) => word.wordId);
+      this.statistics.totalGameWords = new Set(gameWords);
+
+      const corrects = this.userWords.filter((word) => word.optional.correct);
+      corrects.forEach((word) => {
+        const { wordId } = word;
+        const { correct } = word.optional;
+        if (wordId && correct) this.statistics.totalCorrect[wordId] = correct;
+      });
+
+      const wrongs = this.userWords.filter((word) => word.optional.wrong);
+      wrongs.forEach((word) => {
+        const { wordId } = word;
+        const { wrong } = word.optional;
+        if (wordId && wrong) this.statistics.totalCorrect[wordId] = wrong;
+      });
+
+      const repeats = this.userWords.filter((word) => word.optional.repeat);
+      repeats.forEach((word) => {
+        const { wordId } = word;
+        const { repeat } = word.optional;
+        if (wordId && repeat) this.statistics.totalRepeats[wordId] = repeat;
+      });
+
+      await this.api
+        .getStatistics(this.userId)
+        .then((result) => {
+          this.learnedWords = result.learnedWords;
+          this.longTermStatistics = result.optional.longTerm;
+        })
+        .catch((response: Response) => {
+          if (response) {
+            this.learnedWords = '0';
+            this.longTermStatistics = {};
+          }
+        });
+    } else {
+      const longTermStatisticsStorage: string | null = localStorage.getItem('longTermStatistics');
+      if (longTermStatisticsStorage) {
+        this.longTermStatistics = JSON.parse(longTermStatisticsStorage) as ILongTermStatistics;
+      }
+    }
+
+    this.setStatisticsToLS();
+    this.checkDate();
   };
 
   setNewWords = (wordId: string): void => {
@@ -188,7 +185,8 @@ class State {
       }
     }
     const prevRepeat = this.statistics.totalRepeats[wordId];
-    this.statistics.totalRepeats[wordId] = prevRepeat ? `${+prevRepeat + 1}` : '1';
+    const repeat = prevRepeat ? `${+prevRepeat + 1}` : '1';
+    this.statistics.totalRepeats[wordId] = repeat;
   };
 
   setWrongWords = (wordId: string): void => {
@@ -225,38 +223,126 @@ class State {
     }
   };
 
-  private updateCurrentStatistics = async (): Promise<void> => {
-    const entriesRepeat = Object.entries(this.statistics.totalRepeats);
-
+  private updateGameWords = async (): Promise<void> => {
     if (this.userId) {
-      entriesRepeat.map(async (entry: [string, string]) => {
-        const wordId: string = entry[0];
-        const repeat: number = +entry[1];
-
+      const entriesGameWords = Array.from(this.statistics.totalGameWords);
+      entriesGameWords.map(async (wordId) => {
         if (this.userId) {
-          const userWords: IUserWordData[] = await this.api.getUserWords(this.userId).then((result) => result);
-          const difficultWords = await this.api.getDifficultUserWords(this.userId);
-          if (
-            (difficultWords.find((word) => word.id === wordId) && repeat === 5) ||
-            (!difficultWords.find((word) => word.id === wordId) && repeat === 3)
-          ) {
-            this.statistics.totalLearned.add(wordId);
-            const wordData: IUserWordNewData = { difficulty: 'easy', optional: { learned: true, repeat } };
-            await this.api.updateUserWord({ userId: this.userId, wordId, wordData });
-          } else if (userWords.find((word) => word.wordId === wordId)) {
+          if (this.userWords.find((word) => word.wordId === wordId)) {
             const userWord: IUserWordNewData = await this.api.getUserWordById({
               userId: this.userId,
               wordId,
             });
 
+            const { optional } = userWord;
+            optional.game = true;
+
             const wordData: IUserWordNewData = {
               difficulty: userWord.difficulty,
-              optional: { learned: false, repeat },
+              optional,
             };
             await this.api.updateUserWord({ userId: this.userId, wordId, wordData });
           } else {
-            const wordData: IUserWordNewData = { difficulty: 'easy', optional: { learned: false, repeat } };
+            const wordData: IUserWordNewData = {
+              difficulty: 'easy',
+              optional: { learned: false, repeat: '0', game: true },
+            };
             await this.api.createUserWord({ userId: this.userId, wordId, wordData });
+          }
+        }
+      });
+    }
+  };
+
+  private updateCorrectWords = async (): Promise<void> => {
+    const entriesCorrect = Object.entries(this.statistics.totalCorrect);
+    entriesCorrect.map(async (entry: [string, string]) => {
+      const wordId: string = entry[0];
+      const correctNum: string = entry[1];
+
+      if (this.userId) {
+        const userWord: IUserWordNewData = await this.api.getUserWordById({
+          userId: this.userId,
+          wordId,
+        });
+
+        const { optional } = userWord;
+        optional.correct = correctNum;
+
+        const wordData: IUserWordNewData = {
+          difficulty: userWord.difficulty,
+          optional,
+        };
+        await this.api.updateUserWord({ userId: this.userId, wordId, wordData });
+      }
+    });
+  };
+
+  private updateWrongWords = async (): Promise<void> => {
+    const entriesWrong = Object.entries(this.statistics.totalWrong);
+    entriesWrong.map(async (entry: [string, string]) => {
+      const wordId: string = entry[0];
+      const wrongNum: string = entry[1];
+
+      if (this.userId) {
+        const userWord: IUserWordNewData = await this.api.getUserWordById({
+          userId: this.userId,
+          wordId,
+        });
+
+        const { optional } = userWord;
+        optional.wrong = wrongNum;
+
+        const wordData: IUserWordNewData = {
+          difficulty: userWord.difficulty,
+          optional,
+        };
+        await this.api.updateUserWord({ userId: this.userId, wordId, wordData });
+      }
+    });
+  };
+
+  private updateRepeates = async (): Promise<void> => {
+    const entriesRepeat = Object.entries(this.statistics.totalRepeats);
+    if (this.userId) {
+      entriesRepeat.map(async (entry: [string, string]) => {
+        const wordId: string = entry[0];
+        const repeat: string = entry[1];
+
+        if (this.userId) {
+          if (
+            (this.difficultWords.find((word) => word.id === wordId) && repeat === '5') ||
+            (!this.difficultWords.find((word) => word.id === wordId) && repeat === '3')
+          ) {
+            this.statistics.totalLearned.add(wordId);
+            const userWord: IUserWordNewData = await this.api.getUserWordById({
+              userId: this.userId,
+              wordId,
+            });
+
+            const { optional } = userWord;
+            optional.learned = true;
+            optional.repeat = '0';
+
+            const wordData: IUserWordNewData = {
+              difficulty: 'easy',
+              optional,
+            };
+            await this.api.updateUserWord({ userId: this.userId, wordId, wordData });
+          } else {
+            const userWord: IUserWordNewData = await this.api.getUserWordById({
+              userId: this.userId,
+              wordId,
+            });
+
+            const { optional } = userWord;
+            optional.repeat = repeat;
+
+            const wordData: IUserWordNewData = {
+              difficulty: userWord.difficulty,
+              optional,
+            };
+            await this.api.updateUserWord({ userId: this.userId, wordId, wordData });
           }
         }
       });
@@ -267,6 +353,17 @@ class State {
         }
       });
     }
+  };
+
+  private updateCurrentStatistics = async (): Promise<void> => {
+    if (this.userId) {
+      this.userWords = await this.api.getUserWords(this.userId);
+      this.difficultWords = await this.api.getDifficultUserWords(this.userId);
+    }
+    await this.updateGameWords();
+    await this.updateCorrectWords();
+    await this.updateWrongWords();
+    await this.updateRepeates();
   };
 
   private updateLongTermStatistics = async (): Promise<void> => {
@@ -297,8 +394,18 @@ class State {
       .then(async () => {
         await this.updateLongTermStatistics();
       })
-      .then(() => this.setStatistics());
-    console.log('update', this.statistics, this.longTermStatistics);
+      .then(async () => {
+        if (this.userId) {
+          const userStatistics: IUserStatistics = {
+            learnedWords: this.learnedWords,
+            optional: {
+              longTerm: this.longTermStatistics,
+            },
+          };
+          await this.api.updateStatistics(this.userId, userStatistics);
+        }
+        this.setStatisticsToLS();
+      });
   };
 }
 

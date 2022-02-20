@@ -250,7 +250,7 @@ class Textbook extends ApiPage {
 
     words.forEach((word: IWord) => {
       const Difficulty: DifficultyType | undefined = userWords?.find((data) => data.wordId === word.id)?.difficulty;
-      const isLearned: boolean | undefined = userWords?.find((data) => data.wordId === word.id)?.optional?.learned;
+      const isLearned: boolean = userWords?.find((data) => data.wordId === word.id)?.optional?.learned === true;
 
       const wordCard: WordCard = new WordCard(word, this.color, Difficulty, isLearned);
       listContainerElement.append(wordCard.render());

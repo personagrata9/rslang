@@ -74,7 +74,7 @@ class Sprint extends ApiPage {
   }
 
   private createGame = async (group?: string): Promise<void> => {
-    this.state.initStatistics();
+    await this.state.initStatistics();
     if (this.selectedUnit) {
       this.page = random(NUMBER_OF_PAGES);
       this.gameWords = await this.getWordsItems(this.selectedUnit, String(this.page));
@@ -194,10 +194,10 @@ class Sprint extends ApiPage {
         }
         this.correctAnswers.push(currentWord);
         this.state.setCorrectWords(wordId);
-        await playAudio(`../../static/audio/correct-answer.mp3`);
+        // await playAudio(`../../static/audio/correct-answer.mp3`);
         await this.createWordblock();
       } else {
-        await playAudio(`../../static/audio/bad_answer.mp3`);
+        // await playAudio(`../../static/audio/bad_answer.mp3`);
         this.winstreak = 0;
         this.pointsMultiplier = 10;
         this.borderMultiplier = 3;

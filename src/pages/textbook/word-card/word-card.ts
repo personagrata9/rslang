@@ -159,11 +159,12 @@ class WordCard {
 
           const { optional } = userWord;
           optional.learned = false;
+          optional.repeat = '0';
 
           const wordData: IUserWordNewData = { difficulty: 'hard', optional };
           await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
         } else {
-          const wordData: IUserWordNewData = { difficulty: 'hard', optional: { learned: false, repeat: 0 } };
+          const wordData: IUserWordNewData = { difficulty: 'hard', optional: { learned: false, repeat: '0' } };
 
           await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
         }
@@ -252,7 +253,7 @@ class WordCard {
 
   private createLearnedWordButton = (): HTMLButtonElement => {
     const button: HTMLButtonElement = createButtonElement('button', 'Learned', 'btn', 'btn-learned-word');
-    if (this.isLearned) {
+    if (this.isLearned === true) {
       this.enableLearnedMode(button);
     } else {
       this.disableLearnedMode(button);
@@ -274,7 +275,11 @@ class WordCard {
             wordId: this.word.id,
           });
 
-          const wordData: IUserWordNewData = { difficulty: 'easy', optional: userWord.optional };
+          const { optional } = userWord;
+          optional.learned = true;
+          optional.repeat = '0';
+
+          const wordData: IUserWordNewData = { difficulty: 'easy', optional };
           wordData.optional.learned = true;
 
           await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
@@ -286,7 +291,7 @@ class WordCard {
             this.disableDifficultMode('difficult');
           }
         } else {
-          const wordData: IUserWordNewData = { difficulty: 'easy', optional: { learned: true, repeat: 0 } };
+          const wordData: IUserWordNewData = { difficulty: 'easy', optional: { learned: true, repeat: '0' } };
 
           await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
           this.disableDifficultMode('difficult');

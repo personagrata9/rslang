@@ -60,13 +60,10 @@ export interface IUserNewWord extends IUserWord {
 
 export interface IOptional {
   learned?: boolean;
-  repeat?: number;
-}
-
-export interface IStatistics {
-  id?: string;
-  learnedWords: string;
-  optional?: IOptional;
+  game?: boolean;
+  repeat?: string;
+  correct?: string;
+  wrong?: string;
 }
 
 export enum Methods {
@@ -150,4 +147,13 @@ export interface IDayStatistics {
 
 export interface ILongTermStatistics {
   [key: string]: IDayStatistics;
+}
+
+export interface IUserOptional {
+  longTerm: ILongTermStatistics;
+}
+
+export interface IUserStatistics {
+  learnedWords: string;
+  optional: IUserOptional;
 }
