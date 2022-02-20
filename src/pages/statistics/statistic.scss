@@ -113,63 +113,86 @@
           color: $turquoise;
         }
       }
-      .total-words {
+      .learned-words {
         display: flex;
-        align-items: center;
-        width: 810px !important;
-        height: 450px !important;
+        padding: 20px 55px;
         .words-chart {
+          width: 700px !important;
+          height: 350px !important;
         }
       }
+        .total-learned-words {
+          display: flex;
+          padding: 20px 55px;
+          .learned-words-chart {
+            width: 700px !important;
+            height: 350px !important;
+          }
+        }
     }
   }
 }
 
 @media (max-width: 1050px) {
   .statistic-container {
+    .short-statistic {
+      .short-statistic-container {
+        flex-direction: column;
+        column-gap: 0px;
+        row-gap: 25px;
+
+        .total-statistic {
+          .new-words-container {
+            width: 245px;
+          }
+          .learned-words-container {
+            width: 245px;
+          }
+          .winrate-container {
+            width: 245px;
+          }
+        }
+      }
+    }
     .long-statistic {
       width: auto;
 
       .long-statistic-container {
         flex-direction: column;
-
+        width: 360px;
         .total-winrate {
-          display: flex;
-          width: 350px !important;
-          height: 350px !important;
-
+          padding: 10px;
+          .winrate-chart {
+            width: 350px !important;
+            height: 350px !important;
+          }
           .winrate-percent {
             margin-left: 150px;
             margin-top: 145px;
-            position: absolute;
+            font-size: 30px;
           }
 
           .winrate-text {
-            margin-left: 120px;
+            margin-left: 130px;
             margin-top: 180px;
-            position: absolute;
+            font-size: 25px;
           }
         }
-
-        .total-words {
-          display: flex;
-          align-items: center;
-          width: 350px !important;
-          height: 350px !important;
+        .learned-words {
+          padding: 10px;
+          .words-chart {
+            width: 340px !important;
+            height: 260px !important;
+          }
+        }
+        .total-learned-words {
+          padding: 10px;
+          .learned-words-chart {
+            width: 340px !important;
+            height: 260px !important;
+          }
         }
       }
-    }
-      .short-statistic {
-        .short-statistic-container {
-          flex-direction: column;
-          column-gap: 0px;
-          row-gap: 25px;
-
-          .total-statistic {
-            flex-direction: row;
-            column-gap: 25px;
-          }
-        }
     }
   }
 }
