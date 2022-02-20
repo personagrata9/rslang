@@ -76,20 +76,20 @@
       }
     }
   }
-    .long-statistic {
-      font-size: 35px;
-      color: $turquoise;
-      margin: 0 auto;
-      width: 810px;
-      .long-statistic-container {
-        display: flex;
-        flex-direction: column;
-        row-gap: 25px;
-        .container {
-          padding: 10px;
-          border-radius: 10px;
-          box-shadow: 0px 0px 8px 6px rgba(1, 82, 105, 0.37);
-        }
+  .long-statistic {
+    font-size: 35px;
+    color: $turquoise;
+    margin: 0 auto;
+    width: 810px;
+    .long-statistic-container {
+      display: flex;
+      flex-direction: column;
+      row-gap: 25px;
+      .container {
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 8px 6px rgba(1, 82, 105, 0.37);
+      }
       .total-winrate {
         display: flex;
         padding: 20px 55px;
@@ -121,14 +121,14 @@
           height: 350px !important;
         }
       }
-        .total-learned-words {
-          display: flex;
-          padding: 20px 55px;
-          .learned-words-chart {
-            width: 700px !important;
-            height: 350px !important;
-          }
+      .total-learned-words {
+        display: flex;
+        padding: 20px 55px;
+        .learned-words-chart {
+          width: 700px !important;
+          height: 350px !important;
         }
+      }
     }
   }
 }
