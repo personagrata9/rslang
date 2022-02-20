@@ -119,7 +119,6 @@ export interface IAggregatedResult {
 }
 
 export interface IGameStatistics {
-  gameWords: Set<string>;
   new: Set<string>;
   correct: Map<string, number>;
   wrong: Map<string, number>;
@@ -140,4 +139,13 @@ export interface IGameStatisticsTotal {
 
 export interface IGameStatisticsStr {
   [key: string]: string;
+}
+
+export interface ILongTermStatisticsItem {
+  newPerDay: number;
+  learnedPerDay: number;
+}
+
+export interface ILongTermStatistics {
+  [key: string]: ILongTermStatisticsItem;
 }
