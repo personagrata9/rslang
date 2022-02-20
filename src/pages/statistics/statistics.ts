@@ -1,8 +1,9 @@
 import { Chart, ChartConfiguration, ChartItem, registerables } from 'chart.js';
 import { createElement } from '../../common/utils';
 import { GROUP_COLORS } from '../../common/constants';
-import { ILongTermStatistics } from '../../common/types';
+import { ILongTermStatistics, IUserStatistics } from '../../common/types';
 import { parseTotalStatistics } from '../../state/helpers';
+import Api from '../../api/api';
 
 class Statistics {
   private statistics: HTMLElement;
@@ -15,12 +16,15 @@ class Statistics {
 
   private todayNewWords: number;
 
+  private api: Api;
+
   constructor() {
     this.statistics = createElement('div', ['statistic-wrapper']);
     this.totalCorrect = 0;
     this.totalWrong = 0;
     this.todayNewWords = 0;
     this.todayLearnedWords = 0;
+    this.api = new Api();
   }
 
   async render(): Promise<void> {
@@ -47,7 +51,7 @@ class Statistics {
   };
 
   private createShortStatistic = async (): Promise<HTMLElement> => {
-    const statistic = <{ [key: string]: number }>await this.getStatistic();
+    const statistic = <{ [key: string]: number }>await this.getShortStatistic();
     this.todayNewWords = statistic.newWordsNum;
     this.todayLearnedWords = statistic.totalLearned;
     const shortStatisticContainer = createElement('div', ['short-statistic-container']);
@@ -95,10 +99,11 @@ class Statistics {
     return longStatisticContainer;
   };
 
-  private getStatistic = async (): Promise<{
+  private getShortStatistic = async (): Promise<{
     [key: string]: number;
   }> => {
-    const shortStatistic = parseTotalStatistics(localStorage.getItem('statistics') || '');
+    const userStatistics = localStorage.getItem(`statistics${localStorage.getItem('UserId') || ''}`) || '';
+    const shortStatistic = parseTotalStatistics(userStatistics);
     const reducer = (obj: object) =>
       Object.values(obj)
         .map(Number)
@@ -129,6 +134,43 @@ class Statistics {
       audioNewWordsNum,
       audioWinrateNum,
       audioWinstreakNum,
+    };
+  };
+
+  private getLongStatistic = async () => {
+    const dateArr: string[] = [];
+    const learnedWordsArr: number[] = [];
+    const newWordsArr: number[] = [];
+    let userStatistic;
+    if (localStorage.getItem('UserId')) {
+      await this.api.getStatistics(localStorage.getItem('UserId') || '').then((result: IUserStatistics) => {
+        userStatistic = result.optional.longTerm;
+        Object.entries(userStatistic).forEach((e) => {
+          dateArr.push(e[0]);
+          learnedWordsArr.push(e[1].learned);
+          newWordsArr.push(e[1].new);
+        });
+      });
+    } else {
+      const longStatistic = Object.entries(
+        <ILongTermStatistics>await JSON.parse(localStorage.getItem('longTermStatistics') || '')
+      );
+      longStatistic.forEach((e) => {
+        dateArr.push(e[0]);
+        learnedWordsArr.push(e[1].learned);
+      });
+    }
+    const updateDateArr = dateArr.map((el) => {
+      const year = el.slice(0, 4);
+      const month = el.slice(4, 6);
+      const day = el.slice(6, 9);
+      return `${day}.${month}.${year}`;
+    });
+    return {
+      userStatistic,
+      updateDateArr,
+      learnedWordsArr,
+      newWordsArr,
     };
   };
 
@@ -174,10 +216,11 @@ class Statistics {
   };
 
   private winrateChart = async (): Promise<void> => {
-    const longStatistic = Object.values(
-      <ILongTermStatistics>await JSON.parse(localStorage.getItem('longTermStatistics') || '')
+    const longStatistic = <{ userStatistic: ILongTermStatistics; updateDateArr: string[]; wordsArr: number[] }>(
+      (<unknown>await this.getLongStatistic())
     );
-    longStatistic.forEach((e) => {
+    const statistics = longStatistic.userStatistic;
+    Object.values(statistics).forEach((e) => {
       this.totalWrong += +e.wrong;
       this.totalCorrect += +e.correct;
     });
@@ -208,22 +251,8 @@ class Statistics {
   };
 
   private learnedWordsChart = async (): Promise<void> => {
-    const longStatistic = Object.entries(
-      <ILongTermStatistics>await JSON.parse(localStorage.getItem('longTermStatistics') || '')
-    );
-    const dateArr: string[] = [];
-    const wordsArr: number[] = [];
-    longStatistic.forEach((e) => {
-      dateArr.push(e[0]);
-      wordsArr.push(e[1].new);
-    });
-    const updateDateArr = dateArr.map((el) => {
-      const year = el.slice(0, 4);
-      const month = el.slice(4, 6);
-      const day = el.slice(6, 9);
-      return `${day}.${month}.${year}`;
-    });
-    const labels = updateDateArr;
+    const statistic = await this.getLongStatistic();
+    const labels = statistic.updateDateArr;
     Chart.register(...registerables);
     const data = {
       labels,
@@ -231,7 +260,7 @@ class Statistics {
         {
           label: 'New words per day',
           backgroundColor: [...GROUP_COLORS],
-          data: wordsArr,
+          data: statistic.newWordsArr.map((el, i, arr1) => arr1.slice(0, i + 1).reduce((a, b) => a + b)),
         },
       ],
     };
@@ -251,7 +280,7 @@ class Statistics {
         scales: {
           y: {
             suggestedMin: 0,
-            suggestedMax: Math.max(...wordsArr) + 5,
+            suggestedMax: Math.max(...statistic.newWordsArr) + 5,
           },
           x: {
             display: false,
@@ -264,22 +293,8 @@ class Statistics {
   };
 
   private allLearnedWordsChart = async (): Promise<void> => {
-    const longStatistic = Object.entries(
-      <ILongTermStatistics>await JSON.parse(localStorage.getItem('longTermStatistics') || '')
-    );
-    const dateArr: string[] = [];
-    const wordsArr: number[] = [];
-    longStatistic.forEach((e) => {
-      dateArr.push(e[0]);
-      wordsArr.push(e[1].learned);
-    });
-    const updateDateArr = dateArr.map((el) => {
-      const year = el.slice(0, 4);
-      const month = el.slice(4, 6);
-      const day = el.slice(6, 9);
-      return `${day}.${month}.${year}`;
-    });
-    const labels = updateDateArr;
+    const statistic = await this.getLongStatistic();
+    const labels = statistic.updateDateArr;
     Chart.register(...registerables);
     const data = {
       labels,
@@ -288,7 +303,7 @@ class Statistics {
           label: 'Total learned words',
           backgroundColor: [...GROUP_COLORS],
           borderColor: GROUP_COLORS[0],
-          data: wordsArr.map((el, i, arr1) => arr1.slice(0, i + 1).reduce((a, b) => a + b)),
+          data: statistic.learnedWordsArr.map((el, i, arr1) => arr1.slice(0, i + 1).reduce((a, b) => a + b)),
         },
       ],
     };
@@ -308,7 +323,7 @@ class Statistics {
         scales: {
           y: {
             suggestedMin: 0,
-            suggestedMax: Math.max(...wordsArr) + 5,
+            suggestedMax: Math.max(...statistic.learnedWordsArr) + 5,
           },
           x: {
             display: false,

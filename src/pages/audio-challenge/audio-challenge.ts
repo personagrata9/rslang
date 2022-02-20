@@ -356,8 +356,12 @@ class AudioChallenge extends ApiPage {
       if (currentWordId) this.state.setWrongWords(currentWordId);
     });
     const footerBtns = createElement('div', ['footer-btns']);
-    const rulesBtn = createButtonElement('button', 'to start', 'btn', 'to-rules-btn');
-    const textbookBtn = createAnchorElement('#textbook', 'to textbook', 'btn', 'to-textbook-btn');
+    const rulesBtn = createButtonElement('button', 'to start', 'btn', 'to-rules-btn', 'disabled');
+    const textbookBtn = createAnchorElement('#textbook', 'to textbook', 'btn', 'to-textbook-btn', 'disabled');
+    setTimeout(() => {
+      rulesBtn.classList.remove('disabled');
+      textbookBtn.classList.remove('disabled');
+    }, 2000);
     footerBtns.append(rulesBtn, textbookBtn);
     rulesBtn.onclick = async () => {
       localStorage.removeItem('isTextbook');

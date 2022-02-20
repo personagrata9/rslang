@@ -61,6 +61,7 @@ class App {
     };
 
     const routes: RoutesType = {
+      '#main': main,
       '': main,
       '#audio-challenge': audioChallenge,
       '#sprint': sprint,
@@ -87,7 +88,7 @@ class App {
       contentContainer.removeChild(contentContainer.firstChild);
     }
     contentContainer.classList.add('preloader');
-    if (page instanceof ApiPage) {
+    if (page instanceof ApiPage || page instanceof Statistics) {
       await page.render();
     } else {
       page.render();
