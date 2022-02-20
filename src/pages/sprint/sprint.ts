@@ -107,7 +107,7 @@ class Sprint extends ApiPage {
       const currentResult = createElement('h2', ['word-container__title']);
       currentResult.textContent = `Current result is ${this.pointsCount}`;
       const pointsPerWord = createElement('p', []);
-      pointsPerWord.textContent = `${this.pointsMultiplier}`;
+      pointsPerWord.textContent = `x${this.pointsMultiplier}`;
       const wordBlock = createElement('div', ['word-block']);
       const englishWord = createElement('p', ['current-word']);
       const translatedWord = createElement('p', ['answer-word']);
