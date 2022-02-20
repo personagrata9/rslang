@@ -4,6 +4,8 @@ import {
   IGameStatistics,
   IGameStatisticsStr,
   IGameStatisticsTotal,
+  ILongTermStatistics,
+  ILongTermStatisticsItem,
   IUserWordData,
   IUserWordNewData,
   IWord,
@@ -15,9 +17,11 @@ class State {
 
   private userId: string | null;
 
-  private statisticsState: IGameStatisticsTotal | null;
+  private statistics: IGameStatisticsTotal | null;
 
-  private initStatistics: IGameStatisticsTotal = {
+  private longTermStatistics: ILongTermStatistics;
+
+  private initialStatistics: IGameStatisticsTotal = {
     date: convertDate(new Date()),
     totalGameWords: new Set([]),
     totalNew: new Set([]),
@@ -26,14 +30,12 @@ class State {
     totalLearned: new Set([]),
     totalRepeats: new Map([]),
     audioChallenge: {
-      gameWords: new Set([]),
       new: new Set([]),
       correct: new Map([]),
       wrong: new Map([]),
       bestSeries: 0,
     },
     sprint: {
-      gameWords: new Set([]),
       new: new Set([]),
       correct: new Map([]),
       wrong: new Map([]),
@@ -41,17 +43,19 @@ class State {
     },
   };
 
+  private initialLongTermStatistics: ILongTermStatistics = {};
+
   constructor(private readonly name: ApiPageNameType) {
     this.name = name;
-    this.statisticsState = null;
     this.userId = localStorage.getItem('UserId');
     this.api = new Api();
+    this.statistics = null;
+    this.longTermStatistics = {};
   }
 
-  private stringifyGameState = (obj: IGameStatistics): string => {
+  private stringifyGameStatistics = (obj: IGameStatistics): string => {
     const stringifiedValues: IGameStatisticsStr = {
-      gameWords: Array.from(obj.gameWords).toString(),
-      new: Array.from(obj.gameWords).toString(),
+      new: Array.from(obj.new).toString(),
       correct: Array.from(obj.correct.entries()).toString(),
       wrong: Array.from(obj.wrong.entries()).toString(),
       bestSeries: obj.bestSeries.toString(),
@@ -59,26 +63,25 @@ class State {
     return JSON.stringify(stringifiedValues);
   };
 
-  private stringifyTotalState = (obj: IGameStatisticsTotal): string => {
+  private stringifyTotalStatistics = (obj: IGameStatisticsTotal): string => {
     const stringifiedValues: IGameStatisticsStr = {
       date: obj.date.toString(),
       totalGameWords: Array.from(obj.totalGameWords).toString(),
-      totalNew: Array.from(obj.totalGameWords).toString(),
+      totalNew: Array.from(obj.totalNew).toString(),
       totalCorrect: Array.from(obj.totalCorrect.entries()).toString(),
       totalWrong: Array.from(obj.totalWrong.entries()).toString(),
       totalLearned: Array.from(obj.totalLearned).toString(),
       totalRepeats: Array.from(obj.totalRepeats.entries()).toString(),
-      audioChallenge: this.stringifyGameState(obj.audioChallenge),
-      sprint: this.stringifyGameState(obj.sprint),
+      audioChallenge: this.stringifyGameStatistics(obj.audioChallenge),
+      sprint: this.stringifyGameStatistics(obj.sprint),
     };
     return JSON.stringify(stringifiedValues);
   };
 
-  private parseGameState = (storage: string): IGameStatistics => {
+  private parseGameStatistics = (storage: string): IGameStatistics => {
     const parsedStorage = JSON.parse(storage) as IGameStatisticsStr;
 
     return {
-      gameWords: setFromString(parsedStorage.gameWords),
       new: setFromString(parsedStorage.new),
       correct: mapFromString(parsedStorage.correct),
       wrong: mapFromString(parsedStorage.wrong),
@@ -86,7 +89,7 @@ class State {
     };
   };
 
-  private parseTotalState = (storage: string): IGameStatisticsTotal => {
+  private parseTotalStatistics = (storage: string): IGameStatisticsTotal => {
     const parsedStorage = JSON.parse(storage) as IGameStatisticsStr;
 
     return {
@@ -97,9 +100,78 @@ class State {
       totalWrong: mapFromString(parsedStorage.totalWrong),
       totalLearned: setFromString(parsedStorage.totalLearned),
       totalRepeats: mapFromString(parsedStorage.totalRepeats),
-      audioChallenge: this.parseGameState(parsedStorage.audioChallenge),
-      sprint: this.parseGameState(parsedStorage.sprint),
+      audioChallenge: this.parseGameStatistics(parsedStorage.audioChallenge),
+      sprint: this.parseGameStatistics(parsedStorage.sprint),
     };
+  };
+
+  private setStatistics = (): void => {
+    if (this.longTermStatistics) {
+      localStorage.setItem('longTermStatistics', JSON.stringify(this.longTermStatistics));
+    }
+    if (this.statistics) {
+      localStorage.setItem('statistics', this.stringifyTotalStatistics(this.statistics));
+    }
+    console.log('set', this.statistics);
+  };
+
+  private initLongTermStatistics = (): void => {
+    const storage: string | null = localStorage.getItem('longTermStatistics');
+    if (!storage) {
+      this.longTermStatistics = this.initialLongTermStatistics;
+    } else {
+      this.longTermStatistics = JSON.parse(storage) as ILongTermStatistics;
+    }
+  };
+
+  private initCurrentStatistics = (): void => {
+    const storage: string | null = localStorage.getItem('statistics');
+    if (!storage) {
+      this.statistics = this.initialStatistics;
+    } else {
+      this.statistics = this.parseTotalStatistics(storage);
+      const stateDate = this.statistics.date;
+      const todayDate = convertDate(new Date());
+
+      console.log('state', stateDate, 'today', todayDate);
+      if (stateDate !== todayDate) {
+        const prevStatistics: ILongTermStatisticsItem = {
+          newPerDay: this.statistics.totalNew.size,
+          learnedPerDay: this.statistics.totalLearned.size,
+        };
+
+        this.longTermStatistics[stateDate] = prevStatistics;
+        // this.statistics.date = todayDate;
+        // this.statistics.totalNew = new Set([]);
+      }
+
+      //       date: convertDate(new Date()),
+      // totalGameWords: new Set([]),
+      // totalNew: new Set([]),
+      // totalCorrect: new Map([]),
+      // totalWrong: new Map([]),
+      // totalLearned: new Set([]),
+      // totalRepeats: new Map([]),
+      // audioChallenge: {
+      //   new: new Set([]),
+      //   correct: new Map([]),
+      //   wrong: new Map([]),
+      //   bestSeries: 0,
+      // },
+      // sprint: {
+      //   new: new Set([]),
+      //   correct: new Map([]),
+      //   wrong: new Map([]),
+      //   bestSeries: 0,
+      // },
+    }
+  };
+
+  initStatistics = (): void => {
+    this.initLongTermStatistics();
+    this.initCurrentStatistics();
+    this.setStatistics();
+    console.log('init', this.longTermStatistics, this.statistics);
   };
 
   protected getDifficultUserWords = async (): Promise<IWord[]> => {
@@ -112,63 +184,71 @@ class State {
     );
   };
 
-  setGameWords = (wordId: string): void => {
-    if (this.statisticsState) {
-      this.statisticsState.totalGameWords.add(wordId);
+  // check
+  setNewWords = (wordId: string): void => {
+    if (this.statistics) {
       if (this.name === 'sprint') {
-        this.statisticsState.sprint.gameWords.add(wordId);
+        if (!this.statistics.totalGameWords.has(wordId)) {
+          this.statistics.sprint.new.add(wordId);
+          this.statistics.totalNew.add(wordId);
+        }
+        this.statistics.totalGameWords.add(wordId);
       }
       if (this.name === 'audio-challenge') {
-        this.statisticsState.audioChallenge.gameWords.add(wordId);
+        if (!this.statistics.totalGameWords.has(wordId)) {
+          this.statistics.audioChallenge.new.add(wordId);
+          this.statistics.totalNew.add(wordId);
+        }
+        this.statistics.totalGameWords.add(wordId);
       }
     }
   };
 
   setCorrectWords = (wordId: string): void => {
-    if (this.statisticsState) {
-      if (this.statisticsState.totalCorrect.has(wordId)) {
-        const totalValue = this.statisticsState.totalCorrect.get(wordId);
-        if (typeof totalValue === 'number') this.statisticsState.totalCorrect.set(wordId, totalValue + 1);
+    if (this.statistics) {
+      if (this.statistics.totalCorrect.has(wordId)) {
+        const totalValue = this.statistics.totalCorrect.get(wordId);
+        if (typeof totalValue === 'number') this.statistics.totalCorrect.set(wordId, totalValue + 1);
         if (this.name === 'sprint') {
-          const value = this.statisticsState.sprint.correct.get(wordId);
-          if (typeof value === 'number') this.statisticsState.sprint.correct.set(wordId, value + 1);
+          const value = this.statistics.sprint.correct.get(wordId);
+          if (typeof value === 'number') this.statistics.sprint.correct.set(wordId, value + 1);
         }
         if (this.name === 'audio-challenge') {
-          const value = this.statisticsState.audioChallenge.correct.get(wordId);
-          if (typeof value === 'number') this.statisticsState.audioChallenge.correct.set(wordId, value + 1);
+          const value = this.statistics.audioChallenge.correct.get(wordId);
+          if (typeof value === 'number') this.statistics.audioChallenge.correct.set(wordId, value + 1);
         }
       } else {
-        this.statisticsState.totalCorrect.set(wordId, 1);
+        this.statistics.totalCorrect.set(wordId, 1);
         if (this.name === 'sprint') {
-          this.statisticsState.sprint.correct.set(wordId, 1);
+          this.statistics.sprint.correct.set(wordId, 1);
         }
         if (this.name === 'audio-challenge') {
-          this.statisticsState.audioChallenge.correct.set(wordId, 1);
+          this.statistics.audioChallenge.correct.set(wordId, 1);
         }
       }
     }
   };
 
   setWrongWords = (wordId: string): void => {
-    if (this.statisticsState) {
-      if (this.statisticsState.totalWrong.has(wordId)) {
-        const totalValue = this.statisticsState.totalWrong.get(wordId);
-        if (typeof totalValue === 'number') this.statisticsState.totalWrong.set(wordId, totalValue + 1);
+    if (this.statistics) {
+      if (this.statistics.totalWrong.has(wordId)) {
+        const totalValue = this.statistics.totalWrong.get(wordId);
+        if (typeof totalValue === 'number') this.statistics.totalWrong.set(wordId, totalValue + 1);
         if (this.name === 'sprint') {
-          const value = this.statisticsState.sprint.wrong.get(wordId);
-          if (typeof value === 'number') this.statisticsState.sprint.wrong.set(wordId, value + 1);
+          const value = this.statistics.sprint.wrong.get(wordId);
+          if (typeof value === 'number') this.statistics.sprint.wrong.set(wordId, value + 1);
         }
         if (this.name === 'audio-challenge') {
-          const value = this.statisticsState.audioChallenge.wrong.get(wordId);
-          if (typeof value === 'number') this.statisticsState.audioChallenge.wrong.set(wordId, value + 1);
+          const value = this.statistics.audioChallenge.wrong.get(wordId);
+          if (typeof value === 'number') this.statistics.audioChallenge.wrong.set(wordId, value + 1);
         }
       } else {
-        this.statisticsState.totalWrong.set(wordId, 1);
+        this.statistics.totalWrong.set(wordId, 1);
         if (this.name === 'sprint') {
-          this.statisticsState.sprint.wrong.set(wordId, 1);
+          this.statistics.sprint.wrong.set(wordId, 1);
         }
         if (this.name === 'audio-challenge') {
-          this.statisticsState.audioChallenge.wrong.set(wordId, 1);
+          this.statistics.audioChallenge.wrong.set(wordId, 1);
         }
       }
     }
@@ -176,31 +256,13 @@ class State {
 
   setMaxWinstreak = (maxWinstreak: number): void => {
     if (this.name === 'sprint') {
-      if (this.statisticsState && this.statisticsState.sprint.bestSeries < maxWinstreak)
-        this.statisticsState.sprint.bestSeries = maxWinstreak;
+      if (this.statistics && this.statistics.sprint.bestSeries < maxWinstreak)
+        this.statistics.sprint.bestSeries = maxWinstreak;
     }
     if (this.name === 'audio-challenge') {
-      if (this.statisticsState && this.statisticsState.audioChallenge.bestSeries < maxWinstreak)
-        this.statisticsState.audioChallenge.bestSeries = maxWinstreak;
+      if (this.statistics && this.statistics.audioChallenge.bestSeries < maxWinstreak)
+        this.statistics.audioChallenge.bestSeries = maxWinstreak;
     }
-  };
-
-  private setGameState = (): void => {
-    if (this.statisticsState) {
-      localStorage.setItem('statistics', this.stringifyTotalState(this.statisticsState));
-    }
-    console.log('set', this.statisticsState);
-  };
-
-  initGameState = (): void => {
-    const storage: string | null = localStorage.getItem('statistics');
-    if (!storage) {
-      this.statisticsState = this.initStatistics;
-    } else {
-      this.statisticsState = this.parseTotalState(storage);
-    }
-    this.setGameState();
-    // console.log('init', this.statisticsState);
   };
 
   updateGameState = async (): Promise<void> => {
@@ -210,12 +272,12 @@ class State {
       : [];
     const difficultWords = await this.getDifficultUserWords();
 
-    if (storage && this.statisticsState) {
-      const prevStatistics: IGameStatisticsTotal = this.parseTotalState(storage);
+    if (storage && this.statistics) {
+      const prevStatistics: IGameStatisticsTotal = this.parseTotalStatistics(storage);
       console.log('prev', prevStatistics);
 
       const newWrong: string[] = [];
-      this.statisticsState.totalWrong.forEach((value, wordId) => {
+      this.statistics.totalWrong.forEach((value, wordId) => {
         if (prevStatistics.totalWrong.has(wordId)) {
           const oldValue = prevStatistics.totalWrong.get(wordId);
           if (oldValue && value > oldValue) newWrong.push(wordId);
@@ -224,14 +286,14 @@ class State {
         }
       });
       newWrong.forEach((wordId) => {
-        if (this.statisticsState) {
-          this.statisticsState.totalLearned.delete(wordId);
-          this.statisticsState.totalRepeats.set(wordId, 0);
+        if (this.statistics) {
+          this.statistics.totalLearned.delete(wordId);
+          this.statistics.totalRepeats.set(wordId, 0);
         }
       });
 
       const newCorrect: string[] = [];
-      this.statisticsState.totalCorrect.forEach((value, wordId) => {
+      this.statistics.totalCorrect.forEach((value, wordId) => {
         if (prevStatistics.totalCorrect.has(wordId)) {
           const oldValue = prevStatistics.totalCorrect.get(wordId);
           if (oldValue && value > oldValue) newCorrect.push(wordId);
@@ -241,31 +303,31 @@ class State {
       });
 
       newCorrect.forEach((wordId) => {
-        if (this.statisticsState) {
-          if (this.statisticsState.totalRepeats.has(wordId)) {
-            const value = this.statisticsState.totalRepeats.get(wordId);
+        if (this.statistics) {
+          if (this.statistics.totalRepeats.has(wordId)) {
+            const value = this.statistics.totalRepeats.get(wordId);
             if (typeof value === 'number') {
-              this.statisticsState.totalRepeats.set(wordId, value + 1);
+              this.statistics.totalRepeats.set(wordId, value + 1);
             }
           } else {
-            this.statisticsState.totalRepeats.set(wordId, 1);
+            this.statistics.totalRepeats.set(wordId, 1);
           }
         }
       });
 
       if (this.userId) {
-        const entries = Object.entries(Object.fromEntries(this.statisticsState.totalRepeats));
+        const entries = Object.entries(Object.fromEntries(this.statistics.totalRepeats));
 
         entries.map(async (entry: [string, number]) => {
           const wordId: string = entry[0];
           const repeat: number = entry[1];
 
-          if (this.userId && this.statisticsState) {
+          if (this.userId && this.statistics) {
             if (
               (difficultWords.find((word) => word.id === wordId) && repeat === 5) ||
               (!difficultWords.find((word) => word.id === wordId) && repeat === 3)
             ) {
-              this.statisticsState.totalLearned.add(wordId);
+              this.statistics.totalLearned.add(wordId);
               const wordData: IUserWordNewData = { difficulty: 'easy', optional: { learned: true, repeat } };
               await this.api.updateUserWord({ userId: this.userId, wordId, wordData });
             } else if (userWords.find((word) => word.wordId === wordId)) {
@@ -286,15 +348,15 @@ class State {
           }
         });
       } else {
-        this.statisticsState.totalRepeats.forEach((value, wordId) => {
-          if (this.statisticsState && value === 3) {
-            this.statisticsState.totalLearned.add(wordId);
+        this.statistics.totalRepeats.forEach((value, wordId) => {
+          if (this.statistics && value === 3) {
+            this.statistics.totalLearned.add(wordId);
           }
         });
       }
     }
 
-    this.setGameState();
+    this.setStatistics();
   };
 
   // updateApiStatistics = (): void => {

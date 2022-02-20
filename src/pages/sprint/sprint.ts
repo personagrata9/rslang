@@ -10,10 +10,6 @@ import {
 import ApiPage from '../api-page';
 import { IWord } from '../../common/types';
 import { BASE_URL, NUMBER_OF_PAGES } from '../../common/constants';
-<<<<<<< HEAD
-=======
-// import { sprintStatistics, stringifyGameState } from './gameStatistic';
->>>>>>> 3d73784 (feat: add statistics state for interaction wirh localStorage)
 import svgAudio from '../audio-challenge/audio';
 
 class Sprint extends ApiPage {
@@ -138,11 +134,7 @@ class Sprint extends ApiPage {
             generatedAnswer.currentWord
           ).then(async () => {
             if (!isWordsLoaded) await this.resultWindow();
-<<<<<<< HEAD
             // console.log('right-btn-res');
-=======
-            console.log('right-btn-res');
->>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
           });
         }
       };
@@ -164,11 +156,7 @@ class Sprint extends ApiPage {
             generatedAnswer.currentWord
           ).then(async () => {
             if (!isWordsLoaded) await this.resultWindow();
-<<<<<<< HEAD
             // console.log('wrong-btn-res');
-=======
-            console.log('wrong-btn-res');
->>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
           });
         }
       };
@@ -184,18 +172,7 @@ class Sprint extends ApiPage {
     // eslint-disable-next-line no-underscore-dangle
     const wordId = currentWord.id || currentWord._id;
     if (wordId) {
-<<<<<<< HEAD
-<<<<<<< HEAD
       this.state.setNewWords(wordId);
-=======
-      this.state.updateNewWords(wordId);
->>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
-=======
-      if (this.statistics && !this.statistics.totalNewWords.has(wordId)) {
-        this.statistics.totalNewWords.add(wordId);
-        this.statistics.sprint.newWords.add(wordId);
-      }
->>>>>>> 3d73784 (feat: add statistics state for interaction wirh localStorage)
       const bonusChecker = document.querySelectorAll('.bonus-check');
       if (condition) {
         this.pointsCount += this.pointsMultiplier;
@@ -224,25 +201,7 @@ class Sprint extends ApiPage {
           bonusChecker[2].removeAttribute('checked');
         }
         this.correctAnswers.push(currentWord);
-<<<<<<< HEAD
-<<<<<<< HEAD
         this.state.setCorrectWords(wordId);
-=======
-        this.state.updateCorrectWords(wordId);
->>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
-=======
-        if (this.statistics) {
-          if (this.statistics.totalCorrect.has(wordId)) {
-            const totalValue = <number>this.statistics.totalCorrect.get(wordId);
-            this.statistics.totalCorrect.set(wordId, totalValue + 1);
-            const value = <number>this.statistics.sprint.correct.get(wordId);
-            this.statistics.sprint.correct.set(wordId, value + 1);
-          } else {
-            this.statistics.totalCorrect.set(wordId, 1);
-            this.statistics.sprint.correct.set(wordId, 1);
-          }
-        }
->>>>>>> 3d73784 (feat: add statistics state for interaction wirh localStorage)
         // await playAudio(`../../static/audio/correct-answer.mp3`);
         await this.createWordblock();
       } else {
@@ -251,25 +210,7 @@ class Sprint extends ApiPage {
         this.pointsMultiplier = 10;
         this.borderMultiplier = 3;
         this.wrongAnswers.push(currentWord);
-<<<<<<< HEAD
-<<<<<<< HEAD
         this.state.setWrongWords(wordId);
-=======
-        this.state.updateWrongWords(wordId);
->>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
-=======
-        if (this.statistics) {
-          if (this.statistics.totalWrong.has(wordId)) {
-            const totalValue = <number>this.statistics.totalWrong.get(wordId);
-            this.statistics.totalWrong.set(wordId, totalValue + 1);
-            const value = <number>this.statistics.sprint.wrong.get(wordId);
-            this.statistics.sprint.wrong.set(wordId, value + 1);
-          } else {
-            this.statistics.totalWrong.set(wordId, 1);
-            this.statistics.sprint.wrong.set(wordId, 1);
-          }
-        }
->>>>>>> 3d73784 (feat: add statistics state for interaction wirh localStorage)
         bonusChecker[0].removeAttribute('checked');
         bonusChecker[1].removeAttribute('checked');
         bonusChecker[2].removeAttribute('checked');
@@ -282,11 +223,7 @@ class Sprint extends ApiPage {
     const currentWord = this.gameWords[this.counter];
     if (!currentWord) {
       await this.resultWindow();
-<<<<<<< HEAD
       // console.log('compare-res');
-=======
-      console.log('compare-res');
->>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
       return undefined;
     }
 
@@ -383,7 +320,6 @@ class Sprint extends ApiPage {
 
     this.resultTimer = new Promise((resolve) => {
       const interval = setInterval(() => {
-<<<<<<< HEAD
         // console.log('in-res-timer');
         const timer = <HTMLElement>document.querySelector('.timer');
         if (!timer) {
@@ -392,16 +328,6 @@ class Sprint extends ApiPage {
         }
         if (timer && +timer.innerHTML < 0) {
           // console.log('stop-res-timer-2');
-=======
-        console.log('in-res-timer');
-        const timer = <HTMLElement>document.querySelector('.timer');
-        if (!timer) {
-          console.log('stop-res-timer-1');
-          clearInterval(interval);
-        }
-        if (timer && +timer.innerHTML < 0) {
-          console.log('stop-res-timer-2');
->>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
           resolve(this.resultWindow());
           clearInterval(interval);
         }
@@ -431,17 +357,7 @@ class Sprint extends ApiPage {
     const wordsBlock = createElement('div', ['words-block', 'hide']);
     blockWrapper.append(resultBlock, wordsBlock);
     resultBlock.append(this.createResultCircle());
-<<<<<<< HEAD
-<<<<<<< HEAD
     this.state.setMaxWinstreak(this.maxWinstreak);
-=======
-    this.state.updateMaxWinstreak(this.maxWinstreak);
->>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
-=======
-    if (this.statistics && this.statistics.sprint.bestSeries < this.maxWinstreak) {
-      this.statistics.sprint.bestSeries = this.maxWinstreak;
-    }
->>>>>>> 3d73784 (feat: add statistics state for interaction wirh localStorage)
     const rightAnswerCount = createElement('span', ['right-answer-count']);
     const wrongAnswerCount = createElement('span', ['wrong-answer-count']);
     const correctAnswerBlock = createElement('div', ['correct-answer-block']);
@@ -466,15 +382,7 @@ class Sprint extends ApiPage {
     this.sprintGamePage.append(resultWrapper);
     localStorage.removeItem('isTextbook');
 
-<<<<<<< HEAD
-<<<<<<< HEAD
     await this.state.updateGameState();
-=======
-    await this.state.update();
->>>>>>> 665b06f (refactor: update statistics state for interaction wirh localStorage)
-=======
-    this.setStatistics();
->>>>>>> 3d73784 (feat: add statistics state for interaction wirh localStorage)
 
     this.restoreValues();
     // console.log('result');
