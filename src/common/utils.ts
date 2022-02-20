@@ -1,4 +1,4 @@
-import { IWord, Methods } from './types';
+import { IWord, Methods, StringObjectType } from './types';
 
 export const createElement = (teg: string, classNames: string[], innerText?: string): HTMLElement => {
   const element = document.createElement(teg);
@@ -125,3 +125,8 @@ export const shuffle = (array: IWord[]): IWord[] => {
   array.sort(() => Math.random() - 0.5);
   return array;
 };
+
+export const sumOfObjectValues = (obj: StringObjectType): number =>
+  Object.values(obj)
+    .map(Number)
+    .reduce((a, b) => a + b, 0);

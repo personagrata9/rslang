@@ -122,6 +122,13 @@ export interface IGameStatistics {
   bestSeries: number;
 }
 
+export interface IGameStatisticsApi {
+  new: number;
+  correct: number;
+  wrong: number;
+  bestSeries: number;
+}
+
 export interface IGameStatisticsTotal {
   date: string;
   totalGameWords: Set<string>;
@@ -149,11 +156,13 @@ export interface ILongTermStatistics {
   [key: string]: IDayStatistics;
 }
 
-export interface IUserOptional {
+export interface IStatiscticsOptional {
   longTerm: ILongTermStatistics;
+  audioChallenge: IGameStatisticsApi;
+  sprint: IGameStatisticsApi;
 }
 
 export interface IUserStatistics {
   learnedWords: string;
-  optional: IUserOptional;
+  optional: IStatiscticsOptional;
 }

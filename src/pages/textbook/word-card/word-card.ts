@@ -162,7 +162,6 @@ class WordCard {
           optional.repeat = '0';
 
           const wordData: IUserWordNewData = { difficulty: 'hard', optional };
-          console.log(wordData);
           await this.api.updateUserWord({ userId: this.userId, wordId: this.word.id, wordData });
         } else {
           const wordData: IUserWordNewData = { difficulty: 'hard', optional: { learned: false, repeat: '0' } };
