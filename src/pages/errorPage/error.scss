@@ -1,0 +1,26 @@
+@import '../../styles/common';
+.error-page {
+  // justify-content: center;
+  text-align: center;
+  width: 100%;
+}
+.error-page-inner {
+  margin: 0 auto;
+  margin-top: 200px;
+  font-size: 50px;
+  width: 250px;
+  height: 250px;
+  border: solid 10px $turquoise-dark;
+  color: $turquoise;
+  border-radius: 75%;
+}
+.error-page-inner-text {
+  width: 100px;
+  height: 80px;
+  margin-left: 65px;
+  margin-top: 70px;
+}
+.error-page-text {
+  font-size: 30px;
+  color: $turquoise-dark;
+}
