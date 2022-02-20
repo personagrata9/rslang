@@ -361,12 +361,16 @@ class Sprint extends ApiPage {
       inCorrectAnswerBlock.append(this.addBoxResults(e));
     });
     const footerBtns = createElement('div', ['footer-btns']);
-    const rulesBtn = createButtonElement('button', 'to start', 'btn', 'to-rules-btn');
-    const textbookBtn = createAnchorElement('#textbook', 'to textbook', 'btn', 'to-textbook-btn');
+    const rulesBtn = createButtonElement('button', 'to start', 'btn', 'to-rules-btn', 'disabled');
+    const textbookBtn = createAnchorElement('#textbook', 'to textbook', 'btn', 'to-textbook-btn', 'disabled');
     footerBtns.append(rulesBtn, textbookBtn);
     rulesBtn.onclick = () => this.render();
     wordsBlock.append(correctAnswerBlock, inCorrectAnswerBlock);
     resultWrapper.append(resultHeader, blockWrapper, footerBtns);
+    setTimeout(() => {
+      rulesBtn.classList.remove('disabled');
+      textbookBtn.classList.remove('disabled');
+    }, 2000);
     this.sprintGamePage.append(resultWrapper);
     localStorage.removeItem('isTextbook');
     await this.state.updateStatistics();
