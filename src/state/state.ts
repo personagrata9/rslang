@@ -1,4 +1,5 @@
 import Api from '../api/api';
+
 import {
   ApiPageNameType,
   IGameStatisticsTotal,
@@ -8,6 +9,7 @@ import {
   IUserStatistics,
   IUserWordNewData,
   IWord,
+  IOptional,
 } from '../common/types';
 import { sumOfObjectValues } from '../common/utils';
 import { convertDate, parseTotalStatistics, stringifyTotalStatistics } from './helpers';
@@ -118,7 +120,7 @@ class State {
       wrongs.forEach((word) => {
         const { wordId } = word;
         const { wrong } = word.optional;
-        if (wordId && wrong) this.statistics.totalCorrect[wordId] = wrong;
+        if (wordId && wrong) this.statistics.totalWrong[wordId] = wrong;
       });
 
       const repeats = this.userWords.filter((word) => word.optional.repeat);
@@ -230,131 +232,17 @@ class State {
     }
   };
 
-  private updateGameWords = async (): Promise<void> => {
-    if (this.userId) {
-      const entriesGameWords = Array.from(this.statistics.totalGameWords).filter((entry) =>
-        this.currentWords.has(entry)
-      );
-      entriesGameWords.map(async (wordId) => {
-        if (this.userId) {
-          if (this.userWords.find((word) => word.wordId === wordId)) {
-            const userWord: IUserWordNewData = await this.api.getUserWordById({
-              userId: this.userId,
-              wordId,
-            });
-
-            const { optional } = userWord;
-            optional.game = true;
-
-            const wordData: IUserWordNewData = {
-              difficulty: userWord.difficulty,
-              optional,
-            };
-            await this.api.updateUserWord({ userId: this.userId, wordId, wordData });
-          } else {
-            const wordData: IUserWordNewData = {
-              difficulty: 'easy',
-              optional: { learned: false, repeat: '0', game: true },
-            };
-            await this.api.createUserWord({ userId: this.userId, wordId, wordData });
-          }
-        }
-      });
-    }
-  };
-
-  private updateCorrectWords = async (): Promise<void> => {
-    const entriesCorrect = Object.entries(this.statistics.totalCorrect).filter((entry) =>
-      this.currentWords.has(entry[0])
-    );
-    entriesCorrect.map(async (entry: [string, string]) => {
-      const wordId: string = entry[0];
-      const correctNum: string = entry[1];
-
-      if (this.userId) {
-        const userWord: IUserWordNewData = await this.api.getUserWordById({
-          userId: this.userId,
-          wordId,
-        });
-
-        const { optional } = userWord;
-        optional.correct = correctNum;
-
-        const wordData: IUserWordNewData = {
-          difficulty: userWord.difficulty,
-          optional,
-        };
-        await this.api.updateUserWord({ userId: this.userId, wordId, wordData });
-      }
-    });
-  };
-
-  private updateWrongWords = async (): Promise<void> => {
-    const entriesWrong = Object.entries(this.statistics.totalWrong).filter((entry) => this.currentWords.has(entry[0]));
-    entriesWrong.map(async (entry: [string, string]) => {
-      const wordId: string = entry[0];
-      const wrongNum: string = entry[1];
-
-      if (this.userId) {
-        const userWord: IUserWordNewData = await this.api.getUserWordById({
-          userId: this.userId,
-          wordId,
-        });
-
-        const { optional } = userWord;
-        optional.wrong = wrongNum;
-
-        const wordData: IUserWordNewData = {
-          difficulty: userWord.difficulty,
-          optional,
-        };
-        await this.api.updateUserWord({ userId: this.userId, wordId, wordData });
-      }
-    });
-  };
-
-  private updateRepeates = async (): Promise<void> => {
+  private setLearnedWords = (): void => {
     const entriesRepeat = Object.entries(this.statistics.totalRepeats);
     if (this.userId) {
-      entriesRepeat.map(async (entry: [string, string]) => {
+      entriesRepeat.forEach((entry: [string, string]) => {
         const wordId: string = entry[0];
         const repeat: string = entry[1];
-
-        if (this.userId) {
-          if (
-            (this.difficultWords.find((word) => word.id === wordId) && repeat === '5') ||
-            (!this.difficultWords.find((word) => word.id === wordId) && repeat === '3')
-          ) {
-            this.statistics.totalLearned.add(wordId);
-            const userWord: IUserWordNewData = await this.api.getUserWordById({
-              userId: this.userId,
-              wordId,
-            });
-
-            const { optional } = userWord;
-            optional.learned = true;
-            optional.repeat = '0';
-
-            const wordData: IUserWordNewData = {
-              difficulty: 'easy',
-              optional,
-            };
-            await this.api.updateUserWord({ userId: this.userId, wordId, wordData });
-          } else {
-            const userWord: IUserWordNewData = await this.api.getUserWordById({
-              userId: this.userId,
-              wordId,
-            });
-
-            const { optional } = userWord;
-            optional.repeat = repeat;
-
-            const wordData: IUserWordNewData = {
-              difficulty: userWord.difficulty,
-              optional,
-            };
-            await this.api.updateUserWord({ userId: this.userId, wordId, wordData });
-          }
+        if (
+          (this.userId && this.difficultWords.find((word) => word.id === wordId) && repeat === '5') ||
+          (!this.difficultWords.find((word) => word.id === wordId) && repeat === '3')
+        ) {
+          this.statistics.totalLearned.add(wordId);
         }
       });
     } else {
@@ -367,10 +255,33 @@ class State {
   };
 
   private updateCurrentStatistics = async (): Promise<void> => {
-    await this.updateGameWords();
-    await this.updateCorrectWords();
-    await this.updateWrongWords();
-    await this.updateRepeates();
+    this.setLearnedWords();
+    Array.from(this.currentWords).map(async (wordId) => {
+      const userWord = this.userWords.find((word) => word.wordId === wordId);
+
+      if (this.userId) {
+        const optional: IOptional = {
+          learned: this.statistics.totalLearned.has(wordId),
+          game: true,
+          repeat: this.statistics.totalRepeats[wordId] || '0',
+          correct: this.statistics.totalCorrect[wordId] || '0',
+          wrong: this.statistics.totalWrong[wordId] || '0',
+        };
+        if (userWord) {
+          const wordData: IUserWordNewData = {
+            difficulty: userWord.difficulty,
+            optional,
+          };
+          await this.api.updateUserWord({ userId: this.userId, wordId, wordData });
+        } else {
+          const wordData: IUserWordNewData = {
+            difficulty: 'easy',
+            optional,
+          };
+          await this.api.createUserWord({ userId: this.userId, wordId, wordData });
+        }
+      }
+    });
   };
 
   private updateLongTermStatistics = async (): Promise<void> => {
@@ -386,32 +297,30 @@ class State {
   };
 
   updateStatistics = async (): Promise<void> => {
-    await this.updateCurrentStatistics().then(async () => {
-      await this.updateLongTermStatistics().then(async () => {
-        if (this.userId) {
-          const userStatistics: IUserStatistics = {
-            learnedWords: this.learnedWords + this.statistics.totalLearned.size,
-            optional: {
-              longTerm: this.longTermStatistics,
-              audioChallenge: {
-                new: this.statistics.audioChallenge.new.size,
-                correct: sumOfObjectValues(this.statistics.audioChallenge.correct),
-                wrong: sumOfObjectValues(this.statistics.audioChallenge.wrong),
-                bestSeries: this.statistics.audioChallenge.bestSeries,
-              },
-              sprint: {
-                new: this.statistics.sprint.new.size,
-                correct: sumOfObjectValues(this.statistics.sprint.correct),
-                wrong: sumOfObjectValues(this.statistics.sprint.wrong),
-                bestSeries: this.statistics.sprint.bestSeries,
-              },
-            },
-          };
-          await this.api.updateStatistics(this.userId, userStatistics);
-        }
-        this.setStatisticsToLS();
-      });
-    });
+    await this.updateCurrentStatistics();
+    await this.updateLongTermStatistics();
+    if (this.userId) {
+      const userStatistics: IUserStatistics = {
+        learnedWords: this.learnedWords + this.statistics.totalLearned.size,
+        optional: {
+          longTerm: this.longTermStatistics,
+          audioChallenge: {
+            new: this.statistics.audioChallenge.new.size,
+            correct: sumOfObjectValues(this.statistics.audioChallenge.correct),
+            wrong: sumOfObjectValues(this.statistics.audioChallenge.wrong),
+            bestSeries: this.statistics.audioChallenge.bestSeries,
+          },
+          sprint: {
+            new: this.statistics.sprint.new.size,
+            correct: sumOfObjectValues(this.statistics.sprint.correct),
+            wrong: sumOfObjectValues(this.statistics.sprint.wrong),
+            bestSeries: this.statistics.sprint.bestSeries,
+          },
+        },
+      };
+      await this.api.updateStatistics(this.userId, userStatistics);
+    }
+    this.setStatisticsToLS();
   };
 }
 

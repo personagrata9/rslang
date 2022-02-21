@@ -21,7 +21,7 @@ class WordCard {
   constructor(
     private word: IWord,
     private color: Colors,
-    private Difficulty: DifficultyType | undefined,
+    private Difficulty: DifficultyType,
     private isLearned: boolean | undefined,
     private correct: string,
     private wrong: string
