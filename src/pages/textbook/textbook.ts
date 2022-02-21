@@ -24,11 +24,20 @@ class Textbook extends ApiPage {
 
   private playingWordId: string | null;
 
+  private userWords: IUserWordData[];
+
+  private difficultWords: IWord[];
+
+  private learnedWords: IWord[];
+
   constructor() {
     super('textbook');
     this.color = GROUP_COLORS[+this.textbookGroup];
     this.isPlaying = false;
     this.playingWordId = null;
+    this.userWords = [];
+    this.difficultWords = [];
+    this.learnedWords = [];
   }
 
   protected getTextbookWordsItems = async (): Promise<IWord[]> => {
@@ -50,7 +59,6 @@ class Textbook extends ApiPage {
     ]);
 
     const listElement: HTMLElement = createElement('ul', ['navbar-nav', 'flex-row', 'justify-content-around']);
-
     navElement.append(listElement);
 
     const groupsNums: string[] = Array(NUMBER_OF_GROUPS)
@@ -61,6 +69,12 @@ class Textbook extends ApiPage {
       const groupItemElement: HTMLElement = createElement('li', ['nav-item', 'navbar-text', 'rounded-3']);
       groupItemElement.dataset.groupNum = groupNum;
       groupItemElement.textContent = `Unit ${+groupNum + 1}`;
+      const checkQuery = () => {
+        if (window.innerWidth < 770) {
+          groupItemElement.textContent = `${+groupNum + 1}`;
+        }
+      };
+      window.addEventListener('resize', checkQuery);
       groupItemElement.style.backgroundColor = GROUP_COLORS[+groupNum];
 
       listElement.append(groupItemElement);
@@ -231,6 +245,11 @@ class Textbook extends ApiPage {
   };
 
   private createWordsCardsList = async (): Promise<HTMLElement> => {
+    if (this.userId) {
+      this.userWords = await this.api.getUserWords(this.userId);
+      this.difficultWords = await this.api.getDifficultUserWords(this.userId);
+      this.learnedWords = await this.api.getLearnedUserWords(this.userId);
+    }
     const listContainerElement: HTMLElement = createElement('div', [
       'container',
       'words-cards-list-container',
@@ -241,12 +260,8 @@ class Textbook extends ApiPage {
     ]);
 
     let words: IWord[] = await this.getTextbookWordsItems();
-    const userWords: IUserWordData[] = this.userId
-      ? await this.api.getUserWords(this.userId).then((result) => result)
-      : [];
-
     if (this.userId && this.textbookGroup === '6') {
-      words = await this.api.getDifficultUserWords(this.userId);
+      words = this.difficultWords;
 
       if (words.length === 0) {
         listContainerElement.innerHTML = `You don't have difficult words! You are able to mark word as difficult in Unit 1-6.`;
@@ -256,11 +271,12 @@ class Textbook extends ApiPage {
       }
     }
 
-    words.forEach((word: IWord) => {
-      const Difficulty: DifficultyType | undefined = userWords?.find((data) => data.wordId === word.id)?.difficulty;
-      const isLearned: boolean = userWords?.find((data) => data.wordId === word.id)?.optional?.learned === true;
+    words.map(async (word: IWord) => {
+      const Difficulty: DifficultyType = this.difficultWords.find((data) => data.id === word.id) ? 'hard' : 'easy';
+      const isLearned = !!this.learnedWords.find((data) => data.id === word.id);
 
-      const userWord = userWords.find((item) => item.wordId === word.id);
+      const userWord = this.userWords.find((data) => data.wordId === word.id);
+
       const correct = userWord?.optional.correct || '-';
       const wrong = userWord?.optional.wrong || '-';
 

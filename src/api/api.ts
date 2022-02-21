@@ -224,7 +224,7 @@ class Api {
     return res.json().then();
   };
 
-  getUserAggregetedWord = async ({ userId, wordId }: IUserWord): Promise<IWord> => {
+  getUserAggregetedWord = async ({ userId, wordId }: IUserWord): Promise<[IWord]> => {
     const res = await fetch(`${this.url}/users/${userId}/aggregatedWords/${wordId}`, {
       headers: {
         Authorization: `Bearer ${this.token}`,

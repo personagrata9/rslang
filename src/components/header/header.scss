@@ -63,8 +63,9 @@
       }
 
       .app-logo-img {
-        width: 45px;
-        height: 45px;
+        width: 30px;
+        height: 30px;
+        margin: auto;
         background-image: url('../static/logo.jpg');
         background-repeat: no-repeat;
         background-size: cover;
@@ -73,10 +74,20 @@
     }
   }
 }
-@media (max-width: 700px) {
+
+@media (max-width: 900px) {
   .header {
     .header-nav {
       margin: auto 10px;
+      justify-content: space-between;
+    }
+
+    .page-name {
+      display: none;
+    }
+
+    .app-logo-rs {
+      display: none;
     }
   }
 }
