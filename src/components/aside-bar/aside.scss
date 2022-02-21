@@ -1,4 +1,4 @@
-@import "src/styles/common";
+@import 'src/styles/common';
 
 .wrapper {
   display: flex;
@@ -87,7 +87,7 @@
       }
     }
     li {
-      padding: 10px 0px 10px 10px !important;
+      padding: 10px !important;
     }
     .link-icon {
       display: block !important;

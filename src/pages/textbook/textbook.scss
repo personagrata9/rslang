@@ -179,3 +179,9 @@
     color: $orange;
   }
 }
+
+@media (max-width: 990px) {
+  .textbook-minigames-links-container {
+    margin-top: 0;
+  }
+}

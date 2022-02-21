@@ -59,7 +59,6 @@ class Textbook extends ApiPage {
     ]);
 
     const listElement: HTMLElement = createElement('ul', ['navbar-nav', 'flex-row', 'justify-content-around']);
-
     navElement.append(listElement);
 
     const groupsNums: string[] = Array(NUMBER_OF_GROUPS)
@@ -70,6 +69,12 @@ class Textbook extends ApiPage {
       const groupItemElement: HTMLElement = createElement('li', ['nav-item', 'navbar-text', 'rounded-3']);
       groupItemElement.dataset.groupNum = groupNum;
       groupItemElement.textContent = `Unit ${+groupNum + 1}`;
+      const checkQuery = () => {
+        if (window.innerWidth < 770) {
+          groupItemElement.textContent = `${+groupNum + 1}`;
+        }
+      };
+      window.addEventListener('resize', checkQuery);
       groupItemElement.style.backgroundColor = GROUP_COLORS[+groupNum];
 
       listElement.append(groupItemElement);
