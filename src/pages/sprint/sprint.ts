@@ -373,7 +373,7 @@ class Sprint extends ApiPage {
     setTimeout(() => {
       rulesBtn.classList.remove('disabled');
       textbookBtn.classList.remove('disabled');
-    }, 2000);
+    }, 3000);
     this.sprintGamePage.append(resultWrapper);
     localStorage.removeItem('isTextbook');
     await this.state.updateStatistics();

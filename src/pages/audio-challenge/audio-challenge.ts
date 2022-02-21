@@ -361,7 +361,7 @@ class AudioChallenge extends ApiPage {
     setTimeout(() => {
       rulesBtn.classList.remove('disabled');
       textbookBtn.classList.remove('disabled');
-    }, 2000);
+    }, 3000);
     footerBtns.append(rulesBtn, textbookBtn);
     rulesBtn.onclick = async () => {
       localStorage.removeItem('isTextbook');
