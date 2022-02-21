@@ -29,7 +29,10 @@ class Statistics {
 
   async render(): Promise<void> {
     const contentContainer = <HTMLDivElement>document.querySelector('.content-container');
-    if (!localStorage.getItem(`statistics${localStorage.getItem('UserId') || ''}`)) {
+    if (
+      !localStorage.getItem(`statistics${localStorage.getItem('UserId') || ''}`) &&
+      !(await this.api.getStatistics(localStorage.getItem('UserId') || ''))
+    ) {
       contentContainer.append(this.createNoStatisticBlock());
     } else {
       this.statistics.append(await this.createStatisticContainer());
@@ -106,28 +109,64 @@ class Statistics {
   private getShortStatistic = async (): Promise<{
     [key: string]: number;
   }> => {
-    const userStatistics = localStorage.getItem(`statistics${localStorage.getItem('UserId') || ''}`) || '';
-    const shortStatistic = parseTotalStatistics(userStatistics);
-    const reducer = (obj: object) =>
-      Object.values(obj)
-        .map(Number)
-        .reduce((a, b) => a + b, 0);
-    const totalLearned = shortStatistic.totalLearned.size;
-    const sprintCorrect = reducer(shortStatistic.sprint.correct);
-    const sprintWrong = reducer(shortStatistic.sprint.wrong);
-    const audioCorrect = reducer(shortStatistic.audioChallenge.correct);
-    const audioWrong = reducer(shortStatistic.audioChallenge.wrong);
-    const totalWrong = sprintWrong + audioWrong;
-    const totalCorrect = sprintCorrect + audioCorrect;
+    let totalLearned = 0;
+    let sprintCorrect = 0;
+    let sprintWrong = 0;
+    let audioCorrect = 0;
+    let audioWrong = 0;
+    let totalWrong = 0;
+    let totalCorrect = 0;
+    let newWordsNum = 0;
+    let winrateNum = 0;
+    let sprintNewWordsNum = 0;
+    let sprintWinrateNum = 0;
+    let sprintWinstreakNum = 0;
+    let audioNewWordsNum = 0;
+    let audioWinrateNum = 0;
+    let audioWinstreakNum = 0;
+    if (localStorage.getItem('UserId')) {
+      await this.api.getStatistics(localStorage.getItem('UserId') || '').then((result: IUserStatistics) => {
+        totalLearned = +result.learnedWords;
+        sprintCorrect = result.optional.sprint.correct;
+        sprintWrong = result.optional.sprint.wrong;
+        audioCorrect = result.optional.audioChallenge.correct;
+        audioWrong = result.optional.audioChallenge.wrong;
+        totalWrong = audioWrong + sprintWrong;
+        totalCorrect = audioCorrect + sprintCorrect;
 
-    const newWordsNum = shortStatistic.totalNew.size;
-    const winrateNum = Math.ceil((totalCorrect / (totalCorrect + totalWrong)) * 100);
-    const sprintNewWordsNum = shortStatistic.sprint.new.size;
-    const sprintWinrateNum = Math.ceil((sprintCorrect / (sprintCorrect + sprintWrong)) * 100) || 0;
-    const sprintWinstreakNum = shortStatistic.sprint.bestSeries;
-    const audioNewWordsNum = shortStatistic.audioChallenge.new.size;
-    const audioWinrateNum = Math.ceil((audioCorrect / (audioCorrect + audioWrong)) * 100) || 0;
-    const audioWinstreakNum = shortStatistic.audioChallenge.bestSeries;
+        winrateNum = Math.ceil((totalCorrect / (totalCorrect + totalWrong)) * 100);
+        sprintNewWordsNum = result.optional.sprint.new;
+        sprintWinrateNum = Math.ceil((sprintCorrect / (sprintCorrect + sprintWrong)) * 100) || 0;
+        sprintWinstreakNum = result.optional.sprint.bestSeries;
+        audioNewWordsNum = result.optional.audioChallenge.new;
+        audioWinrateNum = Math.ceil((audioCorrect / (audioCorrect + audioWrong)) * 100) || 0;
+        audioWinstreakNum = result.optional.audioChallenge.bestSeries;
+        newWordsNum = sprintNewWordsNum + audioNewWordsNum;
+      });
+    } else {
+      const userStatistics = localStorage.getItem(`statistics${localStorage.getItem('UserId') || ''}`) || '';
+      const shortStatistic = parseTotalStatistics(userStatistics);
+      const reducer = (obj: object) =>
+        Object.values(obj)
+          .map(Number)
+          .reduce((a, b) => a + b, 0);
+      totalLearned = shortStatistic.totalLearned.size;
+      sprintCorrect = reducer(shortStatistic.sprint.correct);
+      sprintWrong = reducer(shortStatistic.sprint.wrong);
+      audioCorrect = reducer(shortStatistic.audioChallenge.correct);
+      audioWrong = reducer(shortStatistic.audioChallenge.wrong);
+      totalWrong = sprintWrong + audioWrong;
+      totalCorrect = sprintCorrect + audioCorrect;
+
+      newWordsNum = shortStatistic.totalNew.size;
+      winrateNum = Math.ceil((totalCorrect / (totalCorrect + totalWrong)) * 100);
+      sprintNewWordsNum = shortStatistic.sprint.new.size;
+      sprintWinrateNum = Math.ceil((sprintCorrect / (sprintCorrect + sprintWrong)) * 100) || 0;
+      sprintWinstreakNum = shortStatistic.sprint.bestSeries;
+      audioNewWordsNum = shortStatistic.audioChallenge.new.size;
+      audioWinrateNum = Math.ceil((audioCorrect / (audioCorrect + audioWrong)) * 100) || 0;
+      audioWinstreakNum = shortStatistic.audioChallenge.bestSeries;
+    }
     return {
       totalLearned,
       newWordsNum,
