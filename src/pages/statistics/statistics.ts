@@ -1,8 +1,9 @@
 import { Chart, ChartConfiguration, ChartItem, registerables } from 'chart.js';
-import { createElement } from '../../common/utils';
+import { createAnchorElement, createElement } from '../../common/utils';
 import { GROUP_COLORS } from '../../common/constants';
-import { ILongTermStatistics } from '../../common/types';
-import { parseTotalStatistics } from '../../state/helpers';
+import { ILongTermStatistics, IUserStatistics } from '../../common/types';
+import { convertDate, parseTotalStatistics } from '../../state/helpers';
+import Api from '../../api/api';
 
 class Statistics {
   private statistics: HTMLElement;
@@ -15,23 +16,42 @@ class Statistics {
 
   private todayNewWords: number;
 
+  private api: Api;
+
+  private todayWinrate: number;
+
+  private userId: string | null;
+
   constructor() {
     this.statistics = createElement('div', ['statistic-wrapper']);
     this.totalCorrect = 0;
     this.totalWrong = 0;
     this.todayNewWords = 0;
     this.todayLearnedWords = 0;
+    this.todayWinrate = 0;
+    this.userId = localStorage.getItem('UserId') || null;
+    this.api = new Api();
   }
 
   async render(): Promise<void> {
     const contentContainer = <HTMLDivElement>document.querySelector('.content-container');
-    this.statistics.append(await this.createStatisticContainer());
-    contentContainer.append(this.statistics);
-    this.updateNum(this.todayNewWords, '.new-words-counter');
-    this.updateNum(this.todayLearnedWords, '.learned-words-counter');
-    await this.winrateChart();
-    await this.learnedWordsChart();
-    await this.allLearnedWordsChart();
+    const userStat = undefined;
+    await this.api
+      .getStatistics(this.userId || '')
+      .then((result) => userStat === result)
+      .catch((result) => userStat === result);
+    if (!localStorage.getItem(`statistics${this.userId || ''}`) && typeof userStat !== 'object') {
+      contentContainer.append(this.createNoStatisticBlock());
+    } else {
+      this.statistics.append(await this.createStatisticContainer());
+      contentContainer.append(this.statistics);
+      this.updateNum(this.todayNewWords, '.new-words-counter');
+      this.updateNum(this.todayLearnedWords, '.learned-words-counter');
+      this.updateNum(this.todayWinrate, '.percent-num');
+      await this.winrateChart();
+      await this.newWordsChart();
+      await this.allLearnedWordsChart();
+    }
   }
 
   private createStatisticContainer = async (): Promise<HTMLElement> => {
@@ -47,9 +67,10 @@ class Statistics {
   };
 
   private createShortStatistic = async (): Promise<HTMLElement> => {
-    const statistic = <{ [key: string]: number }>await this.getStatistic();
+    const statistic = <{ [key: string]: number }>await this.getShortStatistic();
     this.todayNewWords = statistic.newWordsNum;
     this.todayLearnedWords = statistic.totalLearned;
+    this.todayWinrate = statistic.winrateNum;
     const shortStatisticContainer = createElement('div', ['short-statistic-container']);
     const sprintStatistic = createElement('div', ['container', 'sprint-statistic']);
     const audioStatistic = createElement('div', ['container', 'audio-statistic']);
@@ -95,30 +116,71 @@ class Statistics {
     return longStatisticContainer;
   };
 
-  private getStatistic = async (): Promise<{
+  private getShortStatistic = async (): Promise<{
     [key: string]: number;
   }> => {
-    const shortStatistic = parseTotalStatistics(localStorage.getItem('statistics') || '');
-    const reducer = (obj: object) =>
-      Object.values(obj)
-        .map(Number)
-        .reduce((a, b) => a + b, 0);
-    const totalLearned = shortStatistic.totalLearned.size;
-    const sprintCorrect = reducer(shortStatistic.sprint.correct);
-    const sprintWrong = reducer(shortStatistic.sprint.wrong);
-    const audioCorrect = reducer(shortStatistic.audioChallenge.correct);
-    const audioWrong = reducer(shortStatistic.audioChallenge.wrong);
-    const totalWrong = sprintWrong + audioWrong;
-    const totalCorrect = sprintCorrect + audioCorrect;
+    let totalLearned = 0;
+    let sprintCorrect = 0;
+    let sprintWrong = 0;
+    let audioCorrect = 0;
+    let audioWrong = 0;
+    let totalWrong = 0;
+    let totalCorrect = 0;
+    let newWordsNum = 0;
+    let winrateNum = 0;
+    let sprintNewWordsNum = 0;
+    let sprintWinrateNum = 0;
+    let sprintWinstreakNum = 0;
+    let audioNewWordsNum = 0;
+    let audioWinrateNum = 0;
+    let audioWinstreakNum = 0;
+    if (this.userId) {
+      await this.api.getStatistics(this.userId || '').then((result: IUserStatistics) => {
+        if (result.optional.longTerm[convertDate(new Date())]) {
+          totalLearned = result.optional.longTerm[convertDate(new Date())].learned;
+          sprintCorrect = result.optional.sprint.correct;
+          sprintWrong = result.optional.sprint.wrong;
+          audioCorrect = result.optional.audioChallenge.correct;
+          audioWrong = result.optional.audioChallenge.wrong;
+          totalWrong = audioWrong + sprintWrong;
+          totalCorrect = audioCorrect + sprintCorrect;
 
-    const newWordsNum = shortStatistic.totalNew.size;
-    const winrateNum = Math.ceil((totalCorrect / (totalCorrect + totalWrong)) * 100);
-    const sprintNewWordsNum = shortStatistic.sprint.new.size;
-    const sprintWinrateNum = Math.ceil((sprintCorrect / (sprintCorrect + sprintWrong)) * 100) || 0;
-    const sprintWinstreakNum = shortStatistic.sprint.bestSeries;
-    const audioNewWordsNum = shortStatistic.audioChallenge.new.size;
-    const audioWinrateNum = Math.ceil((audioCorrect / (audioCorrect + audioWrong)) * 100) || 0;
-    const audioWinstreakNum = shortStatistic.audioChallenge.bestSeries;
+          winrateNum = Math.ceil((totalCorrect / (totalCorrect + totalWrong)) * 100) || 0;
+          sprintNewWordsNum = result.optional.sprint.new;
+          sprintWinrateNum = Math.ceil((sprintCorrect / (sprintCorrect + sprintWrong)) * 100) || 0;
+          sprintWinstreakNum = result.optional.sprint.bestSeries;
+          audioNewWordsNum = result.optional.audioChallenge.new;
+          audioWinrateNum = Math.ceil((audioCorrect / (audioCorrect + audioWrong)) * 100) || 0;
+          audioWinstreakNum = result.optional.audioChallenge.bestSeries;
+          newWordsNum = sprintNewWordsNum + audioNewWordsNum;
+        }
+      });
+    } else {
+      const userStatistics = localStorage.getItem(`statistics${this.userId || ''}`) || '';
+      const shortStatistic = parseTotalStatistics(userStatistics);
+      if (shortStatistic.date === convertDate(new Date())) {
+        const reducer = (obj: object) =>
+          Object.values(obj)
+            .map(Number)
+            .reduce((a, b) => a + b, 0);
+        totalLearned = shortStatistic.totalLearned.size;
+        sprintCorrect = reducer(shortStatistic.sprint.correct);
+        sprintWrong = reducer(shortStatistic.sprint.wrong);
+        audioCorrect = reducer(shortStatistic.audioChallenge.correct);
+        audioWrong = reducer(shortStatistic.audioChallenge.wrong);
+        totalWrong = sprintWrong + audioWrong;
+        totalCorrect = sprintCorrect + audioCorrect;
+
+        newWordsNum = shortStatistic.totalNew.size;
+        winrateNum = Math.ceil((totalCorrect / (totalCorrect + totalWrong)) * 100) || 0;
+        sprintNewWordsNum = shortStatistic.sprint.new.size;
+        sprintWinrateNum = Math.ceil((sprintCorrect / (sprintCorrect + sprintWrong)) * 100) || 0;
+        sprintWinstreakNum = shortStatistic.sprint.bestSeries;
+        audioNewWordsNum = shortStatistic.audioChallenge.new.size;
+        audioWinrateNum = Math.ceil((audioCorrect / (audioCorrect + audioWrong)) * 100) || 0;
+        audioWinstreakNum = shortStatistic.audioChallenge.bestSeries;
+      }
+    }
     return {
       totalLearned,
       newWordsNum,
@@ -129,6 +191,42 @@ class Statistics {
       audioNewWordsNum,
       audioWinrateNum,
       audioWinstreakNum,
+    };
+  };
+
+  private getLongStatistic = async () => {
+    const dateArr: string[] = [];
+    const learnedWordsArr: number[] = [];
+    const newWordsArr: number[] = [];
+    let userStatistic;
+    if (this.userId) {
+      await this.api.getStatistics(this.userId || '').then((result: IUserStatistics) => {
+        userStatistic = result.optional.longTerm;
+        Object.entries(userStatistic).forEach((e) => {
+          dateArr.push(e[0]);
+          learnedWordsArr.push(e[1].learned);
+          newWordsArr.push(e[1].new);
+        });
+      });
+    } else {
+      userStatistic = <ILongTermStatistics>await JSON.parse(localStorage.getItem('longTermStatistics') || '');
+      Object.entries(userStatistic).forEach((e) => {
+        dateArr.push(e[0]);
+        learnedWordsArr.push(e[1].learned);
+        newWordsArr.push(e[1].new);
+      });
+    }
+    const updateDateArr = dateArr.map((el) => {
+      const year = el.slice(0, 4);
+      const month = el.slice(4, 6);
+      const day = el.slice(6, 9);
+      return `${day}.${month}.${year}`;
+    });
+    return {
+      userStatistic,
+      updateDateArr,
+      learnedWordsArr,
+      newWordsArr,
     };
   };
 
@@ -163,10 +261,11 @@ class Statistics {
     const winrateCircleContainer = createElement('div', ['winrate__circle-container']);
     const winrateCircleBody = createElement('div', ['winrate__circle-body']);
     const winrateCircleCounter = createElement('div', ['winrate__circle-counter']);
-    const winrateNum = createElement('span', ['percent'], `${winrate}%`);
+    const winrateNum = createElement('span', ['percent-num']);
+    const percentSymbol = createElement('span', [], '%');
     const root = <HTMLElement>document.querySelector(':root');
     root.style.setProperty('--win-height', `${winrate}%`);
-    winrateCircleCounter.append(winrateNum);
+    winrateCircleCounter.append(winrateNum, percentSymbol);
     winrateCircleBody.append(winrateCircleCounter);
     winrateCircleContainer.append(winrateCircleBody);
     winrateCircleWrapper.append(winrateCircleContainer);
@@ -174,10 +273,11 @@ class Statistics {
   };
 
   private winrateChart = async (): Promise<void> => {
-    const longStatistic = Object.values(
-      <ILongTermStatistics>await JSON.parse(localStorage.getItem('longTermStatistics') || '')
+    const longStatistic = <{ userStatistic: ILongTermStatistics; updateDateArr: string[]; wordsArr: number[] }>(
+      (<unknown>await this.getLongStatistic())
     );
-    longStatistic.forEach((e) => {
+    const statistics = longStatistic.userStatistic;
+    Object.values(statistics).forEach((e) => {
       this.totalWrong += +e.wrong;
       this.totalCorrect += +e.correct;
     });
@@ -207,23 +307,9 @@ class Statistics {
     myChart.render();
   };
 
-  private learnedWordsChart = async (): Promise<void> => {
-    const longStatistic = Object.entries(
-      <ILongTermStatistics>await JSON.parse(localStorage.getItem('longTermStatistics') || '')
-    );
-    const dateArr: string[] = [];
-    const wordsArr: number[] = [];
-    longStatistic.forEach((e) => {
-      dateArr.push(e[0]);
-      wordsArr.push(e[1].new);
-    });
-    const updateDateArr = dateArr.map((el) => {
-      const year = el.slice(0, 4);
-      const month = el.slice(4, 6);
-      const day = el.slice(6, 9);
-      return `${day}.${month}.${year}`;
-    });
-    const labels = updateDateArr;
+  private newWordsChart = async (): Promise<void> => {
+    const statistic = await this.getLongStatistic();
+    const labels = statistic.updateDateArr;
     Chart.register(...registerables);
     const data = {
       labels,
@@ -231,7 +317,7 @@ class Statistics {
         {
           label: 'New words per day',
           backgroundColor: [...GROUP_COLORS],
-          data: wordsArr,
+          data: statistic.newWordsArr.map((el, i, arr1) => arr1.slice(0, i + 1).reduce((a, b) => a + b)),
         },
       ],
     };
@@ -251,7 +337,7 @@ class Statistics {
         scales: {
           y: {
             suggestedMin: 0,
-            suggestedMax: Math.max(...wordsArr) + 5,
+            suggestedMax: Math.max(...statistic.newWordsArr) + 5,
           },
           x: {
             display: false,
@@ -264,22 +350,8 @@ class Statistics {
   };
 
   private allLearnedWordsChart = async (): Promise<void> => {
-    const longStatistic = Object.entries(
-      <ILongTermStatistics>await JSON.parse(localStorage.getItem('longTermStatistics') || '')
-    );
-    const dateArr: string[] = [];
-    const wordsArr: number[] = [];
-    longStatistic.forEach((e) => {
-      dateArr.push(e[0]);
-      wordsArr.push(e[1].learned);
-    });
-    const updateDateArr = dateArr.map((el) => {
-      const year = el.slice(0, 4);
-      const month = el.slice(4, 6);
-      const day = el.slice(6, 9);
-      return `${day}.${month}.${year}`;
-    });
-    const labels = updateDateArr;
+    const statistic = await this.getLongStatistic();
+    const labels = statistic.updateDateArr;
     Chart.register(...registerables);
     const data = {
       labels,
@@ -288,7 +360,7 @@ class Statistics {
           label: 'Total learned words',
           backgroundColor: [...GROUP_COLORS],
           borderColor: GROUP_COLORS[0],
-          data: wordsArr.map((el, i, arr1) => arr1.slice(0, i + 1).reduce((a, b) => a + b)),
+          data: statistic.learnedWordsArr.map((el, i, arr1) => arr1.slice(0, i + 1).reduce((a, b) => a + b)),
         },
       ],
     };
@@ -308,7 +380,7 @@ class Statistics {
         scales: {
           y: {
             suggestedMin: 0,
-            suggestedMax: Math.max(...wordsArr) + 5,
+            suggestedMax: Math.max(...statistic.learnedWordsArr) + 5,
           },
           x: {
             display: false,
@@ -318,6 +390,16 @@ class Statistics {
     };
     const myChart = new Chart(<ChartItem>document.querySelector('.learned-words-chart'), <ChartConfiguration>config);
     myChart.render();
+  };
+
+  private createNoStatisticBlock = (): HTMLElement => {
+    const clearBlock = createElement('div', ['clear-block-wrapper']);
+    const clearBlockContainer = createElement('div', ['clear-block-container']);
+    const clearBlockTitle = createElement('p', ['clear-block-title'], "Ooops... You haven't statistic.");
+    const textbookBtn = createAnchorElement('#textbook', "Let's go to knowledge", 'btn', 'to-textbook-btn');
+    clearBlockContainer.append(clearBlockTitle, textbookBtn);
+    clearBlock.append(clearBlockContainer);
+    return clearBlock;
   };
 
   private updateNum = (num: number, elem: string): void => {

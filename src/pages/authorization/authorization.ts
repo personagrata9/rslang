@@ -91,6 +91,10 @@ class LoginPopup {
     toSignBtn.addEventListener('click', () => {
       this.clearInputs();
       modal.remove();
+      if (this.showPassWrapper.querySelector('.error')) {
+        (<HTMLElement>this.showPassWrapper.querySelector('.error')).remove();
+        this.emailInput.style.border = '1px solid #ced4da';
+      }
       this.formGroupEmail.innerHTML = '';
       this.formGroupName.innerHTML = '';
       this.loginForm.innerHTML = '';
@@ -232,12 +236,22 @@ class LoginPopup {
         password: this.passwordInput.value,
       };
       this.emailInput.style.border = '';
-      await api.createUser(user).catch(() => {
-        this.emailInput.style.border = 'red 2px solid';
-      });
-      await api.loginUser({ email: this.emailInput.value, password: this.passwordInput.value });
-      this.closeModal();
-      setTimeout(() => window.location.reload(), 900);
+      await api
+        .createUser(user)
+        .then(async () => {
+          await api.loginUser({ email: this.emailInput.value, password: this.passwordInput.value });
+          this.closeModal();
+          setTimeout(() => window.location.reload(), 900);
+        })
+        .catch(async (response) => {
+          if (response) {
+            this.emailInput.style.border = 'red 2px solid';
+            if (!this.showPassWrapper.querySelector('.error')) {
+              const errorSpan = createElement('p', ['error'], 'This email already used');
+              this.showPassWrapper.prepend(errorSpan);
+            }
+          }
+        });
     } else {
       user = {
         email: this.emailInput.value,

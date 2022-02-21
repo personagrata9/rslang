@@ -52,7 +52,7 @@
   width: 100%;
   z-index: 3;
   background-color: $turquoise-dark;
-  animation: winrateWipe 1.5s cubic-bezier(.2,.6,.8,.4) forwards;
+  animation: winrateWipe 3s cubic-bezier(.2,.6,.8,.4) forwards;
 }
 
 .winrate__circle-body {
@@ -66,11 +66,13 @@
 }
 
 .winrate__circle-counter {
+  display: flex;
   margin-top: 20px;
+  flex-direction: row;
+  justify-content: center;
   span {
     font-size: 20px;
     display: flex;
-    justify-content: center;
     align-items: center;
     height: 20px;
     font-weight: bold;

@@ -107,7 +107,7 @@ class Sprint extends ApiPage {
       const currentResult = createElement('h2', ['word-container__title']);
       currentResult.textContent = `Current result is ${this.pointsCount}`;
       const pointsPerWord = createElement('p', []);
-      pointsPerWord.textContent = `${this.pointsMultiplier}`;
+      pointsPerWord.textContent = `x${this.pointsMultiplier}`;
       const wordBlock = createElement('div', ['word-block']);
       const englishWord = createElement('p', ['current-word']);
       const translatedWord = createElement('p', ['answer-word']);
@@ -364,12 +364,16 @@ class Sprint extends ApiPage {
       inCorrectAnswerBlock.append(this.addBoxResults(e));
     });
     const footerBtns = createElement('div', ['footer-btns']);
-    const rulesBtn = createButtonElement('button', 'to start', 'btn', 'to-rules-btn');
-    const textbookBtn = createAnchorElement('#textbook', 'to textbook', 'btn', 'to-textbook-btn');
+    const rulesBtn = createButtonElement('button', 'to start', 'btn', 'to-rules-btn', 'disabled');
+    const textbookBtn = createAnchorElement('#textbook', 'to textbook', 'btn', 'to-textbook-btn', 'disabled');
     footerBtns.append(rulesBtn, textbookBtn);
     rulesBtn.onclick = () => this.render();
     wordsBlock.append(correctAnswerBlock, inCorrectAnswerBlock);
     resultWrapper.append(resultHeader, blockWrapper, footerBtns);
+    setTimeout(() => {
+      rulesBtn.classList.remove('disabled');
+      textbookBtn.classList.remove('disabled');
+    }, 3000);
     this.sprintGamePage.append(resultWrapper);
     localStorage.removeItem('isTextbook');
     await this.state.updateStatistics();
@@ -443,17 +447,17 @@ class Sprint extends ApiPage {
     const event = new KeyboardEvent('click');
     if (!document.querySelector('.result-wrapper')) {
       window.addEventListener(
-        'keydown',
+        'keyup',
         (e) => {
           const evCode = e.code;
           switch (evCode) {
-            case 'KeyZ':
+            case 'ArrowLeft':
               if (<HTMLButtonElement>document.querySelector('.btn-wrong')) {
                 (<HTMLButtonElement>document.querySelector('.btn-wrong')).dispatchEvent(event);
               }
 
               break;
-            case 'KeyX':
+            case 'ArrowRight':
               if (<HTMLButtonElement>document.querySelector('.btn-right')) {
                 (<HTMLButtonElement>document.querySelector('.btn-right')).dispatchEvent(event);
               }
