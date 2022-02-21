@@ -77,7 +77,11 @@ class WordCard {
       this.word.wordTranslate.toLowerCase()
     );
 
-    wordElement.append(word, transcription, this.createAudioIcon(), this.createProgressIndicators(), wordTranslate);
+    if (this.userId) {
+      wordElement.append(word, transcription, this.createAudioIcon(), this.createProgressIndicators(), wordTranslate);
+    } else {
+      wordElement.append(word, transcription, this.createAudioIcon(), wordTranslate);
+    }
 
     return wordElement;
   };
