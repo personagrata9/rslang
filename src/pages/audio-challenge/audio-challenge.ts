@@ -209,13 +209,12 @@ class AudioChallenge extends ApiPage {
 
   async createAnswersBox(currentWord: string): Promise<HTMLElement> {
     const answersBox = createElement('div', ['answers-box']);
-    const indexCurrentPlace = random(5);
     const answers: Array<string> = [];
     const randomWords = await this.createRandomWords();
     for (let i = 0; i < 5; i += 1) {
       const randomIndexWord = random(WORDS_PER_PAGE);
       const word = randomWords[randomIndexWord].wordTranslate;
-      if (indexCurrentPlace === i) {
+      if (i === 0) {
         answers.push(currentWord);
       } else {
         // eslint-disable-next-line no-lonely-if
@@ -226,6 +225,7 @@ class AudioChallenge extends ApiPage {
         }
       }
     }
+    answers.sort(() => Math.random() - 0.5);
     answers.forEach((answer, i) => {
       const answerButton = createElement('button', ['answer-button']);
       answerButton.innerHTML = `<p class="word-text"><span>${i + 1}.</span> ${answer}</p>`;
