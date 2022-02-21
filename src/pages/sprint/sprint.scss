@@ -277,9 +277,13 @@
           background: $gray-light;
           padding: 5px;
           margin: auto 0;
-          .popup-icon-audio {
-            width: 20px;
-            height: 20px;
+          .svg-audio-container {
+            display: flex;
+            align-items: center;
+            .popup-icon-audio {
+              width: 20px;
+              height: 20px;
+            }
           }
         }
       }

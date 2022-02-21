@@ -2,7 +2,7 @@ import { Chart, ChartConfiguration, ChartItem, registerables } from 'chart.js';
 import { createAnchorElement, createElement } from '../../common/utils';
 import { GROUP_COLORS } from '../../common/constants';
 import { ILongTermStatistics, IUserStatistics } from '../../common/types';
-import { parseTotalStatistics } from '../../state/helpers';
+import { convertDate, parseTotalStatistics } from '../../state/helpers';
 import Api from '../../api/api';
 
 class Statistics {
@@ -29,10 +29,12 @@ class Statistics {
 
   async render(): Promise<void> {
     const contentContainer = <HTMLDivElement>document.querySelector('.content-container');
-    if (
-      !localStorage.getItem(`statistics${localStorage.getItem('UserId') || ''}`) &&
-      !(await this.api.getStatistics(localStorage.getItem('UserId') || ''))
-    ) {
+    const userStat = undefined;
+    await this.api
+      .getStatistics(localStorage.getItem('UserId') || '')
+      .then((result) => userStat === result)
+      .catch((result) => userStat === result);
+    if (!localStorage.getItem(`statistics${localStorage.getItem('UserId') || ''}`) && typeof userStat !== 'object') {
       contentContainer.append(this.createNoStatisticBlock());
     } else {
       this.statistics.append(await this.createStatisticContainer());
@@ -40,7 +42,7 @@ class Statistics {
       this.updateNum(this.todayNewWords, '.new-words-counter');
       this.updateNum(this.todayLearnedWords, '.learned-words-counter');
       await this.winrateChart();
-      await this.learnedWordsChart();
+      await this.newWordsChart();
       await this.allLearnedWordsChart();
     }
   }
@@ -126,46 +128,50 @@ class Statistics {
     let audioWinstreakNum = 0;
     if (localStorage.getItem('UserId')) {
       await this.api.getStatistics(localStorage.getItem('UserId') || '').then((result: IUserStatistics) => {
-        totalLearned = +result.learnedWords;
-        sprintCorrect = result.optional.sprint.correct;
-        sprintWrong = result.optional.sprint.wrong;
-        audioCorrect = result.optional.audioChallenge.correct;
-        audioWrong = result.optional.audioChallenge.wrong;
-        totalWrong = audioWrong + sprintWrong;
-        totalCorrect = audioCorrect + sprintCorrect;
+        if (result.optional.longTerm[convertDate(new Date())]) {
+          totalLearned = +result.learnedWords;
+          sprintCorrect = result.optional.sprint.correct;
+          sprintWrong = result.optional.sprint.wrong;
+          audioCorrect = result.optional.audioChallenge.correct;
+          audioWrong = result.optional.audioChallenge.wrong;
+          totalWrong = audioWrong + sprintWrong;
+          totalCorrect = audioCorrect + sprintCorrect;
 
-        winrateNum = Math.ceil((totalCorrect / (totalCorrect + totalWrong)) * 100);
-        sprintNewWordsNum = result.optional.sprint.new;
-        sprintWinrateNum = Math.ceil((sprintCorrect / (sprintCorrect + sprintWrong)) * 100) || 0;
-        sprintWinstreakNum = result.optional.sprint.bestSeries;
-        audioNewWordsNum = result.optional.audioChallenge.new;
-        audioWinrateNum = Math.ceil((audioCorrect / (audioCorrect + audioWrong)) * 100) || 0;
-        audioWinstreakNum = result.optional.audioChallenge.bestSeries;
-        newWordsNum = sprintNewWordsNum + audioNewWordsNum;
+          winrateNum = Math.ceil((totalCorrect / (totalCorrect + totalWrong)) * 100) || 0;
+          sprintNewWordsNum = result.optional.sprint.new;
+          sprintWinrateNum = Math.ceil((sprintCorrect / (sprintCorrect + sprintWrong)) * 100) || 0;
+          sprintWinstreakNum = result.optional.sprint.bestSeries;
+          audioNewWordsNum = result.optional.audioChallenge.new;
+          audioWinrateNum = Math.ceil((audioCorrect / (audioCorrect + audioWrong)) * 100) || 0;
+          audioWinstreakNum = result.optional.audioChallenge.bestSeries;
+          newWordsNum = sprintNewWordsNum + audioNewWordsNum;
+        }
       });
     } else {
       const userStatistics = localStorage.getItem(`statistics${localStorage.getItem('UserId') || ''}`) || '';
       const shortStatistic = parseTotalStatistics(userStatistics);
-      const reducer = (obj: object) =>
-        Object.values(obj)
-          .map(Number)
-          .reduce((a, b) => a + b, 0);
-      totalLearned = shortStatistic.totalLearned.size;
-      sprintCorrect = reducer(shortStatistic.sprint.correct);
-      sprintWrong = reducer(shortStatistic.sprint.wrong);
-      audioCorrect = reducer(shortStatistic.audioChallenge.correct);
-      audioWrong = reducer(shortStatistic.audioChallenge.wrong);
-      totalWrong = sprintWrong + audioWrong;
-      totalCorrect = sprintCorrect + audioCorrect;
+      if (shortStatistic.date === convertDate(new Date())) {
+        const reducer = (obj: object) =>
+          Object.values(obj)
+            .map(Number)
+            .reduce((a, b) => a + b, 0);
+        totalLearned = shortStatistic.totalLearned.size;
+        sprintCorrect = reducer(shortStatistic.sprint.correct);
+        sprintWrong = reducer(shortStatistic.sprint.wrong);
+        audioCorrect = reducer(shortStatistic.audioChallenge.correct);
+        audioWrong = reducer(shortStatistic.audioChallenge.wrong);
+        totalWrong = sprintWrong + audioWrong;
+        totalCorrect = sprintCorrect + audioCorrect;
 
-      newWordsNum = shortStatistic.totalNew.size;
-      winrateNum = Math.ceil((totalCorrect / (totalCorrect + totalWrong)) * 100);
-      sprintNewWordsNum = shortStatistic.sprint.new.size;
-      sprintWinrateNum = Math.ceil((sprintCorrect / (sprintCorrect + sprintWrong)) * 100) || 0;
-      sprintWinstreakNum = shortStatistic.sprint.bestSeries;
-      audioNewWordsNum = shortStatistic.audioChallenge.new.size;
-      audioWinrateNum = Math.ceil((audioCorrect / (audioCorrect + audioWrong)) * 100) || 0;
-      audioWinstreakNum = shortStatistic.audioChallenge.bestSeries;
+        newWordsNum = shortStatistic.totalNew.size;
+        winrateNum = Math.ceil((totalCorrect / (totalCorrect + totalWrong)) * 100) || 0;
+        sprintNewWordsNum = shortStatistic.sprint.new.size;
+        sprintWinrateNum = Math.ceil((sprintCorrect / (sprintCorrect + sprintWrong)) * 100) || 0;
+        sprintWinstreakNum = shortStatistic.sprint.bestSeries;
+        audioNewWordsNum = shortStatistic.audioChallenge.new.size;
+        audioWinrateNum = Math.ceil((audioCorrect / (audioCorrect + audioWrong)) * 100) || 0;
+        audioWinstreakNum = shortStatistic.audioChallenge.bestSeries;
+      }
     }
     return {
       totalLearned,
@@ -195,12 +201,11 @@ class Statistics {
         });
       });
     } else {
-      const longStatistic = Object.entries(
-        <ILongTermStatistics>await JSON.parse(localStorage.getItem('longTermStatistics') || '')
-      );
-      longStatistic.forEach((e) => {
+      userStatistic = <ILongTermStatistics>await JSON.parse(localStorage.getItem('longTermStatistics') || '');
+      Object.entries(userStatistic).forEach((e) => {
         dateArr.push(e[0]);
         learnedWordsArr.push(e[1].learned);
+        newWordsArr.push(e[1].new);
       });
     }
     const updateDateArr = dateArr.map((el) => {
@@ -293,7 +298,7 @@ class Statistics {
     myChart.render();
   };
 
-  private learnedWordsChart = async (): Promise<void> => {
+  private newWordsChart = async (): Promise<void> => {
     const statistic = await this.getLongStatistic();
     const labels = statistic.updateDateArr;
     Chart.register(...registerables);
