@@ -314,9 +314,7 @@ class State {
   };
 
   private updateRepeates = async (): Promise<void> => {
-    const entriesRepeat = Object.entries(this.statistics.totalRepeats).filter((entry) =>
-      this.currentWords.has(entry[0])
-    );
+    const entriesRepeat = Object.entries(this.statistics.totalRepeats);
     if (this.userId) {
       entriesRepeat.map(async (entry: [string, string]) => {
         const wordId: string = entry[0];

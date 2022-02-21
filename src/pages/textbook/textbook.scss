@@ -169,6 +169,7 @@
   background-color: $gray-light;
   margin-bottom: 50px;
   min-height: 200px;
+  transition: all 0.5s ease;
 
   &.authorized,
   &.empty {

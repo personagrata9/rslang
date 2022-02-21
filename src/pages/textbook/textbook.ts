@@ -3,6 +3,17 @@ import { Colors, DifficultyType, IUserWordData, IWord } from '../../common/types
 import { createAnchorElement, createElement } from '../../common/utils';
 import WordCard from './word-card/word-card';
 import ApiPage from '../api-page';
+import checkFullyLearnedPage from './helpers';
+
+const audio = new Audio();
+const audioMeaning = new Audio();
+const audioExample = new Audio();
+
+export const pauseAudios = (): void => {
+  audio.pause();
+  audioMeaning.pause();
+  audioExample.pause();
+};
 
 class Textbook extends ApiPage {
   private color: Colors;
@@ -13,20 +24,11 @@ class Textbook extends ApiPage {
 
   private playingWordId: string | null;
 
-  private audio: HTMLAudioElement;
-
-  private audioMeaning: HTMLAudioElement;
-
-  private audioExample: HTMLAudioElement;
-
   constructor() {
     super('textbook');
     this.color = GROUP_COLORS[+this.textbookGroup];
     this.isPlaying = false;
     this.playingWordId = null;
-    this.audio = new Audio();
-    this.audioMeaning = new Audio();
-    this.audioExample = new Audio();
   }
 
   protected getTextbookWordsItems = async (): Promise<IWord[]> => {
@@ -162,14 +164,14 @@ class Textbook extends ApiPage {
     }
   };
 
-  private createMinigamesLinks = (): HTMLElement => {
-    const minigamesContainer: HTMLElement = createElement('div', [
+  private createMiniGamesLinks = (): HTMLElement => {
+    const miniGamesContainer: HTMLElement = createElement('div', [
       `${this.name}-minigames-links-container`,
       'shadow',
       'd-flex',
       'flex-wrap',
     ]);
-    minigamesContainer.style.backgroundColor = this.color;
+    miniGamesContainer.style.backgroundColor = this.color;
 
     const titleContainer = createElement('div', ['minigames-title-container', 'd-flex', 'justify-content-between']);
 
@@ -206,11 +208,11 @@ class Textbook extends ApiPage {
     sprintLink.addEventListener('click', () => localStorage.setItem('isTextbook', 'true'));
 
     linksContainer.append(audioChallengeLink, sprintLink);
-    minigamesContainer.append(titleContainer, linksContainer);
+    miniGamesContainer.append(titleContainer, linksContainer);
 
     titleContainer.onclick = (): void => {
-      minigamesContainer.classList.toggle('active');
-      if (minigamesContainer.classList.contains('active')) {
+      miniGamesContainer.classList.toggle('active');
+      if (miniGamesContainer.classList.contains('active')) {
         chevronElement.style.transform = 'rotateX(180deg)';
         linksContainer.style.display = 'flex';
       } else {
@@ -219,7 +221,13 @@ class Textbook extends ApiPage {
       }
     };
 
-    return minigamesContainer;
+    miniGamesContainer.onmouseleave = () => {
+      linksContainer.style.display = 'none';
+      miniGamesContainer.classList.remove('active');
+      chevronElement.style.transform = 'rotateX(0deg)';
+    };
+
+    return miniGamesContainer;
   };
 
   private createWordsCardsList = async (): Promise<HTMLElement> => {
@@ -310,14 +318,18 @@ class Textbook extends ApiPage {
     const newCardsListContainer: HTMLElement = await this.createWordsCardsList();
     cardsListContainer.replaceWith(newCardsListContainer);
 
-    const minigamesLinks = <HTMLElement>document.querySelector(`.${this.name}-minigames-links-container`);
-    const newMinigamesLinks: HTMLElement = this.createMinigamesLinks();
-    minigamesLinks.replaceWith(newMinigamesLinks);
+    const miniGamesLinks = <HTMLElement>document.querySelector(`.${this.name}-minigames-links-container`);
+    const newMiniGamesLinks: HTMLElement = this.createMiniGamesLinks();
+    miniGamesLinks.replaceWith(newMiniGamesLinks);
     this.toggleMinigamesLinks();
 
-    this.audio.pause();
-    this.audioMeaning.pause();
-    this.audioExample.pause();
+    const buttonToTop = <HTMLButtonElement>document.querySelector('#button-to-top');
+    const newButtonToTop: HTMLButtonElement = this.createButtonToTop();
+    buttonToTop.replaceWith(newButtonToTop);
+
+    pauseAudios();
+
+    await checkFullyLearnedPage(this.color);
   };
 
   private playAudio = async (): Promise<void> => {
@@ -333,25 +345,23 @@ class Textbook extends ApiPage {
       const word: IWord = await this.api.getWordById(this.playingWordId);
       if (!this.isPlaying) {
         this.isPlaying = true;
-        this.audio.src = `${BASE_URL}/${word.audio}`;
-        this.audioMeaning.src = `${BASE_URL}/${word.audioMeaning}`;
-        this.audioExample.src = `${BASE_URL}/${word.audioExample}`;
+        audio.src = `${BASE_URL}/${word.audio}`;
+        audioMeaning.src = `${BASE_URL}/${word.audioMeaning}`;
+        audioExample.src = `${BASE_URL}/${word.audioExample}`;
 
-        await this.audio.play();
-        this.audio.onended = async () => {
-          await this.audioMeaning.play();
+        await audio.play();
+        audio.onended = async () => {
+          await audioMeaning.play();
         };
-        this.audioMeaning.onended = async () => {
-          await this.audioExample.play();
+        audioMeaning.onended = async () => {
+          await audioExample.play();
         };
-        this.audioExample.onended = async () => {
+        audioExample.onended = async () => {
           this.isPlaying = false;
           audioIcon.removeAttribute('style');
         };
       } else {
-        this.audio.pause();
-        this.audioMeaning.pause();
-        this.audioExample.pause();
+        pauseAudios();
         this.isPlaying = false;
       }
     }
@@ -371,18 +381,19 @@ class Textbook extends ApiPage {
           audioIcons.forEach((icon) => icon.removeAttribute('style'));
           this.isPlaying = false;
           this.playingWordId = wordId;
-          this.audio.currentTime = 0;
-          this.audioMeaning.currentTime = 0;
-          this.audioExample.currentTime = 0;
+          audio.currentTime = 0;
+          audioMeaning.currentTime = 0;
+          audioExample.currentTime = 0;
           await this.playAudio();
         }
       }
     }
   }
 
-  createButtonTop(): HTMLElement {
+  private createButtonToTop(): HTMLButtonElement {
     const button = document.createElement('button');
-    button.id = 'button';
+    button.style.backgroundColor = this.color;
+    button.id = 'button-to-top';
     button?.addEventListener('click', (e) => {
       e.preventDefault();
       window.scrollTo(0, 0);
@@ -402,9 +413,9 @@ class Textbook extends ApiPage {
     container.append(
       this.createNavigationBar(),
       this.createPaginationBar(),
-      this.createMinigamesLinks(),
+      this.createMiniGamesLinks(),
       await this.createWordsCardsList(),
-      this.createButtonTop()
+      this.createButtonToTop()
     );
 
     this.contentContainer.append(container);
@@ -413,11 +424,12 @@ class Textbook extends ApiPage {
     this.stylePaginationControls();
     this.togglePaginationBar();
     this.toggleMinigamesLinks();
+    await checkFullyLearnedPage(this.color);
   };
 }
 
 window.addEventListener('scroll', () => {
-  const btn = document.querySelector('#button');
+  const btn = <HTMLButtonElement>document.querySelector('#button-to-top');
   if (window.scrollY > 300) {
     btn?.classList.add('show');
   } else {

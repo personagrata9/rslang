@@ -3,6 +3,7 @@ import { BASE_URL, GROUP_COLORS } from '../../../common/constants';
 import { Colors, DifficultyType, IUserWordNewData, IUserWordData, IWord, IUserStatistics } from '../../../common/types';
 import { createElement, createButtonElement } from '../../../common/utils';
 import { convertDate } from '../../../state/helpers';
+import checkFullyLearnedPage from '../helpers';
 
 class WordCard {
   private name: string;
@@ -170,6 +171,7 @@ class WordCard {
           await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
         }
         await this.updateTextbookLearnedWords(false);
+        await checkFullyLearnedPage(this.color);
       }
     };
 
@@ -334,6 +336,7 @@ class WordCard {
           this.disableDifficultMode('difficult');
         }
         await this.updateTextbookLearnedWords(true);
+        await checkFullyLearnedPage(this.color);
       }
     };
 
