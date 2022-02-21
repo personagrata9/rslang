@@ -83,9 +83,11 @@ export const createAnchorElement = (href: string, innerHTML: string, ...classNam
 };
 
 export const playAudio = async (link: string) => {
-  const audio = new Audio();
-  audio.src = link;
-  await audio.play();
+  if (link) {
+    const audio = new Audio();
+    audio.src = link;
+    await audio.play();
+  }
 };
 
 export const random = (maxNum: number) => {
