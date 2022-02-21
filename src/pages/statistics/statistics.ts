@@ -1,5 +1,5 @@
 import { Chart, ChartConfiguration, ChartItem, registerables } from 'chart.js';
-import { createElement } from '../../common/utils';
+import { createAnchorElement, createElement } from '../../common/utils';
 import { GROUP_COLORS } from '../../common/constants';
 import { ILongTermStatistics, IUserStatistics } from '../../common/types';
 import { parseTotalStatistics } from '../../state/helpers';
@@ -29,13 +29,17 @@ class Statistics {
 
   async render(): Promise<void> {
     const contentContainer = <HTMLDivElement>document.querySelector('.content-container');
-    this.statistics.append(await this.createStatisticContainer());
-    contentContainer.append(this.statistics);
-    this.updateNum(this.todayNewWords, '.new-words-counter');
-    this.updateNum(this.todayLearnedWords, '.learned-words-counter');
-    await this.winrateChart();
-    await this.learnedWordsChart();
-    await this.allLearnedWordsChart();
+    if (!localStorage.getItem(`statistics${localStorage.getItem('UserId') || ''}`)) {
+      contentContainer.append(this.createNoStatisticBlock());
+    } else {
+      this.statistics.append(await this.createStatisticContainer());
+      contentContainer.append(this.statistics);
+      this.updateNum(this.todayNewWords, '.new-words-counter');
+      this.updateNum(this.todayLearnedWords, '.learned-words-counter');
+      await this.winrateChart();
+      await this.learnedWordsChart();
+      await this.allLearnedWordsChart();
+    }
   }
 
   private createStatisticContainer = async (): Promise<HTMLElement> => {
@@ -333,6 +337,16 @@ class Statistics {
     };
     const myChart = new Chart(<ChartItem>document.querySelector('.learned-words-chart'), <ChartConfiguration>config);
     myChart.render();
+  };
+
+  private createNoStatisticBlock = (): HTMLElement => {
+    const clearBlock = createElement('div', ['clear-block-wrapper']);
+    const clearBlockContainer = createElement('div', ['clear-block-container']);
+    const clearBlockTitle = createElement('p', ['clear-block-title'], "Ooops... You haven't statistic.");
+    const textbookBtn = createAnchorElement('#textbook', "Let's go to knowledge", 'btn', 'to-textbook-btn');
+    clearBlockContainer.append(clearBlockTitle, textbookBtn);
+    clearBlock.append(clearBlockContainer);
+    return clearBlock;
   };
 
   private updateNum = (num: number, elem: string): void => {
