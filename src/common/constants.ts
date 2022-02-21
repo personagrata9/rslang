@@ -19,11 +19,10 @@ export const GROUP_COLORS = [
 ];
 
 export const GROUP_COLORS_RGBA = [
-  Colors.Turquoise,
-  Colors.TurquoiseDark,
-  Colors.Gray,
-  Colors.GrayDark,
-  Colors.Yellow,
-  Colors.YellowDark,
-  Colors.Orange,
+  Colors.TurquoiseRgba,
+  Colors.TurquoiseDarkRgba,
+  Colors.GrayRgba,
+  Colors.GrayDarkRgba,
+  Colors.YellowRgba,
+  Colors.YellowDarkRgba,
 ];
