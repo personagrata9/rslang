@@ -21,7 +21,9 @@ class WordCard {
     private word: IWord,
     private color: Colors,
     private Difficulty: DifficultyType | undefined,
-    private isLearned: boolean | undefined
+    private isLearned: boolean | undefined,
+    private correct: string,
+    private wrong: string
   ) {
     this.name = 'word-card';
     this.container = createElement('div', ['container', `${this.name}-container`, 'd-flex', 'shadow', 'rounded-3']);
@@ -29,6 +31,8 @@ class WordCard {
     this.color = color;
     this.Difficulty = Difficulty;
     this.isLearned = isLearned;
+    this.correct = correct;
+    this.wrong = wrong;
     this.api = new Api();
     this.userId = localStorage.getItem('UserId');
   }
@@ -73,7 +77,7 @@ class WordCard {
       this.word.wordTranslate.toLowerCase()
     );
 
-    wordElement.append(word, transcription, this.createAudioIcon(), wordTranslate);
+    wordElement.append(word, transcription, this.createAudioIcon(), this.createProgressIndicators(), wordTranslate);
 
     return wordElement;
   };
@@ -86,6 +90,16 @@ class WordCard {
       'align-items-center',
     ]);
     return audioIcon;
+  };
+
+  private createProgressIndicators = (): HTMLElement => {
+    const container = createElement('div', [`${this.name}-progress-container`]);
+    const correctAnswers = createElement('div', ['progress-correct-answers', 'shadow']);
+    correctAnswers.innerHTML = this.correct;
+    const wrongAnswers = createElement('div', ['progress-wrong-answers', 'shadow']);
+    wrongAnswers.innerHTML = this.wrong;
+    container.append(wrongAnswers, correctAnswers);
+    return container;
   };
 
   private createTextMeaningElement = (): HTMLElement => {

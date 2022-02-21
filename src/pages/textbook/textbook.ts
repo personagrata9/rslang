@@ -252,7 +252,11 @@ class Textbook extends ApiPage {
       const Difficulty: DifficultyType | undefined = userWords?.find((data) => data.wordId === word.id)?.difficulty;
       const isLearned: boolean = userWords?.find((data) => data.wordId === word.id)?.optional?.learned === true;
 
-      const wordCard: WordCard = new WordCard(word, this.color, Difficulty, isLearned);
+      const userWord = userWords.find((item) => item.wordId === word.id);
+      const correct = userWord?.optional.correct || '-';
+      const wrong = userWord?.optional.wrong || '-';
+
+      const wordCard: WordCard = new WordCard(word, this.color, Difficulty, isLearned, correct, wrong);
       listContainerElement.append(wordCard.render());
     });
 

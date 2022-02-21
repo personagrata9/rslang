@@ -55,6 +55,33 @@
     }
   }
 
+  .word-card-progress-container {
+    display: flex;
+    justify-content: end;
+    flex-grow: 1;
+    gap: 15px;
+    color: $white;
+    font-size: 18px;
+    line-height: 40px;
+    text-align: center;
+
+    .progress-correct-answers,
+    .progress-wrong-answers {
+      min-width: 60px;
+      height: 40px;
+      border-radius: 10px;
+      color: $white;
+    }
+
+    .progress-correct-answers {
+      background-color: $green-rgba;
+    }
+
+    .progress-wrong-answers {
+      background-color: $red-rgba;
+    }
+  }
+
   .word-card-buttons {
     position: absolute;
     bottom: 1rem;
