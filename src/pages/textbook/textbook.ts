@@ -380,9 +380,10 @@ class Textbook extends ApiPage {
     }
   }
 
-  createButtonTop(): HTMLElement {
+  private createButtonTop(): HTMLElement {
     const button = document.createElement('button');
-    button.id = 'button';
+    button.style.backgroundColor = this.color;
+    button.id = 'button-to-top';
     button?.addEventListener('click', (e) => {
       e.preventDefault();
       window.scrollTo(0, 0);
@@ -417,7 +418,7 @@ class Textbook extends ApiPage {
 }
 
 window.addEventListener('scroll', () => {
-  const btn = document.querySelector('#button');
+  const btn = document.querySelector('#button-to-top');
   if (window.scrollY > 300) {
     btn?.classList.add('show');
   } else {

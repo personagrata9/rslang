@@ -1,21 +1,20 @@
-#button {
+#button-to-top {
   display: inline-block;
-  background-color: #FF9800;
-  width: 50px;
-  height: 50px;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
   text-align: center;
   border-radius: 4px;
   position: fixed;
   bottom: 50px;
   right: 30px;
-  transition: background-color .3s, 
-    opacity .5s, visibility .5s;
+  transition: background-color 0.3s, opacity 0.5s, visibility 0.5s;
   opacity: 0;
   visibility: hidden;
   z-index: 1000;
 }
-#button::after {
-  content: "↑";
+#button-to-top::after {
+  content: '↑';
   font-weight: normal;
   font-style: normal;
   font-size: 2em;
@@ -23,14 +22,14 @@
 
   color: #fff;
 }
-#button:hover {
+#button-to-top:hover {
   cursor: pointer;
   background-color: #333;
 }
-#button:active {
+#button-to-top:active {
   background-color: #555;
 }
-#button.show {
+#button-to-top.show {
   opacity: 1;
   visibility: visible;
 }
