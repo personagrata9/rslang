@@ -18,12 +18,15 @@ class Statistics {
 
   private api: Api;
 
+  private todayWinrate: number;
+
   constructor() {
     this.statistics = createElement('div', ['statistic-wrapper']);
     this.totalCorrect = 0;
     this.totalWrong = 0;
     this.todayNewWords = 0;
     this.todayLearnedWords = 0;
+    this.todayWinrate = 0;
     this.api = new Api();
   }
 
@@ -41,6 +44,7 @@ class Statistics {
       contentContainer.append(this.statistics);
       this.updateNum(this.todayNewWords, '.new-words-counter');
       this.updateNum(this.todayLearnedWords, '.learned-words-counter');
+      this.updateNum(this.todayWinrate, '.percent-num');
       await this.winrateChart();
       await this.newWordsChart();
       await this.allLearnedWordsChart();
@@ -63,6 +67,7 @@ class Statistics {
     const statistic = <{ [key: string]: number }>await this.getShortStatistic();
     this.todayNewWords = statistic.newWordsNum;
     this.todayLearnedWords = statistic.totalLearned;
+    this.todayWinrate = statistic.winrateNum;
     const shortStatisticContainer = createElement('div', ['short-statistic-container']);
     const sprintStatistic = createElement('div', ['container', 'sprint-statistic']);
     const audioStatistic = createElement('div', ['container', 'audio-statistic']);
@@ -253,10 +258,11 @@ class Statistics {
     const winrateCircleContainer = createElement('div', ['winrate__circle-container']);
     const winrateCircleBody = createElement('div', ['winrate__circle-body']);
     const winrateCircleCounter = createElement('div', ['winrate__circle-counter']);
-    const winrateNum = createElement('span', ['percent'], `${winrate}%`);
+    const winrateNum = createElement('span', ['percent-num']);
+    const percentSymbol = createElement('span', [], '%');
     const root = <HTMLElement>document.querySelector(':root');
     root.style.setProperty('--win-height', `${winrate}%`);
-    winrateCircleCounter.append(winrateNum);
+    winrateCircleCounter.append(winrateNum, percentSymbol);
     winrateCircleBody.append(winrateCircleCounter);
     winrateCircleContainer.append(winrateCircleBody);
     winrateCircleWrapper.append(winrateCircleContainer);
