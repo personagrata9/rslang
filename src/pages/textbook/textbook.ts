@@ -284,7 +284,9 @@ class Textbook extends ApiPage {
       listContainerElement.append(wordCard.render());
     });
 
-    this.playingWordId = words[0].id;
+    if (words[0]) {
+      this.playingWordId = words[0].id;
+    }
 
     if (!this.userId && this.textbookGroup === '6') {
       listContainerElement.innerHTML =
