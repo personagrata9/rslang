@@ -1,7 +1,8 @@
 import Api from '../../../api/api';
 import { BASE_URL, GROUP_COLORS } from '../../../common/constants';
-import { Colors, DifficultyType, IUserWordNewData, IUserWordData, IWord } from '../../../common/types';
+import { Colors, DifficultyType, IUserWordNewData, IUserWordData, IWord, IUserStatistics } from '../../../common/types';
 import { createElement, createButtonElement } from '../../../common/utils';
+import { convertDate } from '../../../state/helpers';
 
 class WordCard {
   private name: string;
@@ -168,6 +169,7 @@ class WordCard {
 
           await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
         }
+        await this.updateTextbookLearnedWords(false);
       }
     };
 
@@ -209,6 +211,42 @@ class WordCard {
       'style',
       `background-color: ${this.groupColor}; border-color: ${Colors.GrayLight}; color: ${Colors.GrayLight}`
     );
+  };
+
+  private updateTextbookLearnedWords = async (learned: boolean): Promise<void> => {
+    const userId = localStorage.getItem('UserId');
+    if (userId) {
+      await this.api
+        .getStatistics(userId)
+        .then(async (result: IUserStatistics) => {
+          if (result) {
+            const date = convertDate(new Date());
+            const checkNum = (num: number) => (num - 1 < 0 ? 0 : num - 1);
+            const userStatistics: IUserStatistics = {
+              learnedWords: learned ? result.learnedWords + 1 : checkNum(result.learnedWords),
+              optional: result.optional,
+            };
+            const todayLearned = result.optional.longTerm[date];
+            userStatistics.optional.longTerm[date].learned = learned
+              ? +todayLearned.learned + 1
+              : checkNum(+todayLearned.learned);
+            await this.api.updateStatistics(userId, userStatistics);
+          }
+        })
+        .catch(async (response: Response) => {
+          if (response) {
+            const userStatistics: IUserStatistics = {
+              learnedWords: 0,
+              optional: {
+                longTerm: {},
+                audioChallenge: { new: 0, correct: 0, wrong: 0, bestSeries: 0 },
+                sprint: { new: 0, correct: 0, wrong: 0, bestSeries: 0 },
+              },
+            };
+            await this.api.updateStatistics(userId, userStatistics);
+          }
+        });
+    }
   };
 
   private disableLearnedMode = (button: HTMLButtonElement): void => {
@@ -295,6 +333,7 @@ class WordCard {
           await this.api.createUserWord({ userId: this.userId, wordId: this.word.id, wordData });
           this.disableDifficultMode('difficult');
         }
+        await this.updateTextbookLearnedWords(true);
       }
     };
 

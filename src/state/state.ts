@@ -21,7 +21,7 @@ class State {
 
   private longTermStatistics: ILongTermStatistics;
 
-  private learnedWords: string;
+  private learnedWords: number;
 
   private userWords: IUserWordData[];
 
@@ -55,7 +55,7 @@ class State {
       },
     };
     this.longTermStatistics = {};
-    this.learnedWords = '0';
+    this.learnedWords = 0;
     this.userWords = [];
     this.difficultWords = [];
     this.currentWords = new Set([]);
@@ -138,7 +138,7 @@ class State {
         })
         .catch((response: Response) => {
           if (response) {
-            this.learnedWords = '0';
+            this.learnedWords = 0;
             this.longTermStatistics = {};
           }
         });
@@ -388,14 +388,11 @@ class State {
   };
 
   updateStatistics = async (): Promise<void> => {
-    await this.updateCurrentStatistics()
-      .then(async () => {
-        await this.updateLongTermStatistics();
-      })
-      .then(async () => {
+    await this.updateCurrentStatistics().then(async () => {
+      await this.updateLongTermStatistics().then(async () => {
         if (this.userId) {
           const userStatistics: IUserStatistics = {
-            learnedWords: this.learnedWords,
+            learnedWords: this.learnedWords + this.statistics.totalLearned.size,
             optional: {
               longTerm: this.longTermStatistics,
               audioChallenge: {
@@ -416,6 +413,7 @@ class State {
         }
         this.setStatisticsToLS();
       });
+    });
   };
 }
 

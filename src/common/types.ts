@@ -163,6 +163,6 @@ export interface IStatiscticsOptional {
 }
 
 export interface IUserStatistics {
-  learnedWords: string;
+  learnedWords: number;
   optional: IStatiscticsOptional;
 }
