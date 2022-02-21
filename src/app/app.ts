@@ -4,7 +4,7 @@ import Footer from '../components/footer/footer';
 import { createElement, checkHash } from '../common/utils';
 import { BODY } from '../common/constants';
 import Error404 from '../pages/errorPage/error404';
-import Textbook from '../pages/textbook/textbook';
+import Textbook, { pauseAudios } from '../pages/textbook/textbook';
 import Main from '../pages/main/main';
 import Statistics from '../pages/statistics/statistics';
 import ApiPage from '../pages/api-page';
@@ -94,6 +94,8 @@ class App {
       page.render();
     }
     contentContainer.classList.remove('preloader');
+
+    pauseAudios();
   };
 }
 

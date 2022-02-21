@@ -103,7 +103,7 @@ export interface IFilter {
 }
 
 export interface IAggregatedFilter {
-  $or: [IFilter, FilterType];
+  $or: [IFilter, FilterType] | IFilter[];
 }
 
 type TotalCountType = {
