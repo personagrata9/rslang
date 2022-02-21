@@ -180,8 +180,16 @@
   }
 }
 
+@media (max-width: 1100px) {
+  .words-cards-list-container {
+    gap: 1rem;
+    padding: 1rem;
+  }
+}
+
 @media (max-width: 990px) {
-  .textbook-minigames-links-container {
-    margin-top: 0;
+  .words-cards-list-container {
+    gap: 1rem;
+    padding: 1rem;
   }
 }
