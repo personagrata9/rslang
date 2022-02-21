@@ -14,6 +14,14 @@ const checkFullyLearnedPage = async (color: Colors): Promise<void> => {
   const userId = localStorage.getItem('UserId');
   const group = localStorage.getItem('group');
   const page = localStorage.getItem('page');
+  const colors = [
+    Colors.TurquoiseRgba,
+    Colors.TurquoiseDarkRgba,
+    Colors.GrayRgba,
+    Colors.GrayDarkRgba,
+    Colors.YellowRgba,
+    Colors.YellowDarkRgba,
+  ];
   if (userId && group && group !== '6') {
     const words: IWord[] = [];
     const filter: IFilter = {
@@ -25,7 +33,7 @@ const checkFullyLearnedPage = async (color: Colors): Promise<void> => {
 
     if (page && words.filter((word) => word.page === +page).length === WORDS_PER_PAGE) {
       const cardsList = <HTMLDivElement>document.querySelector('.words-cards-list-container');
-      cardsList.style.backgroundColor = color;
+      cardsList.style.backgroundColor = colors[+group];
 
       const activePageItem = <HTMLLIElement>document.querySelector('.page-item.active');
       activePageItem.style.backgroundColor = color;
