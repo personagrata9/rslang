@@ -98,12 +98,12 @@ class Main {
     const infoPersona = createElement('div', ['team-player-info']);
     const namePersona = createElement('span', ['team-player-name'], 'personagrata9');
     infoPersona.append(namePersona);
-    const teamPositionPersona = createElement('p', ['team-position'], 'Team leader, Frontend developer');
+    const teamPositionPersona = createElement('p', ['team-position'], 'Team lead, Frontend developer');
     infoPersona.append(teamPositionPersona);
     const contributionPersona = createElement(
       'p',
       ['contribution'],
-      'Did basic project settings, create statistics, initial layout. Create textbook page and collection of statistics'
+      'Basic project settings and structure, initial layout, statistics storaging, textbook, word cards.'
     );
     infoPersona.append(contributionPersona);
     const gitLinkPersona = createElement('a', ['git-link']);
@@ -123,7 +123,7 @@ class Main {
     const contributionCaptain = createElement(
       'p',
       ['contribution'],
-      'Create "Sprint" minigame, Api for work with back-end, statistics page and registration form,'
+      '"Sprint" game, backend, statistics page, registration/authorisation form, result view in minigames.'
     );
     infoCaptain.append(contributionCaptain);
     const gitLinkCaptain = createElement('a', ['git-link']);
@@ -143,7 +143,7 @@ class Main {
     const contributionAnterebol = createElement(
       'p',
       ['contribution'],
-      'Create "Audio-challenge" minigame, create main page. Lorem ipsum///'
+      '"Audio Challenge" game, main page, header, footer, sidebar, page "404", preloader.'
     );
     infoAnterebol.append(contributionAnterebol);
     const gitLinkAnterebol = createElement('a', ['git-link']);
