@@ -86,6 +86,12 @@ export enum Colors {
   White = '#ffffff',
   Black = '#000000',
   Green = '#61b6aa',
+  TurquoiseDarkRgba = 'rgba(0, 83, 101, 0.6)',
+  TurquoiseRgba = 'rgba(68, 146, 159, 0.6)',
+  GrayDarkRgba = 'rgba(148, 149, 151, 0.6)',
+  GrayRgba = 'rgba(193, 189, 180, 0.6)',
+  YellowDarkRgba = 'rgba(194, 148, 0, 0.6)',
+  YellowRgba = 'rgba(235, 213, 103, 0.6)',
 }
 
 export type ApiPageNameType = 'textbook' | 'audio-challenge' | 'sprint';

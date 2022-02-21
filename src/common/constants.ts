@@ -17,3 +17,13 @@ export const GROUP_COLORS = [
   Colors.YellowDark,
   Colors.Orange,
 ];
+
+export const GROUP_COLORS_RGBA = [
+  Colors.Turquoise,
+  Colors.TurquoiseDark,
+  Colors.Gray,
+  Colors.GrayDark,
+  Colors.Yellow,
+  Colors.YellowDark,
+  Colors.Orange,
+];
