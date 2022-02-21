@@ -447,5 +447,5 @@ class AudioChallenge extends ApiPage {
     }
   }
 }
-// window.addEventListener('beforeunload', () => localStorage.removeItem('isTextbook'));
+
 export default AudioChallenge;

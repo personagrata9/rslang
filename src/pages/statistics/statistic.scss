@@ -1,4 +1,4 @@
-@import "src/styles/common";
+@import 'src/styles/common';
 
 .clear-block-wrapper {
   display: flex;
@@ -30,15 +30,14 @@
       padding: 5px;
       font-weight: bold;
       color: white;
-      transition: all .1s linear;
+      transition: all 0.1s linear;
     }
     .to-textbook-btn:active {
       box-shadow: 0 2px 0 $turquoise-dark;
       transform: translateY(3px);
     }
     .to-textbook-btn:focus,
-    .to-textbook-btn:checked,
-    {
+    .to-textbook-btn:checked {
       box-shadow: none;
     }
   }
@@ -76,7 +75,8 @@
           width: 225px;
           height: 170px;
           border-radius: 10px;
-          background:center no-repeat url('https://best-of-netflix.com/static/uploads/sites/4/2021/11/Squid-Game-doll.jpg');
+          background: center no-repeat
+            url('https://best-of-netflix.com/static/uploads/sites/4/2021/11/Squid-Game-doll.jpg');
           background-size: cover;
         }
       }
@@ -88,7 +88,8 @@
           width: 225px;
           height: 170px;
           border-radius: 10px;
-          background:center no-repeat url('https://images.unsplash.com/photo-1575975243243-5462a2054ed2?fit=max&fm=jpg&ixid=MXwzNTY3MHwwfDF8YWxsfHx8fHx8fHw&ixlib=rb-1.2.1&q=75&w=720&utm_medium=referral&utm_source=vocal.media');
+          background: center no-repeat
+            url('https://images.unsplash.com/photo-1575975243243-5462a2054ed2?fit=max&fm=jpg&ixid=MXwzNTY3MHwwfDF8YWxsfHx8fHx8fHw&ixlib=rb-1.2.1&q=75&w=720&utm_medium=referral&utm_source=vocal.media');
           background-size: cover;
         }
       }
@@ -140,7 +141,7 @@
 
         .winrate-chart {
           width: 700px !important;
-          height: 700px!important;
+          height: 700px !important;
         }
         .winrate-percent {
           margin-left: 280px;
