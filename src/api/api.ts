@@ -189,7 +189,7 @@ class Api {
     return res.json().then();
   };
 
-  updateStatistics = async (userId: string, options: IUserStatistics): Promise<void> => {
+  updateStatistics = async (userId: string, userStatistics: IUserStatistics): Promise<void> => {
     await fetch(`${this.url}/users/${userId}/statistics`, {
       method: Methods.Put,
       headers: {
@@ -197,7 +197,7 @@ class Api {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(options),
+      body: JSON.stringify(userStatistics),
     });
   };
 
@@ -238,6 +238,12 @@ class Api {
     const userWords: IUserWordData[] = await this.getUserWords(userId).then((result) => result);
     const difficultWordsData: IUserWordData[] = userWords.filter((data) => data.difficulty === 'hard');
     return Promise.all(difficultWordsData.map((data: IUserWordData): Promise<IWord> => this.getWordById(data.wordId)));
+  };
+
+  getLearnedUserWords = async (userId: string): Promise<IWord[]> => {
+    const userWords: IUserWordData[] = await this.getUserWords(userId).then((result) => result);
+    const learnedWordsData: IUserWordData[] = userWords.filter((data) => data.optional.learned === true);
+    return Promise.all(learnedWordsData.map((data: IUserWordData): Promise<IWord> => this.getWordById(data.wordId)));
   };
 }
 
