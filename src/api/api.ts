@@ -90,15 +90,6 @@ class Api {
       .catch();
   };
 
-  deleteUser = async (id: string): Promise<void> => {
-    await fetch(`${this.url}/users/${id}`, {
-      method: Methods.Delete,
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-      },
-    });
-  };
-
   refreshUserToken = async (id: string): Promise<void> => {
     await fetch(`${this.url}/users/${id}/tokens`, {
       headers: {
@@ -169,16 +160,6 @@ class Api {
     });
   };
 
-  delUserWordById = async ({ userId, wordId }: IUserWord): Promise<void> => {
-    await fetch(`${this.url}/users/${userId}/words/${wordId}`, {
-      method: Methods.Delete,
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-        Accept: 'application/json',
-      },
-    });
-  };
-
   getStatistics = async (userId: string): Promise<IUserStatistics> => {
     const res = await fetch(`${this.url}/users/${userId}/statistics`, {
       headers: {
@@ -221,16 +202,6 @@ class Api {
         },
       }
     );
-    return res.json().then();
-  };
-
-  getUserAggregetedWord = async ({ userId, wordId }: IUserWord): Promise<[IWord]> => {
-    const res = await fetch(`${this.url}/users/${userId}/aggregatedWords/${wordId}`, {
-      headers: {
-        Authorization: `Bearer ${this.token}`,
-        Accept: 'application/json',
-      },
-    });
     return res.json().then();
   };
 
