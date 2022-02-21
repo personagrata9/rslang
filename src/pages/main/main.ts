@@ -123,7 +123,7 @@ class Main {
     const contributionCaptain = createElement(
       'p',
       ['contribution'],
-      'Create "Sprint" minigame, create Api for work with back-end and registretion form,'
+      'Create "Sprint" minigame, Api for work with back-end, statistics page and registration form,'
     );
     infoCaptain.append(contributionCaptain);
     const gitLinkCaptain = createElement('a', ['git-link']);

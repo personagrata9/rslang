@@ -20,6 +20,8 @@ class Statistics {
 
   private todayWinrate: number;
 
+  private userId: string | null;
+
   constructor() {
     this.statistics = createElement('div', ['statistic-wrapper']);
     this.totalCorrect = 0;
@@ -27,6 +29,7 @@ class Statistics {
     this.todayNewWords = 0;
     this.todayLearnedWords = 0;
     this.todayWinrate = 0;
+    this.userId = localStorage.getItem('UserId') || null;
     this.api = new Api();
   }
 
@@ -34,10 +37,10 @@ class Statistics {
     const contentContainer = <HTMLDivElement>document.querySelector('.content-container');
     const userStat = undefined;
     await this.api
-      .getStatistics(localStorage.getItem('UserId') || '')
+      .getStatistics(this.userId || '')
       .then((result) => userStat === result)
       .catch((result) => userStat === result);
-    if (!localStorage.getItem(`statistics${localStorage.getItem('UserId') || ''}`) && typeof userStat !== 'object') {
+    if (!localStorage.getItem(`statistics${this.userId || ''}`) && typeof userStat !== 'object') {
       contentContainer.append(this.createNoStatisticBlock());
     } else {
       this.statistics.append(await this.createStatisticContainer());
@@ -131,10 +134,10 @@ class Statistics {
     let audioNewWordsNum = 0;
     let audioWinrateNum = 0;
     let audioWinstreakNum = 0;
-    if (localStorage.getItem('UserId')) {
-      await this.api.getStatistics(localStorage.getItem('UserId') || '').then((result: IUserStatistics) => {
+    if (this.userId) {
+      await this.api.getStatistics(this.userId || '').then((result: IUserStatistics) => {
         if (result.optional.longTerm[convertDate(new Date())]) {
-          totalLearned = +result.learnedWords;
+          totalLearned = result.optional.longTerm[convertDate(new Date())].learned;
           sprintCorrect = result.optional.sprint.correct;
           sprintWrong = result.optional.sprint.wrong;
           audioCorrect = result.optional.audioChallenge.correct;
@@ -153,7 +156,7 @@ class Statistics {
         }
       });
     } else {
-      const userStatistics = localStorage.getItem(`statistics${localStorage.getItem('UserId') || ''}`) || '';
+      const userStatistics = localStorage.getItem(`statistics${this.userId || ''}`) || '';
       const shortStatistic = parseTotalStatistics(userStatistics);
       if (shortStatistic.date === convertDate(new Date())) {
         const reducer = (obj: object) =>
@@ -196,8 +199,8 @@ class Statistics {
     const learnedWordsArr: number[] = [];
     const newWordsArr: number[] = [];
     let userStatistic;
-    if (localStorage.getItem('UserId')) {
-      await this.api.getStatistics(localStorage.getItem('UserId') || '').then((result: IUserStatistics) => {
+    if (this.userId) {
+      await this.api.getStatistics(this.userId || '').then((result: IUserStatistics) => {
         userStatistic = result.optional.longTerm;
         Object.entries(userStatistic).forEach((e) => {
           dateArr.push(e[0]);
