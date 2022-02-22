@@ -1,0 +1,252 @@
+@import 'src/styles/common';
+
+.clear-block-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .clear-block-container {
+    width: 30vw;
+    display: flex;
+    top: 30vh;
+    background-color: $turquoise-light;
+    border-radius: 10px;
+    box-shadow: 0px 0px 8px 6px rgba(1, 82, 105, 0.37);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    position: absolute;
+    padding: 30px;
+    animation: clearOpen 1s linear;
+    .clear-block-title {
+      text-align: center;
+      font-size: 30px;
+      color: $turquoise;
+    }
+    .to-textbook-btn {
+      bottom: 10px;
+      background-color: $turquoise;
+      box-shadow: 0 5px 0 $turquoise-dark;
+      width: 200px;
+      padding: 5px;
+      font-weight: bold;
+      color: white;
+      transition: all 0.1s linear;
+    }
+    .to-textbook-btn:active {
+      box-shadow: 0 2px 0 $turquoise-dark;
+      transform: translateY(3px);
+    }
+    .to-textbook-btn:focus,
+    .to-textbook-btn:checked {
+      box-shadow: none;
+    }
+  }
+}
+
+.statistic-container {
+  display: flex;
+  padding: 20px 20px 70px;
+  flex-direction: column;
+  .short-statistic {
+    font-size: 35px;
+    color: $turquoise;
+    margin: 0 auto;
+    .short-statistic-container {
+      font-size: 22px;
+      display: flex;
+      flex-direction: row;
+      column-gap: 45px;
+      .total-statistic {
+        display: flex;
+        flex-direction: column;
+        row-gap: 15px;
+      }
+      .container {
+        background-color: $turquoise-light;
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 8px 6px rgba(1, 82, 105, 0.37);
+      }
+
+      .sprint-statistic {
+        width: 245px;
+        height: 330px;
+        .sprint-pic {
+          width: 225px;
+          height: 170px;
+          border-radius: 10px;
+          background: center no-repeat
+            url('https://best-of-netflix.com/static/uploads/sites/4/2021/11/Squid-Game-doll.jpg');
+          background-size: cover;
+        }
+      }
+
+      .audio-statistic {
+        width: 245px;
+        height: 330px;
+        .audio-pic {
+          width: 225px;
+          height: 170px;
+          border-radius: 10px;
+          background: center no-repeat
+            url('https://images.unsplash.com/photo-1575975243243-5462a2054ed2?fit=max&fm=jpg&ixid=MXwzNTY3MHwwfDF8YWxsfHx8fHx8fHw&ixlib=rb-1.2.1&q=75&w=720&utm_medium=referral&utm_source=vocal.media');
+          background-size: cover;
+        }
+      }
+
+      .new-words-container {
+        display: flex;
+        font-size: 24px;
+        flex-direction: row;
+        align-items: center;
+        width: 230px;
+        height: 100px;
+      }
+      .learned-words-container {
+        display: flex;
+        font-size: 26px;
+        flex-direction: row;
+        align-items: center;
+        text-align: center;
+        width: 230px;
+        height: 100px;
+      }
+      .winrate-container {
+        display: flex;
+        flex-direction: row;
+        font-size: 30px;
+        width: 230px;
+        height: 100px;
+        align-items: center;
+      }
+    }
+  }
+  .long-statistic {
+    font-size: 35px;
+    color: $turquoise;
+    margin: 0 auto;
+    width: 810px;
+    .long-statistic-container {
+      display: flex;
+      flex-direction: column;
+      row-gap: 25px;
+      .container {
+        padding: 10px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 8px 6px rgba(1, 82, 105, 0.37);
+      }
+      .total-winrate {
+        display: flex;
+        padding: 20px 55px;
+
+        .winrate-chart {
+          width: 700px !important;
+          height: 700px !important;
+        }
+        .winrate-percent {
+          margin-left: 280px;
+          margin-top: 290px;
+          font-size: 85px;
+          font-weight: bold;
+          position: absolute;
+          color: $turquoise-dark;
+        }
+        .winrate-text {
+          margin-left: 290px;
+          margin-top: 390px;
+          position: absolute;
+          color: $turquoise;
+        }
+      }
+      .learned-words {
+        display: flex;
+        padding: 20px 55px;
+        .words-chart {
+          width: 700px !important;
+          height: 350px !important;
+        }
+      }
+      .total-learned-words {
+        display: flex;
+        padding: 20px 55px;
+        .learned-words-chart {
+          width: 700px !important;
+          height: 350px !important;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 1050px) {
+  .statistic-container {
+    .short-statistic {
+      .short-statistic-container {
+        flex-direction: column;
+        column-gap: 0px;
+        row-gap: 25px;
+
+        .total-statistic {
+          .new-words-container {
+            width: 245px;
+          }
+          .learned-words-container {
+            width: 245px;
+          }
+          .winrate-container {
+            width: 245px;
+          }
+        }
+      }
+    }
+    .long-statistic {
+      width: auto;
+
+      .long-statistic-container {
+        flex-direction: column;
+        width: 360px;
+        .total-winrate {
+          padding: 10px;
+          .winrate-chart {
+            width: 350px !important;
+            height: 350px !important;
+          }
+          .winrate-percent {
+            margin-left: 150px;
+            margin-top: 145px;
+            font-size: 30px;
+          }
+
+          .winrate-text {
+            margin-left: 130px;
+            margin-top: 180px;
+            font-size: 25px;
+          }
+        }
+        .learned-words {
+          padding: 10px;
+          .words-chart {
+            width: 340px !important;
+            height: 260px !important;
+          }
+        }
+        .total-learned-words {
+          padding: 10px;
+          .learned-words-chart {
+            width: 340px !important;
+            height: 260px !important;
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes clearOpen {
+  0% {
+    left: -100vw;
+  }
+  100% {
+    left: calc(50% - 15vw);
+  }
+}

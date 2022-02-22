@@ -1,0 +1,35 @@
+#button-to-top {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
+  text-align: center;
+  border-radius: 4px;
+  position: fixed;
+  bottom: 50px;
+  right: 30px;
+  transition: background-color 0.3s, opacity 0.5s, visibility 0.5s;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1000;
+}
+#button-to-top::after {
+  content: '↑';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 2em;
+  line-height: 30px;
+
+  color: #fff;
+}
+#button-to-top:hover {
+  cursor: pointer;
+  background-color: #333;
+}
+#button-to-top:active {
+  background-color: #555;
+}
+#button-to-top.show {
+  opacity: 1;
+  visibility: visible;
+}

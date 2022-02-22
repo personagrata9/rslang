@@ -1,0 +1,120 @@
+@import '../../styles/common';
+
+.main-container {
+  max-width: 900px;
+  padding-bottom: 70px;
+  margin: 0 auto;
+  padding: 0 30px;
+  padding-bottom: 70px;
+  .main-title {
+    color: $turquoise-dark;
+    text-align: left;
+    margin-top: 100px;
+  }
+  .main-icon {
+    width: 40px;
+    height: 40px;
+    fill: white;
+
+  }
+  .main-quote {
+    font-size: 20px;
+    color: gainsboro;
+  }
+  .main-advantages {
+    text-align: center;
+    margin: 30px 0;
+  }
+  .slider-container {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .info-main-container {
+    width: 200px;
+    height: 200px;
+    padding: 15px;
+    box-shadow: 0px 0px 10px 5px gray;
+    text-align: center;
+    margin: 10px 3px;
+    background: linear-gradient(45deg, $turquoise-dark 10%, $turquoise 90%);
+  }
+  .main-text {
+    font-size: 12px;
+    margin-top: 10px;
+    color: white;
+  }
+  .main-posibilities {
+    text-align: center;
+    margin: 30px 0;
+  }
+  .video-container {
+    width: 560px;
+    margin: 0 auto;
+  }
+  .team-player {
+    max-width: 100%;
+    margin: 30px 30px;
+    display: flex;
+    border-radius: 20px;
+    box-shadow: 0 0 5px 5px gainsboro;
+  }
+  .team-player-avatar {
+    width: 220px;
+    height: 220px;
+    border-radius: 20px 0px 0px 20px;
+  }
+  .team-player-info {
+    padding: 10px 10px 0px 30px;
+  }
+  .team-player-name {
+    font-size: 30px;
+    color: $turquoise-dark;
+  }
+  .team-position {
+    color: gray;
+  }
+  .contribution {
+    max-width: 500px;
+    font-size: 16px;
+  }
+  .git-main-icon {
+    width: 30px;
+    height: 30px;
+  }
+  .git-link {
+    text-decoration: none;
+  }
+  .avatar-persona {
+    background: url('../static/persona.jpg') no-repeat center;
+    background-size: cover;
+  }
+  .avatar-captain {
+    background: url('../static/captain.jpg') no-repeat center;
+    background-size: cover;
+  }
+  .avatar-anterebol {
+    background: url('../static/anterebol.jpg') no-repeat center;
+    background-size: cover;
+  }
+}
+@media (max-width: 900px) {
+  .main-container {
+    max-width: 600px;
+  }
+  .slider-container {
+    padding: 0;
+    margin: 0;
+  }
+  .video-container {
+    margin: 0 auto;
+    height:  225px !important;
+    width: 400px !important;
+  }
+  .iframe-main {
+    margin: 0 auto;
+    height:  225px !important;
+    width: 400px !important;
+  }
+}

@@ -1,0 +1,93 @@
+@import '../../styles/common';
+.header {
+  background: $gray-dark;
+  width: 100%;
+  padding: 10px 0;
+  position: sticky;
+  height: 66px;
+  top: 0;
+  z-index: 10;
+  .header-nav {
+    margin: auto 30px;
+    display: flex;
+    flex-wrap: wrap;
+
+    .page-name {
+      margin: 0 auto;
+      font-size: 30px;
+      color: $white;
+      text-transform: uppercase;
+      color: $yellow;
+      font-weight: 600;
+      border-radius: 10px;
+    }
+
+    .user-name {
+      color: white;
+      font-weight: bold;
+      font-family: sans-serif;
+      margin-right: 20px;
+      font-size: 20px;
+      padding-top: 10px;
+      span {
+        color: $turquoise;
+      }
+    }
+    .btn {
+      margin: auto 0;
+    }
+    .hide {
+      display: none;
+    }
+
+    .app-logo {
+      display: flex;
+
+      .app-logo-rs {
+        padding-left: 10px;
+        color: $turquoise-dark;
+        font-size: 30px;
+        font-weight: 600;
+
+        span:nth-child(1) {
+          padding-left: 5px;
+          color: $white;
+          font-size: 30px;
+        }
+
+        span:nth-child(2) {
+          color: $white;
+          font-size: 30px;
+          font-weight: 300;
+        }
+      }
+
+      .app-logo-img {
+        width: 30px;
+        height: 30px;
+        margin: auto;
+        background-image: url('../static/logo.jpg');
+        background-repeat: no-repeat;
+        background-size: cover;
+        border-radius: 5px;
+      }
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .header {
+    .header-nav {
+      margin: auto 10px;
+      justify-content: space-between;
+    }
+
+    .page-name {
+      display: none;
+    }
+
+    .app-logo-rs {
+      display: none;
+    }
+  }
+}

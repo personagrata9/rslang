@@ -1,0 +1,191 @@
+.word-card-container {
+  position: relative;
+  background-color: #ffffff;
+  font-size: smaller;
+  min-height: 330px;
+  overflow: hidden;
+  opacity: 0.7;
+  transition: all 0.3s linear;
+
+  .word-card-image {
+    position: relative;
+    left: -0.75rem;
+    width: 35%;
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    transition: all 0.3s linear;
+  }
+
+  .word-card-marker {
+    position: relative;
+    left: -0.75rem;
+    width: 3rem;
+    height: auto;
+    transition: all 0.3s linear;
+  }
+
+  .word-card-description {
+    width: 65%;
+
+    .word-card-translate,
+    .word-card-text-meaning-translate,
+    .word-card-text-example-translate {
+      opacity: 0.7;
+    }
+  }
+
+  .word-card-audio-icon {
+    margin-left: 20px;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    opacity: 0.7;
+    transition: all 0.3s linear;
+    cursor: pointer;
+    background-image: url('/src/static/sound-ico.png');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 80%;
+
+    &:hover {
+      opacity: 1;
+      background-color: $gray-light;
+    }
+  }
+
+  .word-card-progress-container {
+    display: flex;
+    justify-content: end;
+    flex-grow: 1;
+    gap: 15px;
+    color: $white;
+    font-size: 18px;
+    line-height: 40px;
+    text-align: center;
+
+    .progress-correct-answers,
+    .progress-wrong-answers {
+      min-width: 60px;
+      height: 40px;
+      border-radius: 10px;
+      color: $white;
+    }
+
+    .progress-correct-answers {
+      background-color: $green-rgba;
+    }
+
+    .progress-wrong-answers {
+      background-color: $red-rgba;
+    }
+  }
+
+  .word-card-buttons {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    gap: 0.75rem;
+
+    .btn {
+      min-width: 100px;
+      color: $gray-light;
+      border-color: $gray-light;
+      border-width: 0.15rem;
+      transition: all 0.3s linear;
+    }
+
+    .btn-difficult-word {
+      &:hover {
+        color: $orange;
+        border-color: $orange;
+      }
+
+      &:active,
+      &.active {
+        color: $white;
+        background-color: $orange;
+        border-color: $orange;
+      }
+    }
+
+    .btn-easy-word {
+      &:hover {
+        color: $green;
+        border-color: $green;
+      }
+
+      &:active,
+      &.active {
+        color: $white;
+        background-color: $green;
+        border-color: $green;
+      }
+    }
+  }
+
+  &:hover {
+    opacity: 1;
+
+    .word-card-image {
+      transform: scale(1.07);
+    }
+  }
+
+  &.learned {
+    .word-card-image {
+      filter: grayscale(1);
+    }
+  }
+}
+
+@media (max-width: 1100px) {
+  .word-card-container {
+    flex-direction: column;
+    width: 47%;
+    min-height: 600px;
+
+    .word-card-image {
+      width: 110%;
+      height: 30%;
+    }
+
+    .word-card-description {
+      width: 100%;
+      position: relative;
+    }
+
+    .word-card-audio-icon {
+      position: absolute;
+      right: 0;
+      top: 18px;
+      align-self: end;
+    }
+
+    .word-card-progress-container {
+      justify-content: start;
+      position: absolute;
+      top: 80px;
+    }
+
+    .word-card-text-meaning {
+      padding-top: 40px;
+    }
+
+    h3.word-card-word {
+      font-size: 18px;
+    }
+  }
+}
+
+@media (max-width: 770px) {
+  .word-card-container {
+    width: 98%;
+    min-height: 600px;
+
+    .word-card-image {
+      height: 40%;
+    }
+  }
+}

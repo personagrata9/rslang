@@ -1,0 +1,106 @@
+@import "src/styles/common";
+
+.modal-container {
+  align-items: center;
+  justify-content: center;
+  display: flex;
+  position: absolute;
+  width: auto;
+  .fade {
+    backdrop-filter: blur(2px);
+    z-index: 10;
+    background-color: rgba(0,0,0,0.5);
+    .modal-dialog {
+      z-index: 20;
+    }
+    .modal-content {
+      .modal-header {
+        background-color: $yellow-light;
+        h5 {
+          color: $turquoise-dark;
+        }
+      }
+
+      .modal-footer {
+        background-color: $yellow-light;
+        .btn-sign{
+          background-color: $turquoise-dark;
+          border-color: $turquoise-dark;
+        }
+
+        .btn-sign[disabled]{
+          background-color: gray;
+          border-color: $turquoise-dark;
+        }
+
+        .btn-sign:hover{
+          background-color: $turquoise;
+          border-color: $turquoise;
+        }
+      }
+
+      .modal-body {
+        color: $turquoise-dark;
+        .login-form {
+          .container {
+            margin-top: 10px;
+          }
+          .error {
+            color: red;
+          }
+        }
+      }
+    }
+  }
+  .form-control:focus {
+    border-color: $turquoise-dark;
+  }
+  label {
+    font-size: 15px;
+  }
+}
+
+.form-check-input:checked {
+  background-color: $turquoise-dark;
+  border-color: $turquoise-dark;
+}
+
+@keyframes popupOpen {
+  0% {
+    top: -100vh;
+  }
+  100% {
+    top: 0
+  }
+}
+
+@keyframes popupClose {
+  0% {
+    top: 0
+  }
+  100% {
+    top: -100vh;
+  }
+}
+
+@keyframes shadow {
+  0% {
+    background-color: rgba(0,0,0,0.0);
+    backdrop-filter: blur(0);
+  }
+  100% {
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(2px);
+  }
+}
+
+@keyframes unShadow {
+  0% {
+    background-color: rgba(0,0,0,0.5);
+    backdrop-filter: blur(2px);
+  }
+  100% {
+    background-color: rgba(0,0,0,0.0);
+    backdrop-filter: blur(0);
+  }
+}
