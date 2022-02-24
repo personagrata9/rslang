@@ -369,9 +369,7 @@ class Sprint extends ApiPage {
     resultWrapper.append(resultHeader, blockWrapper, footerBtns);
     this.sprintGamePage.append(resultWrapper);
     localStorage.removeItem('isTextbook');
-
     await this.state.updateStatistics();
-
     this.restoreValues();
   };
 
