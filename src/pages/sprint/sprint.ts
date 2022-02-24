@@ -71,10 +71,10 @@ class Sprint extends ApiPage {
       this.sprintGamePage.append(this.createGameRules());
     }
     this.contentContainer.append(this.sprintGamePage);
-    this.initStatistics();
   }
 
   private createGame = async (group?: string): Promise<void> => {
+    this.state.initStatistics();
     if (this.selectedUnit) {
       this.page = random(NUMBER_OF_PAGES);
       this.gameWords = await this.getWordsItems(this.selectedUnit, String(this.page));
@@ -87,7 +87,6 @@ class Sprint extends ApiPage {
     const gamePage = createElement('div', ['container', 'sprint-game-container']);
     gamePage.append(this.createTimer(), this.createCheckboxes(), await this.createWordblock());
     this.sprintGamePage.append(gamePage);
-    this.state.initStatistics();
     await this.timer();
   };
 
@@ -118,8 +117,6 @@ class Sprint extends ApiPage {
       const rightBtn = createButtonElement('button', 'correct', 'btn', 'btn-right');
       const wrongBtn = createButtonElement('button', 'wrong', 'btn', 'btn-wrong');
       rightBtn.onclick = async () => {
-        // rightBtn.disabled = true;
-        // wrongBtn.disabled = true;
         if (this.counter < this.gameWords.length - 1) {
           this.counter += 1;
           await this.checkAnswer(
@@ -134,14 +131,10 @@ class Sprint extends ApiPage {
             generatedAnswer.currentWord
           ).then(async () => {
             if (!isWordsLoaded) await this.resultWindow();
-            // console.log('right-btn-res');
           });
         }
       };
       wrongBtn.onclick = async () => {
-        // rightBtn.disabled = true;
-        // wrongBtn.disabled = true;
-
         if (this.counter < this.gameWords.length - 1) {
           this.counter += 1;
           await this.checkAnswer(
@@ -156,7 +149,6 @@ class Sprint extends ApiPage {
             generatedAnswer.currentWord
           ).then(async () => {
             if (!isWordsLoaded) await this.resultWindow();
-            // console.log('wrong-btn-res');
           });
         }
       };
@@ -202,10 +194,10 @@ class Sprint extends ApiPage {
         }
         this.correctAnswers.push(currentWord);
         this.state.setCorrectWords(wordId);
-        // await playAudio(`../../static/audio/correct-answer.mp3`);
+        await playAudio(`../../static/audio/correct-answer.mp3`);
         await this.createWordblock();
       } else {
-        // await playAudio(`../../static/audio/bad_answer.mp3`);
+        await playAudio(`../../static/audio/bad_answer.mp3`);
         this.winstreak = 0;
         this.pointsMultiplier = 10;
         this.borderMultiplier = 3;
@@ -223,7 +215,6 @@ class Sprint extends ApiPage {
     const currentWord = this.gameWords[this.counter];
     if (!currentWord) {
       await this.resultWindow();
-      // console.log('compare-res');
       return undefined;
     }
 
@@ -320,14 +311,11 @@ class Sprint extends ApiPage {
 
     this.resultTimer = new Promise((resolve) => {
       const interval = setInterval(() => {
-        // console.log('in-res-timer');
         const timer = <HTMLElement>document.querySelector('.timer');
         if (!timer) {
-          // console.log('stop-res-timer-1');
           clearInterval(interval);
         }
         if (timer && +timer.innerHTML < 0) {
-          // console.log('stop-res-timer-2');
           resolve(this.resultWindow());
           clearInterval(interval);
         }
@@ -382,10 +370,9 @@ class Sprint extends ApiPage {
     this.sprintGamePage.append(resultWrapper);
     localStorage.removeItem('isTextbook');
 
-    await this.state.updateGameState();
+    await this.state.updateStatistics();
 
     this.restoreValues();
-    // console.log('result');
   };
 
   private createResultCircle = (): HTMLElement => {

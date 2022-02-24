@@ -119,10 +119,9 @@ export interface IAggregatedResult {
 }
 
 export interface IGameStatistics {
-  gameWords: Set<string>;
   new: Set<string>;
-  correct: Map<string, number>;
-  wrong: Map<string, number>;
+  correct: StringObjectType;
+  wrong: StringObjectType;
   bestSeries: number;
 }
 
@@ -130,20 +129,22 @@ export interface IGameStatisticsTotal {
   date: string;
   totalGameWords: Set<string>;
   totalNew: Set<string>;
-  totalCorrect: Map<string, number>;
-  totalWrong: Map<string, number>;
+  totalCorrect: StringObjectType;
+  totalWrong: StringObjectType;
   totalLearned: Set<string>;
-  totalRepeats: Map<string, number>;
+  totalRepeats: StringObjectType;
   audioChallenge: IGameStatistics;
   sprint: IGameStatistics;
 }
 
-export interface IGameStatisticsStr {
+export type StringObjectType = {
   [key: string]: string;
-}
+};
 
 export interface ILongTermStatisticsItem {
   newPerDay: number;
+  correctPerDay: number;
+  wrongPerDay: number;
   learnedPerDay: number;
 }
 

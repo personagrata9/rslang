@@ -126,30 +126,16 @@ export const shuffle = (array: IWord[]): IWord[] => {
   return array;
 };
 
-export const mapFromString = (value: string): Map<string, number> => {
-<<<<<<< HEAD
-  if (value.length) {
-    const arr = value.split(',');
-    const ids = arr.filter((_, i) => !(i % 2));
-    const counts = arr.filter((_, i) => i % 2).map(Number);
-    return new Map(ids.map((id, i) => [id, counts[i]]));
-  }
-  return new Map([]);
-};
-
 export const setFromString = (value: string): Set<string> => {
   if (value.length) {
     const arr = value.split(',');
     return new Set(arr);
   }
   return new Set([]);
-=======
-  const arr = value.split(',');
-  const ids = arr.filter((_, i) => !(i % 2));
-  const counts = arr.filter((_, i) => i % 2);
-  return new Map(ids.map((id, i) => [id, +counts[i]]));
->>>>>>> 3d73784 (feat: add statistics state for interaction wirh localStorage)
 };
 
 export const convertDate = (date: Date): string =>
-  `${date.getFullYear()}${date.getMonth().toString().padStart(2, '0')}${date.getDate().toString().padStart(2, '0')}`;
+  `${date.getFullYear()}${(date.getMonth() + 1).toString().padStart(2, '0')}${date
+    .getDate()
+    .toString()
+    .padStart(2, '0')}`;
