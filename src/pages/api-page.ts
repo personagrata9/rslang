@@ -1,4 +1,4 @@
-import { IWord, ApiPageNameType, IFilter, IUserWordData } from '../common/types';
+import { IWord, ApiPageNameType, IFilter } from '../common/types';
 import { WORDS_PER_PAGE } from '../common/constants';
 import State from '../state/state';
 import Api from '../api/api';
@@ -30,7 +30,7 @@ abstract class ApiPage {
 
     if (this.userId && localStorage.getItem('isTextbook')) {
       if (group === '6') {
-        words = await this.getDifficultUserWords();
+        words = await this.api.getDifficultUserWords(this.userId);
       } else {
         const filter: IFilter = {
           $or: [{ userWord: null }, { 'userWord.optional': null }, { 'userWord.optional.learned': false }],
@@ -50,16 +50,6 @@ abstract class ApiPage {
       await this.api.getWords(group, page).then((results) => results.forEach((result: IWord) => words.push(result)));
     }
     return words;
-  };
-
-  protected getDifficultUserWords = async (): Promise<IWord[]> => {
-    const userWords: IUserWordData[] = this.userId
-      ? await this.api.getUserWords(this.userId).then((result) => result)
-      : [];
-    const difficultWordsData: IUserWordData[] = userWords.filter((data) => data.difficulty === 'hard');
-    return Promise.all(
-      difficultWordsData.map((data: IUserWordData): Promise<IWord> => this.api.getWordById(data.wordId))
-    );
   };
 }
 

@@ -223,7 +223,7 @@ class Textbook extends ApiPage {
       : [];
 
     if (this.userId && this.textbookGroup === '6') {
-      words = await this.getDifficultUserWords();
+      words = await this.api.getDifficultUserWords(this.userId);
 
       if (words.length === 0) {
         listContainerElement.innerHTML = `You don't have difficult words! You are able to mark word as difficult in Unit 1-6.`;
