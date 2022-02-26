@@ -141,13 +141,13 @@ export type StringObjectType = {
   [key: string]: string;
 };
 
-export interface ILongTermStatisticsItem {
-  newPerDay: number;
-  correctPerDay: number;
-  wrongPerDay: number;
-  learnedPerDay: number;
+export interface IDayStatistics {
+  new: number;
+  correct: number;
+  wrong: number;
+  learned: number;
 }
 
 export interface ILongTermStatistics {
-  [key: string]: ILongTermStatisticsItem;
+  [key: string]: IDayStatistics;
 }

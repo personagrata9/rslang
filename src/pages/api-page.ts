@@ -27,7 +27,7 @@ abstract class ApiPage {
 
   protected getWordsItems = async (group: string, page: string): Promise<IWord[]> => {
     let words: IWord[] = [];
-
+    console.log('words-req');
     if (this.userId && localStorage.getItem('isTextbook')) {
       if (group === '6') {
         words = await this.api.getDifficultUserWords(this.userId);

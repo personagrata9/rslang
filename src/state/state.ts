@@ -4,7 +4,7 @@ import {
   IGameStatistics,
   IGameStatisticsTotal,
   ILongTermStatistics,
-  ILongTermStatisticsItem,
+  IDayStatistics,
   IUserWordData,
   IUserWordNewData,
   StringObjectType,
@@ -115,7 +115,7 @@ class State {
 
     const stateDate = this.statistics.date;
     const todayDate = convertDate(new Date());
-    // console.log('dates', stateDate === todayDate);
+    console.log('dates', stateDate === todayDate);
 
     if (stateDate !== todayDate) {
       this.statistics.date = todayDate;
@@ -147,7 +147,7 @@ class State {
     this.initCurrentStatistics();
     this.initLongTermStatistics();
     this.setStatistics();
-    // console.log('init', this.statistics, this.longTermStatistics);
+    console.log('init', this.statistics, this.longTermStatistics);
   };
 
   setNewWords = (wordId: string): void => {
@@ -270,23 +270,23 @@ class State {
   };
 
   private updateLongTermStatistics = async (): Promise<void> => {
-    const currentItem: ILongTermStatisticsItem = {
-      newPerDay: this.statistics.totalNew.size,
-      correctPerDay:
+    const currentItem: IDayStatistics = {
+      new: this.statistics.totalNew.size,
+      correct:
         Object.values(this.statistics.audioChallenge.correct)
           .map(Number)
           .reduce((a, b) => a + b, 0) +
         Object.values(this.statistics.sprint.correct)
           .map(Number)
           .reduce((a, b) => a + b, 0),
-      wrongPerDay:
+      wrong:
         Object.values(this.statistics.audioChallenge.wrong)
           .map(Number)
           .reduce((a, b) => a + b, 0) +
         Object.values(this.statistics.sprint.wrong)
           .map(Number)
           .reduce((a, b) => a + b, 0),
-      learnedPerDay: this.statistics.totalLearned.size,
+      learned: this.statistics.totalLearned.size,
     };
 
     this.longTermStatistics[this.statistics.date] = currentItem;
@@ -298,7 +298,7 @@ class State {
         await this.updateLongTermStatistics();
       })
       .then(() => this.setStatistics());
-    // console.log('update', this.statistics, this.longTermStatistics);
+    console.log('update', this.statistics, this.longTermStatistics);
   };
 }
 
